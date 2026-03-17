@@ -5,6 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>PORTFOLIO.SYS — Cloud</title>
 
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#07070f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Portfolio">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="description" content="Personal Net Worth Dashboard — track crypto, gold, stocks and savings">
+<meta name="application-name" content="PORTFOLIO.SYS">
+
+<!-- Theme: apply saved theme before stylesheets paint to prevent flash -->
+<script>
+  (function() {
+    var t = localStorage.getItem('portfolio-theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  })();
+</script>
+
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -964,7 +983,7 @@
     }
   };
 
-  // Markdown renderer for AI content panel (mirrors gemini-ui.js renderMiniMarkdown)
+  // Markdown renderer for AI content panel
   function _renderAiMarkdown(text) {
     return text
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -977,7 +996,7 @@
       .replace(/\n/g, '<br>');
   }
 
-  // AI Insights function — calls real Gemini analyzePortfolio
+  // AI Insights — calls real Gemini analyzePortfolio
   window.generateAIInsights = async function() {
     const btn = document.getElementById('aiBtn');
     const content = document.getElementById('aiContent');
@@ -1001,5 +1020,16 @@
 </script>
 
 <script type="module" src="./js/import-parsers.js"></script>
+
+<!-- PWA Service Worker Registration -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('[PWA] Service worker registered, scope:', reg.scope))
+        .catch(err => console.warn('[PWA] Service worker registration failed:', err));
+    });
+  }
+</script>
 </body>
 </html>
