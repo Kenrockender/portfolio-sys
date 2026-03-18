@@ -407,56 +407,63 @@ setInterval(() => {
 // ── Pull-to-Refresh ───────────────────────────────────────────────
 (function initPullToRefresh() {
   let startY = 0;
+  let startX = 0;
   let pulling = false;
-  const THRESHOLD = 80;
+  let currentDy = 0;
+  const THRESHOLD = 70;
 
   const indicator = document.createElement('div');
   indicator.id = 'ptr-indicator';
-  indicator.innerHTML = '↓ Pull to refresh';
   indicator.style.cssText = `
     position: fixed; top: 0; left: 0; right: 0; z-index: 99998;
-    text-align: center; font-size: 11px; letter-spacing: .12em;
+    text-align: center; font-size: 10px; letter-spacing: .14em;
     font-family: 'JetBrains Mono', monospace; text-transform: uppercase;
-    color: var(--crypto); background: var(--bg2);
-    padding: 0; height: 0; overflow: hidden;
-    transition: height 0.2s ease, padding 0.2s ease;
-    border-bottom: 1px solid transparent;
+    color: var(--crypto); background: rgba(7,7,15,0.95);
+    border-bottom: 1px solid rgba(139,92,246,0.3);
+    height: 0; overflow: hidden; pointer-events: none;
+    transition: height 0.15s ease;
+    display: flex; align-items: center; justify-content: center;
   `;
   document.body.prepend(indicator);
 
   document.addEventListener('touchstart', e => {
-    if (window.scrollY === 0) {
+    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop <= 0) {
       startY = e.touches[0].clientY;
+      startX = e.touches[0].clientX;
       pulling = true;
+      currentDy = 0;
     }
   }, { passive: true });
 
   document.addEventListener('touchmove', e => {
     if (!pulling) return;
     const dy = e.touches[0].clientY - startY;
+    const dx = Math.abs(e.touches[0].clientX - startX);
+    // Ignore horizontal swipes
+    if (dx > 30) { pulling = false; return; }
     if (dy > 0) {
-      const pct = Math.min(dy / THRESHOLD, 1);
-      indicator.style.height = (pct * 40) + 'px';
-      indicator.style.padding = pct > 0.1 ? '0' : '0';
-      indicator.style.borderColor = pct >= 1 ? 'var(--crypto)' : 'transparent';
-      indicator.innerHTML = pct >= 1 ? '↑ Release to refresh' : '↓ Pull to refresh';
+      currentDy = dy;
+      const h = Math.min(dy * 0.5, 44);
+      indicator.style.height = h + 'px';
+      indicator.innerHTML = dy >= THRESHOLD ? '↑ Release to sync' : '↓ Pull to sync';
     }
   }, { passive: true });
 
-  document.addEventListener('touchend', e => {
+  document.addEventListener('touchend', () => {
     if (!pulling) return;
     pulling = false;
-    const dy = e.changedTouches[0].clientY - startY;
-    if (dy >= THRESHOLD && !S.isSyncing) {
-      indicator.innerHTML = '↻ Syncing…';
-      indicator.style.height = '40px';
+    if (currentDy >= THRESHOLD && !S.isSyncing) {
+      indicator.innerHTML = '↻ &nbsp; Syncing…';
+      indicator.style.height = '44px';
       syncAllPrices().finally(() => {
-        indicator.innerHTML = '✓ Done';
-        setTimeout(() => { indicator.style.height = '0'; }, 1000);
+        indicator.innerHTML = '✓ &nbsp; Synced';
+        setTimeout(() => { indicator.style.height = '0'; }, 1200);
       });
     } else {
       indicator.style.height = '0';
     }
+    currentDy = 0;
   }, { passive: true });
 })();
 
