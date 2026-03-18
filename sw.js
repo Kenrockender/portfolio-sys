@@ -83,7 +83,7 @@ self.addEventListener('activate', event => {
   );
 });
 
-// ── Fetch: cache-first for app shell, network-only for APIs ──────
+// ── Fetch: network-first for app shell, network-only for APIs ────
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
@@ -99,23 +99,20 @@ self.addEventListener('fetch', event => {
   // Skip chrome-extension and other non-http requests
   if (!url.protocol.startsWith('http')) return;
 
-  // Cache-first for everything else (app shell)
+  // Network-first for app shell — always try network, fallback to cache
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) return cached;
-
-      // Not in cache — fetch from network and cache for next time
-      return fetch(event.request).then(response => {
-        // Only cache successful same-origin responses
-        if (!response || response.status !== 200 || response.type === 'opaque') {
-          return response;
-        }
-
+    fetch(event.request).then(response => {
+      // Cache successful responses for offline fallback
+      if (response && response.status === 200 && response.type !== 'opaque') {
         const toCache = response.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(event.request, toCache));
-        return response;
-      }).catch(() => {
-        // Offline and not cached — for HTML pages return the cached index
+      }
+      return response;
+    }).catch(() => {
+      // Offline — serve from cache
+      return caches.match(event.request).then(cached => {
+        if (cached) return cached;
+        // For HTML pages, return cached index
         if (event.request.destination === 'document') {
           return caches.match('/index.html');
         }
