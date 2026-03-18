@@ -311,7 +311,6 @@
   <button class="tab-btn"        id="tabHistory"   onclick="setTab('history')"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> <span data-i18n="portfolio_history">History</span></button>
   <button class="tab-btn"        id="tabAnalytics" onclick="setTab('analytics')"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> <span data-i18n="advanced_analytics">Analytics</span></button>
   <button class="tab-btn"        id="tabRebalance" onclick="setTab('rebalance')"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> Rebalance</button>
-  <button class="tab-btn"        id="tabCashflow"  onclick="setTab('cashflow')"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg> Cashflow</button>
   <button class="tab-btn"        id="tabTxlog"     onclick="setTab('txlog')"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Log</button>
 </nav>
 
@@ -503,72 +502,7 @@
 
 <!-- ══ TAB: TRANSACTION LOG ══ -->
 <!-- ══ TAB: CASHFLOW ══ -->
-<div class="tab-panel" id="panelCashflow">
-  <div class="sec-head"><span>Cashflow</span><div class="line"></div></div>
 
-  <!-- Summary Cards Row -->
-  <div class="cf-summary-row" id="cfSummaryRow">
-    <div class="cf-summary-card cf-income">
-      <div class="cf-summary-label">Income This Month</div>
-      <div class="cf-summary-value" id="cfIncomeVal">Rp 0</div>
-    </div>
-    <div class="cf-summary-card cf-expense">
-      <div class="cf-summary-label">Expenses This Month</div>
-      <div class="cf-summary-value" id="cfExpenseVal">Rp 0</div>
-    </div>
-    <div class="cf-summary-card cf-net" id="cfNetCard">
-      <div class="cf-summary-label">Net This Month</div>
-      <div class="cf-summary-value" id="cfNetVal">Rp 0</div>
-    </div>
-  </div>
-
-  <!-- Month selector + Add button -->
-  <div class="cf-toolbar">
-    <div class="cf-month-nav">
-      <button class="cf-month-btn" onclick="cfPrevMonth()">&#8249;</button>
-      <span class="cf-month-label" id="cfMonthLabel">March 2026</span>
-      <button class="cf-month-btn" onclick="cfNextMonth()">&#8250;</button>
-    </div>
-    <button class="cf-add-btn" onclick="openCfModal()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Add
-    </button>
-  </div>
-
-  <!-- Budget bar -->
-  <div class="card" id="cfBudgetCard" style="margin-bottom:12px;padding:16px 18px;">
-    <div class="cf-budget-head">
-      <span class="cf-budget-title">Monthly Budget</span>
-      <button class="cf-budget-edit-btn" onclick="openCfBudgetModal()">Edit Budget</button>
-    </div>
-    <div class="cf-budget-bar-wrap">
-      <div class="cf-budget-bar-fill" id="cfBudgetFill" style="width:0%"></div>
-    </div>
-    <div class="cf-budget-labels">
-      <span id="cfBudgetSpent">Rp 0 spent</span>
-      <span id="cfBudgetLimit">of Rp 0 budget</span>
-    </div>
-  </div>
-
-  <!-- Category breakdown -->
-  <div class="card" style="margin-bottom:12px;padding:16px 18px;">
-    <div class="card-title" style="margin-bottom:12px;"><div class="class-dot"></div><div class="card-title-text">By Category</div></div>
-    <div id="cfCategoryList"></div>
-  </div>
-
-  <!-- Transactions list -->
-  <div class="card" style="margin-bottom:80px;padding:16px 18px;">
-    <div class="cf-tx-head">
-      <div class="card-title"><div class="class-dot"></div><div class="card-title-text">Transactions</div></div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <button class="cf-filter-btn active" id="cfFilterAll" onclick="cfSetFilter('all')">All</button>
-        <button class="cf-filter-btn" id="cfFilterIncome" onclick="cfSetFilter('income')">Income</button>
-        <button class="cf-filter-btn" id="cfFilterExpense" onclick="cfSetFilter('expense')">Expense</button>
-      </div>
-    </div>
-    <div id="cfTxList" style="margin-top:12px;"></div>
-  </div>
-</div><!-- /panelCashflow -->
 
 <div class="tab-panel" id="panelTxlog">
   <div class="sec-head"><span>📋 Transaction Log</span><div class="line"></div></div>
@@ -873,10 +807,6 @@
   <button class="mobile-nav-btn" id="mtabRebalance" onclick="setTab('rebalance')">
     <svg class="mobile-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
     <span class="mobile-nav-label">Rebalance</span>
-  </button>
-  <button class="mobile-nav-btn" id="mtabCashflow" onclick="setTab('cashflow')">
-    <svg class="mobile-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-    <span class="mobile-nav-label">Cashflow</span>
   </button>
   <button class="mobile-nav-btn" id="mtabTxlog" onclick="setTab('txlog')">
     <svg class="mobile-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
@@ -1281,39 +1211,7 @@
   </div>
 </div>
 
-<!-- ══ CASHFLOW BUDGET MODAL ══ -->
-<div class="confirm-overlay" id="cfBudgetOverlay" style="display:none;align-items:center;" onclick="if(event.target===this)closeCfBudgetModal()">
-  <div class="modal-box" style="max-width:380px;" onclick="event.stopPropagation()">
-    <div class="modal-head">
-      <div class="modal-title">Set Monthly Budget</div>
-      <button class="modal-close" onclick="closeCfBudgetModal()">✕</button>
-    </div>
-    <div class="modal-form" style="margin-top:12px;">
-      <p style="font-size:11px;color:var(--muted);margin-bottom:16px;">Set a monthly spending limit. You'll see a progress bar showing how much you've spent.</p>
-      <div class="form-group">
-        <label class="form-label">Monthly Budget (IDR)</label>
-        <input class="form-input" id="cfBudgetInput" type="number" min="0" placeholder="e.g. 10000000">
-      </div>
-    </div>
-    <div class="modal-footer" style="margin-top:16px;display:flex;gap:8px;">
-      <button class="btn-cancel" style="flex:1" onclick="closeCfBudgetModal()">Cancel</button>
-      <button class="btn-save" style="flex:2" onclick="saveCfBudget()">Save</button>
-    </div>
-  </div>
-</div>
 
-<!-- ══ CASHFLOW DELETE CONFIRM ══ -->
-<div class="confirm-overlay" id="cfDeleteOverlay" style="display:none;align-items:center;" onclick="if(event.target===this)closeCfDelete()">
-  <div class="confirm-box" onclick="event.stopPropagation()">
-    <div class="confirm-icon">🗑️</div>
-    <div class="confirm-title">Delete Transaction?</div>
-    <div class="confirm-msg">This action cannot be undone.</div>
-    <div class="confirm-btns">
-      <button class="btn-cancel" style="flex:1" onclick="closeCfDelete()">Cancel</button>
-      <button class="btn-confirm-del" id="cfDeleteConfirmBtn" onclick="confirmCfDelete()">Delete</button>
-    </div>
-  </div>
-</div>
 
 <script>
 window.addEventListener('load', function() {
