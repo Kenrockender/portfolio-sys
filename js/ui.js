@@ -141,12 +141,14 @@ export function setTab(tab) {
   ['home', 'holdings', 'history', 'analytics', 'txlog', 'rebalance'].forEach(id => {
     document.getElementById('panel' + id.charAt(0).toUpperCase() + id.slice(1))?.classList.toggle('active', id === tab);
     document.getElementById('tab'   + id.charAt(0).toUpperCase() + id.slice(1))?.classList.toggle('active', id === tab);
+    document.getElementById('mtab'  + id.charAt(0).toUpperCase() + id.slice(1))?.classList.toggle('active', id === tab);
   });
   if (tab === 'analytics') renderAnalytics();
   if (tab === 'history')   renderHistoryPanel();
   if (tab === 'txlog')     renderTxLog();
   if (tab === 'rebalance') renderRebalance();
   if (tab === 'home') window.dispatchEvent(new CustomEvent('portfolio:update'));
+  window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
 // ── Tax Mode Toggle ───────────────────────────────────────────────
