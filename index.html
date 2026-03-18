@@ -1052,7 +1052,7 @@ window.addEventListener('load', function() {
   var THRESHOLD = 65;
 
   var bar = document.createElement('div');
-  bar.style.cssText = 'position:fixed;top:0;left:0;right:0;height:0;z-index:99998;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;font-family:monospace;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;background:rgba(7,7,15,.97);color:#8b5cf6;border-bottom:2px solid rgba(139,92,246,.5);pointer-events:none;transition:none;padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);box-sizing:border-box;';
+  bar.style.cssText = 'position:fixed;top:0;left:0;right:0;height:0;z-index:99998;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;font-family:monospace;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:rgba(7,7,15,.97);color:#8b5cf6;border-bottom:2px solid rgba(139,92,246,.5);pointer-events:none;transition:none;padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);box-sizing:border-box;';
   document.body.appendChild(bar);
 
   document.addEventListener('touchstart', function(e) {
@@ -1068,13 +1068,12 @@ window.addEventListener('load', function() {
     if (!pulling) return;
     dy = e.touches[0].clientY - startY;
     if (dy <= 0) { pulling = false; bar.style.height = '0'; return; }
-    // safeTop: Dynamic Island / notch height
     var safeTop = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sat') || '0') || 0;
-    var minH = safeTop + 36;
-    var h = Math.min(safeTop + dy * 0.55, safeTop + 52);
+    var minH = Math.max(safeTop + 48, 56);
+    var h = Math.min(safeTop + dy * 0.55, safeTop + 64);
     if (h < minH) h = minH;
     bar.style.height = h + 'px';
-    bar.style.paddingBottom = '8px';
+    bar.style.paddingBottom = '10px';
     bar.textContent = dy >= THRESHOLD ? '↑  Release to sync' : '↓  Pull to sync';
   }, {passive: true});
 
@@ -1083,8 +1082,8 @@ window.addEventListener('load', function() {
     pulling = false;
     if (dy >= THRESHOLD && navigator.onLine) {
       var safeTop = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sat') || '0') || 0;
-      bar.style.height = (safeTop + 52) + 'px';
-      bar.style.paddingBottom = '8px';
+      bar.style.height = Math.max(safeTop + 64, 64) + 'px';
+      bar.style.paddingBottom = '10px';
       bar.textContent = '↻  Syncing…';
       if (typeof window.__syncAllPrices === 'function') {
         window.__syncAllPrices().finally(function() {
