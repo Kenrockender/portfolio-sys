@@ -9,7 +9,7 @@
  *   - On activate: delete old caches
  */
 
-const CACHE_NAME = 'portfolio-sys-v1';
+const CACHE_NAME = 'portfolio-sys-v2';
 
 // All app shell files to pre-cache on install
 const PRECACHE_URLS = [
