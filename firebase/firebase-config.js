@@ -71,13 +71,7 @@ function hideLoginOverlay() {
   if (!el) return;
   el.style.opacity = '0';
   el.style.transition = 'opacity 0.4s ease';
-  setTimeout(() => {
-    el.style.display = 'none';
-    // Show onboarding for new users
-    if (typeof window.showOnboardingIfNew === 'function') {
-      setTimeout(window.showOnboardingIfNew, 300);
-    }
-  }, 400);
+  setTimeout(() => { el.style.display = 'none'; }, 400);
 }
 
 function setLoginStatus(text, isErr = false) {
@@ -87,45 +81,35 @@ function setLoginStatus(text, isErr = false) {
   el.style.color = isErr ? 'var(--down)' : 'var(--muted)';
 }
 
-// ── Login State Helpers ───────────────────────────────────────────
-function loginShowState(state) {
-  ['Default', 'Loading', 'Error'].forEach(s => {
-    const el = document.getElementById('loginState' + s);
-    if (el) el.style.display = s.toLowerCase() === state ? '' : 'none';
-  });
-}
-
-window._loginShowDefault = function() { loginShowState('default'); };
-
 // ── Google Sign-In ────────────────────────────────────────────────
 window._googleSignIn = async function () {
-  loginShowState('loading');
+  const btn = document.getElementById('loginBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Menghubungkan…'; }
+  setLoginStatus('Membuka popup Google…');
 
   try {
     const provider = new firebase.GoogleAuthProvider();
+    // Paksa tampilkan pilihan akun tiap kali (berguna jika multi-akun)
     provider.setCustomParameters({ prompt: 'select_account' });
     await firebase.signInWithPopup(auth, provider);
-    // Success → hideLoginOverlay() is called by onAuthStateChanged
+    // onAuthStateChanged di bawah yang akan handle sisanya
   } catch (e) {
     console.error('[AUTH] Google sign-in error:', e);
-    let msg = 'Sign-in failed. Please try again.';
-    let hint = '';
-    if (e.code === 'auth/popup-closed-by-user')   { msg = 'You closed the sign-in window.'; hint = 'Tap "Try Again" to sign in.'; }
-    if (e.code === 'auth/popup-blocked')           { msg = 'Pop-up was blocked by your browser.'; hint = 'Allow pop-ups for this site, then try again.'; }
-    if (e.code === 'auth/unauthorized-domain')     { msg = 'This domain is not authorized.'; hint = 'Please contact the app owner.'; }
-    if (e.code === 'auth/network-request-failed')  { msg = 'No internet connection.'; hint = 'Check your Wi-Fi or mobile data and try again.'; }
-    if (e.code === 'auth/too-many-requests')       { msg = 'Too many attempts.'; hint = 'Please wait a moment, then try again.'; }
-    if (e.code === 'auth/cancelled-popup-request') { msg = 'Sign-in was cancelled.'; hint = 'Tap "Try Again" to sign in.'; }
-
-    const msgEl = document.getElementById('loginErrorMsg');
-    if (msgEl) msgEl.innerHTML = `<strong>${msg}</strong>${hint ? '<br><span style="font-weight:400;opacity:.8">' + hint + '</span>' : ''}`;
-    loginShowState('error');
+    let msg = 'Login gagal. Coba lagi.';
+    if (e.code === 'auth/popup-closed-by-user')   msg = 'Popup ditutup. Coba lagi.';
+    if (e.code === 'auth/popup-blocked')           msg = 'Popup diblokir browser. Izinkan popup lalu coba lagi.';
+    if (e.code === 'auth/unauthorized-domain')     msg = 'Domain belum diizinkan. Cek Langkah 4 tutorial.';
+    setLoginStatus(msg, true);
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Masuk dengan Google`;
+    }
   }
 };
 
 // ── Sign Out ──────────────────────────────────────────────────────
 window._signOut = async function () {
-  if (!confirm('Are you sure you want to sign out?')) return;
+  if (!confirm('Yakin mau logout?')) return;
   try {
     await firebase.signOut(auth);
     // Clear data agar tidak keliatan saat overlay muncul
@@ -219,9 +203,10 @@ export async function loadDataFromCloud() {
 
       window.dispatchEvent(new CustomEvent('portfolio:update'));
     } else {
-      // User baru — belum ada data, reset semua ke kosong
-      setDATA({ crypto: [], gold: [], stocks: [], savings: [], history: [], lastRates: null, txLog: [] });
-      setHistoryData([]);
+      // User baru — belum ada data di cloud, pakai default demo data dari state.js
+      // DATA sudah terisi default dari state.js, jadi cukup sync historyData saja
+      if (!DATA.history) DATA.history = [];
+      setHistoryData([...DATA.history]);
       window.dispatchEvent(new CustomEvent('portfolio:update'));
     }
   } catch (e) {
