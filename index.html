@@ -69,26 +69,132 @@
 <!-- ══ LOGIN OVERLAY ══
      Ditampilkan saat user belum login. Disembunyikan otomatis
      setelah Google Sign-In berhasil via firebase-config.js.     -->
-<div class="login-overlay" id="loginOverlay" style="align-items:center!important;justify-content:center!important;">
+<div class="login-overlay" id="loginOverlay">
   <div class="login-box">
+
+    <!-- Logo & Branding -->
     <div class="login-logo">⬡</div>
     <div class="login-title">PORTFOLIO.SYS</div>
     <div class="login-sub">Personal Net Worth Dashboard</div>
     <div class="login-divider"></div>
-    <p class="login-desc">Sign in with Google to save and access your portfolio from anywhere.</p>
-    <button class="login-google-btn" id="loginBtn" onclick="window._googleSignIn()">
-      <svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0">
-        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-      </svg>
-      Sign in with Google
-    </button>
-    <div class="login-status" id="loginStatus"></div>
+
+    <!-- Default state -->
+    <div class="login-state" id="loginStateDefault">
+      <p class="login-desc">Track your crypto, gold, stocks, and savings — all in one place.</p>
+      <button class="login-google-btn" id="loginBtn" onclick="window._googleSignIn()">
+        <svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        </svg>
+        Sign in with Google
+      </button>
+      <div class="login-features">
+        <div class="login-feature"><span>☁</span> Synced across devices</div>
+        <div class="login-feature"><span>🔒</span> Private — only you can see it</div>
+        <div class="login-feature"><span>⚡</span> Live prices auto-updated</div>
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    <div class="login-state login-state-loading" id="loginStateLoading" style="display:none">
+      <div class="login-spinner"></div>
+      <p class="login-loading-text">Opening Google sign-in…</p>
+      <p class="login-loading-sub">A popup window will appear. Please sign in there.</p>
+    </div>
+
+    <!-- Error state -->
+    <div class="login-state" id="loginStateError" style="display:none">
+      <div class="login-error-card">
+        <div class="login-error-icon">!</div>
+        <div class="login-error-msg" id="loginErrorMsg">Sign-in failed. Please try again.</div>
+      </div>
+      <button class="login-google-btn" onclick="window._googleSignIn()">
+        <svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        </svg>
+        Try Again
+      </button>
+      <button class="login-back-btn" onclick="window._loginShowDefault()">← Back</button>
+    </div>
+
+    <div class="login-status" id="loginStatus" style="display:none"></div>
     <p class="login-note">Your data is stored privately — no one else can see it.</p>
   </div>
 </div>
+
+<!-- ══ ONBOARDING OVERLAY ══ -->
+<div class="onboarding-overlay" id="onboardingOverlay" style="display:none;">
+  <div class="onboarding-box">
+    <!-- Step indicator -->
+    <div class="ob-steps">
+      <div class="ob-step active" id="obStep1"></div>
+      <div class="ob-step" id="obStep2"></div>
+      <div class="ob-step" id="obStep3"></div>
+    </div>
+
+    <!-- Step 1: Welcome -->
+    <div class="ob-slide" id="obSlide1">
+      <div class="ob-icon">⬡</div>
+      <div class="ob-title">Welcome to<br>PORTFOLIO.SYS</div>
+      <div class="ob-desc">Track all your investments in one place — crypto, gold, stocks, and savings.</div>
+      <div class="ob-features">
+        <div class="ob-feature"><span class="ob-feat-icon">📈</span><span>Live price sync</span></div>
+        <div class="ob-feature"><span class="ob-feat-icon">🔒</span><span>Private & secure</span></div>
+        <div class="ob-feature"><span class="ob-feat-icon">☁️</span><span>Synced to cloud</span></div>
+      </div>
+      <button class="ob-btn-primary" onclick="obNext()">Get Started →</button>
+    </div>
+
+    <!-- Step 2: What do you have? -->
+    <div class="ob-slide" id="obSlide2" style="display:none;">
+      <div class="ob-title">What do you invest in?</div>
+      <div class="ob-desc">Select all that apply. You can always add more later.</div>
+      <div class="ob-asset-grid">
+        <div class="ob-asset-card" id="obAssetCrypto" onclick="obToggleAsset('crypto')">
+          <span class="ob-asset-emoji">₿</span>
+          <span class="ob-asset-label">Crypto</span>
+          <span class="ob-asset-sub">BTC, ETH, SOL…</span>
+        </div>
+        <div class="ob-asset-card" id="obAssetGold" onclick="obToggleAsset('gold')">
+          <span class="ob-asset-emoji">🥇</span>
+          <span class="ob-asset-label">Gold</span>
+          <span class="ob-asset-sub">Antam, LM…</span>
+        </div>
+        <div class="ob-asset-card" id="obAssetStocks" onclick="obToggleAsset('stocks')">
+          <span class="ob-asset-emoji">📊</span>
+          <span class="ob-asset-label">Stocks</span>
+          <span class="ob-asset-sub">IDX, US…</span>
+        </div>
+        <div class="ob-asset-card" id="obAssetSavings" onclick="obToggleAsset('savings')">
+          <span class="ob-asset-emoji">🏦</span>
+          <span class="ob-asset-label">Savings</span>
+          <span class="ob-asset-sub">Bank, deposit…</span>
+        </div>
+      </div>
+      <button class="ob-btn-primary" onclick="obNext()">Continue →</button>
+      <button class="ob-btn-skip" onclick="obFinish()">Skip for now</button>
+    </div>
+
+    <!-- Step 3: Ready -->
+    <div class="ob-slide" id="obSlide3" style="display:none;">
+      <div class="ob-icon" style="font-size:40px;">✓</div>
+      <div class="ob-title">You're all set!</div>
+      <div class="ob-desc">Your portfolio is ready. Add your first asset by tapping <strong>+ Add</strong> in any section.</div>
+      <div class="ob-tips">
+        <div class="ob-tip">💡 Tap <strong>Sync</strong> to get live prices</div>
+        <div class="ob-tip">💡 Use <strong>Holdings</strong> to manage your assets</div>
+        <div class="ob-tip">💡 Check <strong>Analytics</strong> for insights</div>
+      </div>
+      <button class="ob-btn-primary" onclick="obFinish()">Open My Portfolio →</button>
+    </div>
+  </div>
+</div>
+
 <div class="ambient"></div>
 <div class="grid-bg"></div>
 <div class="shell">
@@ -1114,6 +1220,62 @@ window.addEventListener('load', function() {
   }
 
 });
+</script>
+
+<script>
+// ── Onboarding ────────────────────────────────────────────────────
+var _obStep = 1;
+var _obAssets = new Set();
+
+window.obToggleAsset = function(type) {
+  var card = document.getElementById('obAsset' + type.charAt(0).toUpperCase() + type.slice(1));
+  if (_obAssets.has(type)) {
+    _obAssets.delete(type);
+    if (card) card.classList.remove('selected');
+  } else {
+    _obAssets.add(type);
+    if (card) card.classList.add('selected');
+  }
+};
+
+window.obNext = function() {
+  var current = document.getElementById('obSlide' + _obStep);
+  if (current) current.style.display = 'none';
+  document.getElementById('obStep' + _obStep)?.classList.remove('active');
+  _obStep++;
+  var next = document.getElementById('obSlide' + _obStep);
+  if (next) next.style.display = 'flex';
+  document.getElementById('obStep' + _obStep)?.classList.add('active');
+};
+
+window.obFinish = function() {
+  var overlay = document.getElementById('onboardingOverlay');
+  if (overlay) {
+    overlay.style.opacity = '0';
+    overlay.style.transition = 'opacity 0.4s';
+    setTimeout(function() { overlay.style.display = 'none'; }, 400);
+  }
+  localStorage.setItem('portfolio-onboarded', '1');
+  // If user selected asset types, open the first relevant modal
+  if (_obAssets.has('crypto') && typeof window.openModal === 'function') {
+    setTimeout(function() { window.openModal('crypto'); }, 600);
+  }
+};
+
+window.showOnboardingIfNew = function() {
+  var done = localStorage.getItem('portfolio-onboarded');
+  if (!done) {
+    var overlay = document.getElementById('onboardingOverlay');
+    if (overlay) {
+      overlay.style.display = 'flex';
+      overlay.style.opacity = '0';
+      setTimeout(function() {
+        overlay.style.transition = 'opacity 0.4s';
+        overlay.style.opacity = '1';
+      }, 100);
+    }
+  }
+};
 </script>
 </body>
 </html>
