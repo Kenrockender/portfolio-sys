@@ -404,4 +404,60 @@ setInterval(() => {
   }
 }, 5 * 60 * 1000);
 
+// ── Pull-to-Refresh ───────────────────────────────────────────────
+(function initPullToRefresh() {
+  let startY = 0;
+  let pulling = false;
+  const THRESHOLD = 80;
+
+  const indicator = document.createElement('div');
+  indicator.id = 'ptr-indicator';
+  indicator.innerHTML = '↓ Pull to refresh';
+  indicator.style.cssText = `
+    position: fixed; top: 0; left: 0; right: 0; z-index: 99998;
+    text-align: center; font-size: 11px; letter-spacing: .12em;
+    font-family: 'JetBrains Mono', monospace; text-transform: uppercase;
+    color: var(--crypto); background: var(--bg2);
+    padding: 0; height: 0; overflow: hidden;
+    transition: height 0.2s ease, padding 0.2s ease;
+    border-bottom: 1px solid transparent;
+  `;
+  document.body.prepend(indicator);
+
+  document.addEventListener('touchstart', e => {
+    if (window.scrollY === 0) {
+      startY = e.touches[0].clientY;
+      pulling = true;
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchmove', e => {
+    if (!pulling) return;
+    const dy = e.touches[0].clientY - startY;
+    if (dy > 0) {
+      const pct = Math.min(dy / THRESHOLD, 1);
+      indicator.style.height = (pct * 40) + 'px';
+      indicator.style.padding = pct > 0.1 ? '0' : '0';
+      indicator.style.borderColor = pct >= 1 ? 'var(--crypto)' : 'transparent';
+      indicator.innerHTML = pct >= 1 ? '↑ Release to refresh' : '↓ Pull to refresh';
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchend', e => {
+    if (!pulling) return;
+    pulling = false;
+    const dy = e.changedTouches[0].clientY - startY;
+    if (dy >= THRESHOLD && !S.isSyncing) {
+      indicator.innerHTML = '↻ Syncing…';
+      indicator.style.height = '40px';
+      syncAllPrices().finally(() => {
+        indicator.innerHTML = '✓ Done';
+        setTimeout(() => { indicator.style.height = '0'; }, 1000);
+      });
+    } else {
+      indicator.style.height = '0';
+    }
+  }, { passive: true });
+})();
+
 console.log('[APP] Application initialized');
