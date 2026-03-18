@@ -694,7 +694,6 @@ html[data-theme="light"] .imp-table tr:hover { background: var(--bg3); }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 html { overflow-x: hidden; }  /* di html bukan body agar position:fixed tetap bekerja */
-html, body { overscroll-behavior-y: none; } /* disable browser native pull-to-refresh */
 body {
   font-family: 'JetBrains Mono', monospace;
   background: var(--bg);
