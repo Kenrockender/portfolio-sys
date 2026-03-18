@@ -272,10 +272,17 @@ function _acSyntheticPts(item, type, m) {
 // ── Global Render All Function ────────────────────────────────────
 window._renderAll = function() {
   const T = totals();
+  window.__portfolioTotals = T;
   renderAll(T);
   renderCharts(T);
   renderBenchChart(T);
   renderHistoryLineChart(T);
+  // Update app badge (Android/desktop only)
+  try {
+    if ('setAppBadge' in navigator && T.total > 0) {
+      navigator.setAppBadge(Math.round(T.total / 1_000_000));
+    }
+  } catch (_) {}
 };
 
 // ── portfolio:update event — used by api.js and firebase-config.js ─

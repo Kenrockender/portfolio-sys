@@ -19,7 +19,6 @@ export async function fetchCG() {
 }
 
 // ── [Fix 1] Fetch Altcoin Prices (SOL, ADA, BNB, dll) ────────────
-// Scan DATA.crypto untuk koin selain BTC/ETH/XRP, fetch sekali batch.
 export async function fetchAltcoinPrices() {
   const MAJOR = new Set(['BTC', 'ETH', 'XRP']);
   const coins = [...new Set(
@@ -30,22 +29,30 @@ export async function fetchAltcoinPrices() {
   if (coins.length === 0) return;
 
   const ids = coins.map(c => CG_IDS[c]).join(',');
+  const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=idr`;
+
+  // Try direct first, then proxy fallback
+  let d = null;
   try {
-    const r = await fetch(
-      `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=idr`,
-      { signal: AbortSignal.timeout(8000) }
-    );
-    if (!r.ok) throw new Error(`CG altcoin ${r.status}`);
-    const d = await r.json();
-    let updated = 0;
-    for (const coin of coins) {
-      const priceIdr = d[CG_IDS[coin]]?.idr;
-      if (priceIdr > 0) { setAltcoinPrice(coin, priceIdr); updated++; }
-    }
-    console.log(`[API] Altcoin prices: ${updated}/${coins.length} updated`);
-  } catch (e) {
-    console.warn('[API] fetchAltcoinPrices failed (non-fatal):', e.message);
+    const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    if (r.ok) d = await r.json();
+  } catch (_) {}
+
+  if (!d) {
+    try {
+      const r = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`, { signal: AbortSignal.timeout(9000) });
+      if (r.ok) d = await r.json();
+    } catch (_) {}
   }
+
+  if (!d) { console.warn('[API] fetchAltcoinPrices: all sources failed'); return; }
+
+  let updated = 0;
+  for (const coin of coins) {
+    const priceIdr = d[CG_IDS[coin]]?.idr;
+    if (priceIdr > 0) { setAltcoinPrice(coin, priceIdr); updated++; }
+  }
+  console.log(`[API] Altcoin prices: ${updated}/${coins.length} updated`);
 }
 
 // ── CORS Proxy Fetch (allorigins → corsproxy.io fallback) ────────
@@ -143,21 +150,38 @@ export async function syncAllPrices() {
       setStatus('fx', 'stale');
     }
 
-    // 3. Gold via Yahoo
-    const goldUsd = await fetchYahoo('GC=F').catch(() => null);
-    const goldIsValid = goldUsd && goldUsd > 3000; // sanity check — below $3000 = stale/wrong data
-    if (goldIsValid) {
-      const ozToGram = 31.1035;
+    // 3. Gold — metals.live primary, Yahoo fallback
+    let goldUsd = null;
+    try {
+      const mRes = await fetch('https://api.metals.live/v1/spot/gold', { signal: AbortSignal.timeout(7000) });
+      if (mRes.ok) {
+        const mData = await mRes.json();
+        // metals.live returns [{ metal: 'gold', price: 3050.xx }]
+        const entry = Array.isArray(mData) ? mData[0] : mData;
+        const candidate = entry?.price || entry?.gold || null;
+        if (candidate && candidate > 3000) goldUsd = candidate;
+      }
+    } catch (_) {}
+
+    // Fallback to Yahoo if metals.live failed
+    if (!goldUsd) {
+      try {
+        const yGold = await fetchYahoo('GC=F');
+        if (yGold && yGold > 3000) goldUsd = yGold;
+      } catch (_) {}
+    }
+
+    const ozToGram = 31.1035;
+    if (goldUsd) {
       setPrice('goldGramIdr', Math.round((goldUsd / ozToGram) * S.usdIdr));
       setStatus('gold', 'live');
+      console.log(`[API] Gold: $${goldUsd}/oz → Rp ${S.goldGramIdr.toLocaleString()}/g`);
     } else {
-      const fallbackUsd = 5000;
-      const ozToGram = 31.1035;
-      if (!S.goldGramIdr) {
-        setPrice('goldGramIdr', Math.round((fallbackUsd / ozToGram) * S.usdIdr));
+      if (!S.goldGramIdr || S.goldGramIdr < 1_000_000) {
+        setPrice('goldGramIdr', Math.round((5000 / ozToGram) * S.usdIdr));
       }
       setStatus('gold', 'stale');
-      console.warn('[API] Gold price fetch failed or suspicious value:', goldUsd, '— using stale/fallback value');
+      console.warn('[API] Gold price unavailable — using last known value');
     }
 
     // 4. Stocks — silent=true: syncAllPrices dispatches once after all prices ready
@@ -188,6 +212,14 @@ export async function syncAllPrices() {
   _syncUiEnd();
 
   window.dispatchEvent(new CustomEvent('portfolio:update'));
+
+  // Update app badge with total net worth (in Jt)
+  try {
+    if ('setAppBadge' in navigator) {
+      const total = Object.values(window.__portfolioTotals || {}).reduce((s, v) => s + (v || 0), 0);
+      if (total > 0) navigator.setAppBadge(Math.round(total / 1_000_000));
+    }
+  } catch (_) {}
 
   await saveDailySnapshot();
 }
