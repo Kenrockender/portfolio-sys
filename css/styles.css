@@ -693,7 +693,8 @@ html[data-theme="light"] .imp-table tr:hover { background: var(--bg3); }
 /* ── RESET ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
-html { overflow-x: hidden; }  /* di html bukan body agar position:fixed tetap bekerja */
+html { overflow-x: hidden; }
+body { overscroll-behavior-y: contain; } /* disable Android native pull-to-refresh */
 body {
   font-family: 'JetBrains Mono', monospace;
   background: var(--bg);
