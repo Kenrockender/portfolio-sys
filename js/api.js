@@ -145,19 +145,19 @@ export async function syncAllPrices() {
 
     // 3. Gold via Yahoo
     const goldUsd = await fetchYahoo('GC=F').catch(() => null);
-    if (goldUsd) {
+    const goldIsValid = goldUsd && goldUsd > 3000; // sanity check — below $3000 = stale/wrong data
+    if (goldIsValid) {
       const ozToGram = 31.1035;
       setPrice('goldGramIdr', Math.round((goldUsd / ozToGram) * S.usdIdr));
       setStatus('gold', 'live');
     } else {
-      // Fallback: use last saved rate if available, otherwise use recent estimate
       const fallbackUsd = 5000;
       const ozToGram = 31.1035;
       if (!S.goldGramIdr) {
         setPrice('goldGramIdr', Math.round((fallbackUsd / ozToGram) * S.usdIdr));
       }
       setStatus('gold', 'stale');
-      console.warn('[API] Gold price fetch failed — using stale/fallback value');
+      console.warn('[API] Gold price fetch failed or suspicious value:', goldUsd, '— using stale/fallback value');
     }
 
     // 4. Stocks — silent=true: syncAllPrices dispatches once after all prices ready
