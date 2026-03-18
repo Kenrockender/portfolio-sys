@@ -33,6 +33,22 @@
       "purpose": "maskable"
     }
   ],
+  "shortcuts": [
+    {
+      "name": "Holdings",
+      "short_name": "Holdings",
+      "description": "View all holdings",
+      "url": "/?tab=holdings",
+      "icons": [{ "src": "icons/icon192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Analytics",
+      "short_name": "Analytics",
+      "description": "View portfolio analytics",
+      "url": "/?tab=analytics",
+      "icons": [{ "src": "icons/icon192.png", "sizes": "192x192" }]
+    }
+  ],
   "categories": ["finance", "productivity"],
   "screenshots": []
 }

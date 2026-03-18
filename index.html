@@ -63,6 +63,9 @@
 </head>
 <body>
 
+<!-- ── OFFLINE BANNER ── -->
+<div class="offline-banner" id="offlineBanner">⚠ No internet connection — prices may be outdated</div>
+
 <!-- ══ LOGIN OVERLAY ══
      Ditampilkan saat user belum login. Disembunyikan otomatis
      setelah Google Sign-In berhasil via firebase-config.js.     -->
@@ -1034,55 +1037,72 @@
 
 <script>
 window.addEventListener('load', function() {
-  var startY = 0, startX = 0, pulling = false, dist = 0;
-  var THRESHOLD = 60;
+
+  // ── Offline Indicator ──────────────────────────────────────────
+  var banner = document.getElementById('offlineBanner');
+  function updateOnlineStatus() {
+    if (banner) banner.classList.toggle('show', !navigator.onLine);
+  }
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+  updateOnlineStatus();
+
+  // ── Pull-to-Refresh ────────────────────────────────────────────
+  var startY = 0, dy = 0, pulling = false;
+  var THRESHOLD = 65;
 
   var bar = document.createElement('div');
-  bar.style.cssText = 'position:fixed;top:0;left:0;right:0;height:0;z-index:99999;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;background:rgba(7,7,15,.97);color:#8b5cf6;border-bottom:1px solid rgba(139,92,246,.3);pointer-events:none;';
+  bar.style.cssText = 'position:fixed;top:0;left:0;right:0;height:0;z-index:99998;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;background:rgba(7,7,15,.97);color:#8b5cf6;border-bottom:1px solid rgba(139,92,246,.3);pointer-events:none;transition:none;';
   document.body.appendChild(bar);
 
-  function getScrollTop() {
-    return document.body.scrollTop || document.documentElement.scrollTop || window.pageYOffset || 0;
-  }
-
-  document.body.addEventListener('touchstart', function(e) {
-    if (getScrollTop() <= 1) {
+  document.addEventListener('touchstart', function(e) {
+    var sy = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
+    if (sy <= 0 && e.touches.length === 1) {
       startY = e.touches[0].clientY;
-      startX = e.touches[0].clientX;
       pulling = true;
-      dist = 0;
+      dy = 0;
     }
   }, {passive: true});
 
-  document.body.addEventListener('touchmove', function(e) {
+  document.addEventListener('touchmove', function(e) {
     if (!pulling) return;
-    dist = e.touches[0].clientY - startY;
-    var dx = Math.abs(e.touches[0].clientX - startX);
-    if (dx > 20 || dist < 0) { pulling = false; bar.style.height = '0'; return; }
-    var h = Math.min(dist * 0.6, 44);
-    bar.style.height = h + 'px';
-    bar.textContent = dist > THRESHOLD ? '↑  Release to sync' : '↓  Pull to sync';
+    dy = e.touches[0].clientY - startY;
+    if (dy <= 0) { pulling = false; bar.style.height = '0'; return; }
+    bar.style.height = Math.min(dy * 0.55, 44) + 'px';
+    bar.textContent = dy >= THRESHOLD ? '↑  Release to sync' : '↓  Pull to sync';
   }, {passive: true});
 
-  document.body.addEventListener('touchend', function() {
+  document.addEventListener('touchend', function() {
     if (!pulling) return;
     pulling = false;
-    if (dist >= THRESHOLD) {
+    if (dy >= THRESHOLD && navigator.onLine) {
       bar.style.height = '44px';
       bar.textContent = '↻  Syncing…';
       if (typeof window.__syncAllPrices === 'function') {
         window.__syncAllPrices().finally(function() {
           bar.textContent = '✓  Done';
-          setTimeout(function(){ bar.style.height = '0'; }, 1200);
+          setTimeout(function() { bar.style.height = '0'; }, 1200);
         });
-      } else {
-        setTimeout(function(){ location.reload(); }, 400);
       }
+    } else if (dy >= THRESHOLD && !navigator.onLine) {
+      bar.textContent = '⚠  No connection';
+      setTimeout(function() { bar.style.height = '0'; }, 1500);
     } else {
       bar.style.height = '0';
     }
-    dist = 0;
+    dy = 0;
   }, {passive: true});
+
+  // ── Shortcut tab handler (?tab=holdings etc) ───────────────────
+  var tabParam = new URLSearchParams(window.location.search).get('tab');
+  if (tabParam && typeof window.setTab === 'function') {
+    window.setTab(tabParam);
+  } else if (tabParam) {
+    window.addEventListener('portfolio:ready', function() {
+      if (typeof window.setTab === 'function') window.setTab(tabParam);
+    }, { once: true });
+  }
+
 });
 </script>
 </body>
