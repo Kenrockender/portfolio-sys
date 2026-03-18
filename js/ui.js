@@ -148,7 +148,6 @@ export function setTab(tab) {
   if (tab === 'txlog')     renderTxLog();
   if (tab === 'rebalance') renderRebalance();
   if (tab === 'home') window.dispatchEvent(new CustomEvent('portfolio:update'));
-  window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
 // ── Tax Mode Toggle ───────────────────────────────────────────────
