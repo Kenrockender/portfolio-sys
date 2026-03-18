@@ -333,7 +333,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   applyTheme();
 
   // Apply language
-  const savedLang = localStorage.getItem('portfolio-lang') || 'id';
+  const savedLang = localStorage.getItem('portfolio-lang') || 'en';
   S.lang = savedLang;
 
   // Load goal target sekali di awal — bukan setiap render
