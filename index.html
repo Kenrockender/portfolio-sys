@@ -75,7 +75,7 @@
     <div class="login-title">PORTFOLIO.SYS</div>
     <div class="login-sub">Personal Net Worth Dashboard</div>
     <div class="login-divider"></div>
-    <p class="login-desc">Login dengan akun Google untuk menyimpan dan mengakses portfolio kamu dari mana saja.</p>
+    <p class="login-desc">Sign in with Google to save and access your portfolio from anywhere.</p>
     <button class="login-google-btn" id="loginBtn" onclick="window._googleSignIn()">
       <svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0">
         <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -83,10 +83,10 @@
         <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
         <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
       </svg>
-      Masuk dengan Google
+      Sign in with Google
     </button>
     <div class="login-status" id="loginStatus"></div>
-    <p class="login-note">Data kamu tersimpan secara pribadi — tidak ada orang lain yang bisa melihatnya.</p>
+    <p class="login-note">Your data is stored privately — no one else can see it.</p>
   </div>
 </div>
 <div class="ambient"></div>
@@ -119,14 +119,14 @@
       <button class="lang-btn"        id="btnLangID" onclick="setLang('id')">ID</button>
       <button class="lang-btn active" id="btnLangEN" onclick="setLang('en')">EN</button>
     </div>
-    <button class="theme-toggle" id="themeToggle" onclick="openThemePicker()" title="Pilih tema">🌙</button>
+    <button class="theme-toggle" id="themeToggle" onclick="openThemePicker()" title="Choose theme">🌙</button>
     <button class="sync-btn" onclick="openImport()" title="Import dari PDF / teks / gambar" style="border-color:rgba(139,92,246,.5);color:var(--crypto);">
       <span>📥</span> IMPORT
     </button>
     <button class="sync-btn" id="syncBtn" onclick="syncAllPrices()">
       <span class="sync-icon" id="syncIcon">↻</span> SYNC
     </button>
-    <button class="sync-btn" id="manualPriceBtn" onclick="openManualPrice()" title="Input harga manual" style="border-color:rgba(251,191,36,.5);color:#fbbf24;">
+    <button class="sync-btn" id="manualPriceBtn" onclick="openManualPrice()" title="Manual price input" style="border-color:rgba(251,191,36,.5);color:#fbbf24;">
       <span>✎</span> HARGA
     </button>
     <div class="last-sync" id="lastSync" data-i18n="not_synced">not synced</div>
@@ -189,13 +189,13 @@
 
 <!-- ── PRICE BAR ── -->
 <div class="price-bar" id="priceBar">
-  <div class="pi pi-clickable" onclick="pbarInlineEdit('btc')" title="Klik untuk edit manual"><div class="pdot err" id="d-btc"></div><span class="lbl">BTC</span><span class="val err" id="p-btc">–</span></div>
-  <div class="pi pi-clickable" onclick="pbarInlineEdit('eth')" title="Klik untuk edit manual"><div class="pdot err" id="d-eth"></div><span class="lbl">ETH</span><span class="val err" id="p-eth">–</span></div>
-  <div class="pi pi-clickable" onclick="pbarInlineEdit('xrp')" title="Klik untuk edit manual"><div class="pdot err" id="d-xrp"></div><span class="lbl">XRP</span><span class="val err" id="p-xrp">–</span></div>
-  <div class="pi pi-clickable" onclick="pbarInlineEdit('xau')" title="Klik untuk edit manual"><div class="pdot err" id="d-xau"></div><span class="lbl">XAU/g</span><span class="val err" id="p-xau">–</span></div>
+  <div class="pi pi-clickable" onclick="pbarInlineEdit('btc')" title="Click to edit manually"><div class="pdot err" id="d-btc"></div><span class="lbl">BTC</span><span class="val err" id="p-btc">–</span></div>
+  <div class="pi pi-clickable" onclick="pbarInlineEdit('eth')" title="Click to edit manually"><div class="pdot err" id="d-eth"></div><span class="lbl">ETH</span><span class="val err" id="p-eth">–</span></div>
+  <div class="pi pi-clickable" onclick="pbarInlineEdit('xrp')" title="Click to edit manually"><div class="pdot err" id="d-xrp"></div><span class="lbl">XRP</span><span class="val err" id="p-xrp">–</span></div>
+  <div class="pi pi-clickable" onclick="pbarInlineEdit('xau')" title="Click to edit manually"><div class="pdot err" id="d-xau"></div><span class="lbl">XAU/g</span><span class="val err" id="p-xau">–</span></div>
   <div id="pbar-stk" style="display:contents;"></div>
   <div class="price-bar-spacer"></div>
-  <div class="pi pi-clickable" onclick="pbarInlineEdit('fx')" title="Klik untuk edit manual"><div class="pdot err" id="d-fx"></div><span class="lbl">USD/IDR</span><span class="val err" id="p-fx">–</span></div>
+  <div class="pi pi-clickable" onclick="pbarInlineEdit('fx')" title="Click to edit manually"><div class="pdot err" id="d-fx"></div><span class="lbl">USD/IDR</span><span class="val err" id="p-fx">–</span></div>
 </div>
 
 <!-- ── TAB NAV ── -->
@@ -317,8 +317,8 @@
   </div>
   <div id="snapshotList" style="font-size:10px;color:var(--muted);padding-top:4px">
     <p style="text-align:center;padding:20px;line-height:1.8" data-i18n="snapshot_hint">
-      Sync harga setiap hari untuk membangun data historis.<br>
-      Setiap klik Sync → snapshot otomatis tersimpan.
+      Sync prices daily to build historical data.<br>
+      Every Sync click → snapshot auto-saved.
     </p>
   </div>
 </div>
@@ -415,7 +415,7 @@
   <div class="search-wrap">
     <span class="search-icon">⌕</span>
     <input class="search-input" id="searchInput" type="text"
-      placeholder="Cari aset / ticker…"
+      placeholder="Search asset / ticker…"
       oninput="handleSearch(this.value)" autocomplete="off">
   </div>
   <select class="filter-select" id="platformFilter" onchange="handleFilter(this.value)">
@@ -709,7 +709,7 @@
 <div class="imp-overlay" id="impOverlay">
   <div class="imp-box">
     <div class="imp-head">
-      <div class="imp-title">📥 Import Portofolio</div>
+      <div class="imp-title">📥 Import Portfolio</div>
       <button class="imp-close" onclick="closeImport()">✕</button>
     </div>
     <div class="imp-steps">
@@ -730,9 +730,9 @@
     </div>
     <div class="imp-body" id="impBody"></div>
     <div class="imp-footer">
-      <div class="imp-footer-left" id="impFooterInfo">Pilih sumber dan tempelkan data</div>
+      <div class="imp-footer-left" id="impFooterInfo">Select source and paste data</div>
       <div class="imp-footer-btns">
-        <button class="btn-cancel" onclick="impBack()" id="impBackBtn" style="display:none">← Kembali</button>
+        <button class="btn-cancel" onclick="impBack()" id="impBackBtn" style="display:none">← Back</button>
         <button class="btn-cancel" onclick="closeImport()">Batal</button>
         <button class="btn-primary" id="impNextBtn" onclick="impNext()" style="max-width:180px">Parse →</button>
       </div>
@@ -808,15 +808,15 @@
 <div class="confirm-overlay" id="confirmOverlay">
   <div class="confirm-box">
     <div class="confirm-icon">🗑️</div>
-    <div class="confirm-title" data-i18n="delete_asset">Hapus Aset?</div>
+    <div class="confirm-title" data-i18n="delete_asset">Delete Asset?</div>
     <div class="confirm-msg">
       <span data-i18n="delete_msg">Anda akan menghapus:</span><br>
       <span class="confirm-asset-name" id="confirmAssetName">–</span><br>
       <span data-i18n="irreversible">Tindakan ini tidak dapat dibatalkan.</span>
     </div>
     <div class="confirm-actions">
-      <button class="btn-cancel" style="flex:1" onclick="cancelDel()" data-i18n="cancel_btn">Batal</button>
-      <button class="btn-confirm-del" id="confirmDelBtn" onclick="confirmDel()" data-i18n="delete_btn">Hapus</button>
+      <button class="btn-cancel" style="flex:1" onclick="cancelDel()" data-i18n="cancel_btn">Cancel</button>
+      <button class="btn-confirm-del" id="confirmDelBtn" onclick="confirmDel()" data-i18n="delete_btn">Delete</button>
     </div>
   </div>
 </div>
@@ -833,7 +833,7 @@
     </div>
     <div class="theme-picker-grid" id="themePickerGrid"></div>
     <div style="font-size:9px;color:var(--muted);text-align:center;letter-spacing:.08em;">
-      Klik tema untuk langsung diterapkan
+      Click a theme to apply instantly
     </div>
   </div>
 </div>
@@ -846,7 +846,7 @@
       <button onclick="closeManualPrice()" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px;">✕</button>
     </div>
     <div style="font-size:9px;color:var(--muted);letter-spacing:.1em;margin-bottom:14px;">
-      Isi harga yang ingin diubah. Kosongkan field jika tidak ingin diubah.
+      Fill in prices to override. Leave blank to keep unchanged.
     </div>
 
     <!-- Major Crypto -->
@@ -880,12 +880,12 @@
     </div>
 
     <!-- Stocks -->
-    <div class="mp-section-label" style="margin-top:12px;">SAHAM <span style="font-weight:400;opacity:.6">(opsional)</span></div>
+    <div class="mp-section-label" style="margin-top:12px;">STOCKS <span style="font-weight:400;opacity:.6">(optional)</span></div>
     <div id="mp-stocks-grid" class="mp-grid"></div>
 
     <!-- Altcoins -->
     <div id="mp-altcoins-section" style="display:none;">
-      <div class="mp-section-label" style="margin-top:12px;">ALTCOIN <span style="font-weight:400;opacity:.6">(opsional)</span></div>
+      <div class="mp-section-label" style="margin-top:12px;">ALTCOIN <span style="font-weight:400;opacity:.6">(optional)</span></div>
       <div id="mp-altcoins-grid" class="mp-grid"></div>
     </div>
 
