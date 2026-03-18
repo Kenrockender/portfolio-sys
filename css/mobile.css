@@ -358,7 +358,7 @@
 
   .login-overlay {
     padding: 16px;
-    align-items: flex-end;
+    align-items: center;
   }
   .login-box {
     max-width: 100%;
