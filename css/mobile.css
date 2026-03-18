@@ -225,16 +225,11 @@
   right: 0;
   width: 100%;
   box-sizing: border-box;
-  background: rgba(7, 7, 15, 0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(7, 7, 15, 0.97);
   border-top: 1px solid rgba(255,255,255,0.06);
   z-index: 9990;
   padding: 8px 0;
   padding-bottom: max(10px, env(safe-area-inset-bottom));
-  -webkit-transform: translateZ(0);
-  will-change: transform; /* prevent Android from recalculating on viewport resize */
-  transform: translateZ(0);
 }
 
 /* Sembunyikan di layar besar */
