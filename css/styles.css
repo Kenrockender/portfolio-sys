@@ -694,6 +694,7 @@ html[data-theme="light"] .imp-table tr:hover { background: var(--bg3); }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 html { overflow-x: hidden; }
+:root { --sat: env(safe-area-inset-top); }
 
 /* ── Offline Indicator ───────────────────────────────────────────── */
 .offline-banner {
