@@ -138,7 +138,7 @@ function _updateThemePickerActive() {
 
 // ── Tab Navigation ────────────────────────────────────────────────
 export function setTab(tab) {
-  ['home', 'holdings', 'history', 'analytics', 'txlog', 'rebalance', 'cashflow'].forEach(id => {
+  ['home', 'holdings', 'history', 'analytics', 'txlog', 'rebalance'].forEach(id => {
     document.getElementById('panel' + id.charAt(0).toUpperCase() + id.slice(1))?.classList.toggle('active', id === tab);
     document.getElementById('tab'   + id.charAt(0).toUpperCase() + id.slice(1))?.classList.toggle('active', id === tab);
     document.getElementById('mtab'  + id.charAt(0).toUpperCase() + id.slice(1))?.classList.toggle('active', id === tab);
@@ -147,7 +147,6 @@ export function setTab(tab) {
   if (tab === 'history')   renderHistoryPanel();
   if (tab === 'txlog')     renderTxLog();
   if (tab === 'rebalance') renderRebalance();
-  if (tab === 'cashflow')  window.renderCashflow && window.renderCashflow();
   if (tab === 'home') window.dispatchEvent(new CustomEvent('portfolio:update'));
 }
 
