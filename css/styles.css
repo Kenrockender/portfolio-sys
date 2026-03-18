@@ -1344,6 +1344,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity:1; }
   background: rgba(7, 7, 15, 0.97);  /* lebih opaque, tidak perlu blur */
   border-bottom: 1px solid rgba(255,255,255,0.08);
   margin-bottom: 10px;
+  padding-top: max(18px, calc(env(safe-area-inset-top) + 6px));
 }
 
 /* ── CRYPTO LAYOUT 35% : 65% ── */

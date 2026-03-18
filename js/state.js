@@ -17,7 +17,7 @@ export const S = {
   currency: 'IDR',
   historyRange: '6M',
   theme: 'dark',
-  lang: 'id',
+  lang: 'en',
   searchQuery: '',
   filterPlatform: '',
   benchTab: 'total',
