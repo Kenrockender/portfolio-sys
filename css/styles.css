@@ -712,6 +712,7 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
+  min-height: 100dvh; /* Android Chrome: prevents navbar shift on URL bar show/hide */
   font-size: 14px;
   transition: background 0.35s, color 0.35s;
 }

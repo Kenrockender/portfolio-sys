@@ -233,6 +233,8 @@
   padding: 8px 0;
   padding-bottom: max(10px, env(safe-area-inset-bottom));
   -webkit-transform: translateZ(0);
+  will-change: transform; /* prevent Android from recalculating on viewport resize */
+  transform: translateZ(0);
 }
 
 /* Sembunyikan di layar besar */
