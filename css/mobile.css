@@ -256,8 +256,7 @@
   -webkit-tap-highlight-color: transparent;
   position: relative;
 }
-.mobile-nav-btn.active { color: var(--crypto); }
-.mobile-nav-btn.active::before {
+.mobile-nav-btn::before {
   content: '';
   position: absolute;
   top: 0;
@@ -265,8 +264,13 @@
   transform: translateX(-50%);
   width: 24px;
   height: 2px;
-  background: var(--crypto);
+  background: transparent;
   border-radius: 0 0 2px 2px;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.mobile-nav-btn.active { color: var(--crypto); }
+.mobile-nav-btn.active::before {
+  background: var(--crypto);
   box-shadow: 0 0 8px var(--crypto);
 }
 
