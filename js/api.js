@@ -105,7 +105,7 @@ export async function syncAllPrices() {
     btcIdr: 1_590_000_000,
     ethIdr: 52_000_000,
     xrpIdr: 10_800,
-    goldGramIdr: 1_680_000,
+    goldGramIdr: 2_700_000,
     usdIdr: 16_200
   };
 
