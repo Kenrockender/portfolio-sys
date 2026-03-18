@@ -138,7 +138,7 @@ function _updateThemePickerActive() {
 
 // ── Tab Navigation ────────────────────────────────────────────────
 export function setTab(tab) {
-  ['home', 'holdings', 'history', 'analytics', 'txlog', 'rebalance'].forEach(id => {
+  ['home', 'holdings', 'history', 'analytics', 'txlog', 'rebalance', 'cashflow'].forEach(id => {
     document.getElementById('panel' + id.charAt(0).toUpperCase() + id.slice(1))?.classList.toggle('active', id === tab);
     document.getElementById('tab'   + id.charAt(0).toUpperCase() + id.slice(1))?.classList.toggle('active', id === tab);
     document.getElementById('mtab'  + id.charAt(0).toUpperCase() + id.slice(1))?.classList.toggle('active', id === tab);
@@ -147,6 +147,7 @@ export function setTab(tab) {
   if (tab === 'history')   renderHistoryPanel();
   if (tab === 'txlog')     renderTxLog();
   if (tab === 'rebalance') renderRebalance();
+  if (tab === 'cashflow')  window.renderCashflow && window.renderCashflow();
   if (tab === 'home') window.dispatchEvent(new CustomEvent('portfolio:update'));
 }
 
@@ -551,6 +552,17 @@ export function renderCrypto(T) {
 // ── Render Gold Rows ──────────────────────────────────────────────
 export function renderGold(T) {
   document.getElementById('goldTotal').textContent = toDisp(T.g);
+
+  // Update gold info panel
+  const totalGrams = DATA.gold.reduce((s, h) => s + (h.grams || 0), 0);
+  const totalCost  = DATA.gold.reduce((s, h) => s + (h.grams || 0) * (h.costBasisPerGram || 0), 0);
+  const avgBuy     = totalGrams > 0 ? totalCost / totalGrams : 0;
+  const pp = document.getElementById('goldPanelPrice');
+  const pg = document.getElementById('goldPanelGrams');
+  const pa = document.getElementById('goldPanelAvgBuy');
+  if (pp) pp.textContent = dispPrice(S.goldGramIdr);
+  if (pg) pg.textContent = totalGrams.toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' g';
+  if (pa) pa.textContent = avgBuy > 0 ? dispPrice(avgBuy) : '–';
 
   const assets = filterAssets(DATA.gold, 'gold');
   if (assets.length === 0) {
