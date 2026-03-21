@@ -46,14 +46,31 @@ export function destroyAllCharts() {
 // ── Theme Helpers ────────────────────────────────────────────────
 const _LIGHT_THEMES_SET = new Set(['light', 'solarized']);
 function _isLightTheme() { return _LIGHT_THEMES_SET.has(S.theme); }
-function tooltipBg()     { return _isLightTheme() ? '#ffffff'              : '#12122a'; }
-function tooltipBorder() { return _isLightTheme() ? 'rgba(0,0,0,.12)'      : 'rgba(255,255,255,.1)'; }
-function tooltipTitle()  { return _isLightTheme() ? '#0f172a'              : '#e2e8f0'; }
-function tooltipBody()   { return _isLightTheme() ? '#475569'              : '#94a3b8'; }
-function gridColor()     { return _isLightTheme() ? 'rgba(0,0,0,.06)'      : 'rgba(255,255,255,.04)'; }
-function tickColor()     { return _isLightTheme() ? '#64748b'              : '#475569'; }
-function borderColor()   { return _isLightTheme() ? 'rgba(0,0,0,.08)'      : 'rgba(255,255,255,.06)'; }
-function canvasBg()      { return _isLightTheme() ? '#ffffff'              : '#0c0c1e'; }
+// All colors read from CSS variables — Cyberpunk/Matrix/any theme auto-reflected.
+function tooltipBg()     { return getCssVar('--bg3') || (_isLightTheme() ? '#ffffff' : '#12122a'); }
+function tooltipBorder() { return getCssVar('--border2') || (_isLightTheme() ? 'rgba(0,0,0,.12)' : 'rgba(255,255,255,.1)'); }
+function tooltipTitle()  { return getCssVar('--text')  || (_isLightTheme() ? '#0f172a' : '#e2e8f0'); }
+function tooltipBody()   { return getCssVar('--muted') || (_isLightTheme() ? '#475569' : '#94a3b8'); }
+function gridColor()     { return _isLightTheme() ? 'rgba(0,0,0,.06)' : `rgba(255,255,255,${parseFloat(getCssVar('--grid-opacity') || '0.04')})`; }
+function tickColor()     { return getCssVar('--muted') || (_isLightTheme() ? '#64748b' : '#475569'); }
+function borderColor()   { return getCssVar('--border') || (_isLightTheme() ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.06)'); }
+function canvasBg()      { return getCssVar('--bg2') || (_isLightTheme() ? '#ffffff' : '#0c0c1e'); }
+
+// ── Dynamic CSS Variable Reader ───────────────────────────────────
+// Reads current theme's CSS variable at render time so charts
+// always match whichever theme is active (including Cyberpunk/Matrix).
+function getCssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+// Convert hex (#rrggbb) to rgba(r,g,b,a) string for gradients
+function hexToRgba(hex, alpha) {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.substring(0, 2), 16);
+  const g = parseInt(h.substring(2, 4), 16);
+  const b = parseInt(h.substring(4, 6), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
 
 // ── Shared Canvas Background Plugin ─────────────────────────────
 // Fills chart canvas with card background color using destination-over
@@ -76,9 +93,8 @@ const _canvasBgPlugin = {
 // the right colors. Called in destroyAllCharts() before _renderAll().
 function applyChartTheme() {
   if (typeof Chart === 'undefined') return;
-  const isLight = _isLightTheme();
-  Chart.defaults.color       = isLight ? '#64748b' : '#475569';
-  Chart.defaults.borderColor = isLight ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.06)';
+  Chart.defaults.color           = getCssVar('--muted') || (_isLightTheme() ? '#64748b' : '#475569');
+  Chart.defaults.borderColor     = getCssVar('--border') || (_isLightTheme() ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.06)');
   Chart.defaults.backgroundColor = 'transparent';
 }
 
@@ -103,12 +119,12 @@ export function renderCharts(T) {
   renderStocksTickerPie();
   renderSavingsProportion(T);
 
-  // Pie chart data
+  // Pie chart data — read from CSS vars so colors follow any theme
   const pd = [
-    { label: 'Crypto', value: T.c, color: '#8b5cf6' },
-    { label: 'Gold', value: T.g, color: '#f5c518' },
-    { label: 'Stocks', value: T.k, color: '#22d3ee' },
-    { label: 'Savings', value: T.sv, color: '#f472b6' }
+    { label: 'Crypto',  value: T.c,  color: getCssVar('--crypto')  || '#8b5cf6' },
+    { label: 'Gold',    value: T.g,  color: getCssVar('--gold')    || '#f5c518' },
+    { label: 'Stocks',  value: T.k,  color: getCssVar('--stocks')  || '#22d3ee' },
+    { label: 'Savings', value: T.sv, color: getCssVar('--savings') || '#f472b6' }
   ];
 
   // Render legend
@@ -196,8 +212,10 @@ function getFilteredHistory() {
 function renderLineChart(T) {
   const wrap = document.getElementById('lineChartWrap');
   const hist = getFilteredHistory();
-  const isDown = hist.length >= 2 && hist[hist.length - 1].value < hist[0].value;
-  const lineCol = isDown ? '#fb7185' : '#8b5cf6';
+  const cryptoCol = getCssVar('--crypto') || '#8b5cf6';
+  const downCol   = getCssVar('--down')   || '#fb7185';
+  const isDown    = hist.length >= 2 && hist[hist.length - 1].value < hist[0].value;
+  const lineCol   = isDown ? downCol : cryptoCol;
 
   if (hist.length < 2) {
     // Need placeholder — always recreate so the message stays current
@@ -236,11 +254,11 @@ function renderLineChart(T) {
     const lctx = document.getElementById('lineChart').getContext('2d');
     const grad = lctx.createLinearGradient(0, 0, 0, 190);
     if (isDown) {
-      grad.addColorStop(0, 'rgba(251,113,133,.25)');
-      grad.addColorStop(1, 'rgba(251,113,133,0)');
+      grad.addColorStop(0, hexToRgba(downCol, 0.25));
+      grad.addColorStop(1, hexToRgba(downCol, 0));
     } else {
-      grad.addColorStop(0, 'rgba(139,92,246,.32)');
-      grad.addColorStop(1, 'rgba(139,92,246,0)');
+      grad.addColorStop(0, hexToRgba(cryptoCol, 0.32));
+      grad.addColorStop(1, hexToRgba(cryptoCol, 0));
     }
     ds.backgroundColor = grad;
     ds.pointRadius = values.length > 30 ? 0 : 4;
@@ -288,12 +306,14 @@ export function renderHistoryLineChart(T) {
 
   const canvas = document.getElementById('histLineChart');
   if (!canvas) return;
+  const cryptoCol = getCssVar('--crypto') || '#8b5cf6';
+  const downCol   = getCssVar('--down')   || '#fb7185';
   const isDown = values.length >= 2 && values[values.length - 1] < values[0];
-  const lineCol = isDown ? '#fb7185' : '#8b5cf6';
+  const lineCol = isDown ? downCol : cryptoCol;
   const ctx = canvas.getContext('2d');
   const grad = ctx.createLinearGradient(0, 0, 0, 280);
-  grad.addColorStop(0, isDown ? 'rgba(251,113,133,.25)' : 'rgba(139,92,246,.32)');
-  grad.addColorStop(1, isDown ? 'rgba(251,113,133,0)' : 'rgba(139,92,246,0)');
+  grad.addColorStop(0, hexToRgba(lineCol, 0.25));
+  grad.addColorStop(1, hexToRgba(lineCol, 0));
 
   histLineChart = new Chart(ctx, {
     type: 'line',
@@ -350,16 +370,17 @@ export function renderHistoryLineChart(T) {
 // ── Build Line Chart Config ───────────────────────────────────────
 function buildLineConfig(labels, values, T) {
   const lctx = document.getElementById('lineChart').getContext('2d');
+  const cryptoCol = getCssVar('--crypto') || '#8b5cf6';
+  const downCol   = getCssVar('--down')   || '#fb7185';
   const isDown = values.length >= 2 && values[values.length - 1] < values[0];
-  const lineCol = isDown ? '#fb7185' : '#8b5cf6';
+  const lineCol = isDown ? downCol : cryptoCol;
   const grad = lctx.createLinearGradient(0, 0, 0, 190);
-
   if (isDown) {
-    grad.addColorStop(0, 'rgba(251,113,133,.25)');
-    grad.addColorStop(1, 'rgba(251,113,133,0)');
+    grad.addColorStop(0, hexToRgba(downCol, 0.25));
+    grad.addColorStop(1, hexToRgba(downCol, 0));
   } else {
-    grad.addColorStop(0, 'rgba(139,92,246,.32)');
-    grad.addColorStop(1, 'rgba(139,92,246,0)');
+    grad.addColorStop(0, hexToRgba(cryptoCol, 0.32));
+    grad.addColorStop(1, hexToRgba(cryptoCol, 0));
   }
 
   return {
@@ -827,15 +848,19 @@ export function renderBenchChart(T) {
     return;
   }
 
+  const cryptoCol = getCssVar('--crypto') || '#8b5cf6';
+  const goldCol   = getCssVar('--gold')   || '#f5c518';
+  const stocksCol = getCssVar('--stocks') || '#22d3ee';
+
   const ctx = canvas.getContext('2d');
   benchChart = new Chart(ctx, {
     type: 'line',
     data: {
       labels: bd.labels,
       datasets: [
-        { label: 'Portfolio', data: bd.portNorm, borderColor: '#8b5cf6', borderWidth: 2.5, backgroundColor: 'rgba(139,92,246,.1)', pointRadius: 0, tension: 0.4, fill: true },
-        { label: 'IHSG', data: bd.ihsgVals, borderColor: '#f5c518', borderWidth: 1.5, backgroundColor: 'transparent', borderDash: [4, 3], pointRadius: 0, tension: 0.4 },
-        { label: 'S&P 500', data: bd.sp500Vals, borderColor: '#22d3ee', borderWidth: 1.5, backgroundColor: 'transparent', borderDash: [4, 3], pointRadius: 0, tension: 0.4 },
+        { label: 'Portfolio', data: bd.portNorm, borderColor: cryptoCol, borderWidth: 2.5, backgroundColor: hexToRgba(cryptoCol, 0.10), pointRadius: 0, tension: 0.4, fill: true },
+        { label: 'IHSG',      data: bd.ihsgVals,  borderColor: goldCol,   borderWidth: 1.5, backgroundColor: 'transparent', borderDash: [4, 3], pointRadius: 0, tension: 0.4 },
+        { label: 'S&P 500',   data: bd.sp500Vals, borderColor: stocksCol, borderWidth: 1.5, backgroundColor: 'transparent', borderDash: [4, 3], pointRadius: 0, tension: 0.4 },
       ]
     },
     options: {
@@ -861,9 +886,9 @@ export function renderBenchChart(T) {
 
   // Legend
   const datasets = [
-    { label: 'Portfolio', col: '#8b5cf6' },
-    { label: 'IHSG', col: '#f5c518' },
-    { label: 'S&P 500', col: '#22d3ee' }
+    { label: 'Portfolio', col: cryptoCol },
+    { label: 'IHSG',      col: goldCol   },
+    { label: 'S&P 500',   col: stocksCol }
   ];
 
   const synthNote = getBenchData._synthetic ?
