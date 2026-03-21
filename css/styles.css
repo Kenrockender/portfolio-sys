@@ -197,6 +197,188 @@ html[data-theme="amoled"] {
 }
 
 /* ══════════════════════════════════════════
+   DESIGN TOKENS — CYBERPUNK
+   Yellow/black neon, high voltage aesthetics
+══════════════════════════════════════════ */
+html[data-theme="cyberpunk"] {
+  color-scheme: dark;
+  --bg:      #0a0700;
+  --bg2:     #110e00;
+  --bg3:     #1a1500;
+  --bg4:     #231c00;
+  --border:  rgba(255,220,0,0.10);
+  --border2: rgba(255,220,0,0.22);
+  --text:    #fff8d6;
+  --muted:   #7a6a20;
+  --dim:     #3a3000;
+  --crypto:  #ffe600;
+  --gold:    #ff9500;
+  --stocks:  #00f5ff;
+  --savings: #ff2d78;
+  --up:      #39ff14;
+  --down:    #ff003c;
+  --warn:    #ff9500;
+  --radius:  4px;
+  --shadow:  0 4px 28px rgba(255,230,0,.12), 0 0 60px rgba(255,230,0,.04);
+  --scan-opacity: 0.022;
+  --grid-opacity: 0.030;
+  --ambient-crypto: rgba(255,230,0,.12);
+  --ambient-stocks: rgba(0,245,255,.06);
+  --ambient-gold:   rgba(255,149,0,.05);
+  --floq-c: #ffe600; --triv-c: #00f5ff; --pintu-c: #ff9500;
+}
+
+/* Cyberpunk component overrides */
+html[data-theme="cyberpunk"] .brand-icon,
+html[data-theme="cyberpunk"] .login-logo,
+html[data-theme="cyberpunk"] .ob-icon {
+  border-color: #ffe600;
+  box-shadow: 0 0 20px rgba(255,230,0,.45), 0 0 60px rgba(255,230,0,.15);
+  animation: cyberpunk-pulse 2s ease-in-out infinite;
+}
+@keyframes cyberpunk-pulse {
+  0%,100% { box-shadow: 0 0 20px rgba(255,230,0,.45), 0 0 60px rgba(255,230,0,.15); }
+  50%     { box-shadow: 0 0 35px rgba(255,230,0,.80), 0 0 90px rgba(255,230,0,.30); }
+}
+html[data-theme="cyberpunk"] .topbar::after {
+  background: #ffe600;
+  box-shadow: 0 0 14px #ffe600;
+  width: 100%;
+}
+html[data-theme="cyberpunk"] .card {
+  border-radius: var(--radius);
+  border-color: rgba(255,230,0,.14);
+  background: rgba(17,14,0,.94);
+}
+html[data-theme="cyberpunk"] .card:hover {
+  border-color: rgba(255,230,0,.35);
+  box-shadow: 0 0 20px rgba(255,230,0,.08);
+}
+html[data-theme="cyberpunk"] .card.c-crypto::before  { background: #ffe600; box-shadow: 0 0 18px #ffe600; }
+html[data-theme="cyberpunk"] .card.c-stocks::before  { background: #00f5ff; box-shadow: 0 0 18px #00f5ff; }
+html[data-theme="cyberpunk"] .tab-btn.active { background: #ffe600; color: #0a0700; }
+html[data-theme="cyberpunk"] .currency-btn.active { background: #ffe600; color: #0a0700; }
+html[data-theme="cyberpunk"] .range-btn.active { background: #ffe600; color: #0a0700; border-color: #ffe600; }
+html[data-theme="cyberpunk"] .btn-primary { background: #ffe600; color: #0a0700; }
+html[data-theme="cyberpunk"] .live-dot { background: #39ff14; box-shadow: 0 0 8px #39ff14; }
+html[data-theme="cyberpunk"] .cloud-badge { color: #ffe600; border-color: rgba(255,230,0,.35); }
+html[data-theme="cyberpunk"] .mobile-nav-btn.active { color: #ffe600; }
+html[data-theme="cyberpunk"] .mobile-nav-btn.active::before { background: #ffe600; box-shadow: 0 0 10px #ffe600; }
+html[data-theme="cyberpunk"] .pnl-badge.up { background: rgba(57,255,20,.15); color: #39ff14; border-color: rgba(57,255,20,.28); }
+html[data-theme="cyberpunk"] .goal-bar-fill { background: linear-gradient(90deg, #ffe600, #ff9500); }
+html[data-theme="cyberpunk"] .kv-total,
+html[data-theme="cyberpunk"] .kv-crypto { background: linear-gradient(135deg,#ffe600,#ff9500); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+html[data-theme="cyberpunk"] .kv-stocks { background: linear-gradient(135deg,#00f5ff,#0090ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+html[data-theme="cyberpunk"] body::before {
+  background: repeating-linear-gradient(0deg,
+    rgba(255,230,0,0.022) 0, rgba(255,230,0,0.022) 1px,
+    transparent 1px, transparent 4px);
+}
+
+/* ══════════════════════════════════════════
+   DESIGN TOKENS — MATRIX
+   Green phosphor on pure black, digital rain
+══════════════════════════════════════════ */
+html[data-theme="matrix"] {
+  color-scheme: dark;
+  --bg:      #000000;
+  --bg2:     #040d04;
+  --bg3:     #091409;
+  --bg4:     #0e1c0e;
+  --border:  rgba(0,255,65,0.10);
+  --border2: rgba(0,255,65,0.22);
+  --text:    #c8ffd4;
+  --muted:   #2e6e38;
+  --dim:     #0f2e14;
+  --crypto:  #00ff41;
+  --gold:    #7cfc00;
+  --stocks:  #39ff14;
+  --savings: #00e676;
+  --up:      #00ff41;
+  --down:    #ff1744;
+  --warn:    #ffea00;
+  --radius:  2px;
+  --shadow:  0 4px 28px rgba(0,0,0,.95), 0 0 40px rgba(0,255,65,.05);
+  --scan-opacity: 0.028;
+  --grid-opacity: 0.035;
+  --ambient-crypto: rgba(0,255,65,.10);
+  --ambient-stocks: rgba(57,255,20,.06);
+  --ambient-gold:   rgba(124,252,0,.04);
+  --floq-c: #00ff41; --triv-c: #39ff14; --pintu-c: #7cfc00;
+}
+
+/* Matrix component overrides */
+html[data-theme="matrix"] .brand-icon,
+html[data-theme="matrix"] .login-logo,
+html[data-theme="matrix"] .ob-icon {
+  border-color: #00ff41;
+  box-shadow: 0 0 16px rgba(0,255,65,.5), 0 0 40px rgba(0,255,65,.15);
+  animation: matrix-pulse 3s ease-in-out infinite;
+}
+@keyframes matrix-pulse {
+  0%,100% { box-shadow: 0 0 16px rgba(0,255,65,.5), 0 0 40px rgba(0,255,65,.15); }
+  50%     { box-shadow: 0 0 30px rgba(0,255,65,.9), 0 0 70px rgba(0,255,65,.30); }
+}
+html[data-theme="matrix"] .topbar::after {
+  background: #00ff41;
+  box-shadow: 0 0 12px #00ff41;
+  width: 100%;
+}
+html[data-theme="matrix"] .card {
+  border-radius: var(--radius);
+  border-color: rgba(0,255,65,.12);
+  background: rgba(4,13,4,.96);
+}
+html[data-theme="matrix"] .card:hover {
+  border-color: rgba(0,255,65,.35);
+  box-shadow: 0 0 18px rgba(0,255,65,.07);
+}
+html[data-theme="matrix"] .card::before { background: #00ff41; box-shadow: 0 0 16px #00ff41; }
+html[data-theme="matrix"] .tab-btn.active { background: #00ff41; color: #000; }
+html[data-theme="matrix"] .currency-btn.active { background: #00ff41; color: #000; }
+html[data-theme="matrix"] .lang-btn.active { background: #00ff41; color: #000; }
+html[data-theme="matrix"] .range-btn.active { background: #00ff41; color: #000; border-color: #00ff41; }
+html[data-theme="matrix"] .btn-primary { background: #00ff41; color: #000; }
+html[data-theme="matrix"] .live-badge { color: #00ff41; }
+html[data-theme="matrix"] .live-dot { background: #00ff41; box-shadow: 0 0 8px #00ff41; animation: blink 1s step-end infinite; }
+html[data-theme="matrix"] .cloud-badge { color: #00ff41; border-color: rgba(0,255,65,.35); }
+html[data-theme="matrix"] .mobile-nav-btn.active { color: #00ff41; }
+html[data-theme="matrix"] .mobile-nav-btn.active::before { background: #00ff41; box-shadow: 0 0 10px #00ff41; }
+html[data-theme="matrix"] .pnl-badge.up { background: rgba(0,255,65,.12); color: #00ff41; border-color: rgba(0,255,65,.25); }
+html[data-theme="matrix"] .alloc-bar { filter: brightness(1.1); }
+html[data-theme="matrix"] .goal-bar-fill { background: linear-gradient(90deg, #00ff41, #7cfc00); }
+html[data-theme="matrix"] .kv-total,
+html[data-theme="matrix"] .kv-crypto,
+html[data-theme="matrix"] .kv-gold,
+html[data-theme="matrix"] .kv-stocks,
+html[data-theme="matrix"] .kv-savings {
+  background: linear-gradient(135deg,#00ff41,#7cfc00);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+html[data-theme="matrix"] .section-metrics-bar { border-color: rgba(0,255,65,.15); }
+html[data-theme="matrix"] .price-bar { border-color: rgba(0,255,65,.12); background: rgba(4,13,4,.96); }
+html[data-theme="matrix"] .tab-nav { border-color: rgba(0,255,65,.12); background: rgba(4,13,4,.96); }
+html[data-theme="matrix"] body::before {
+  background: repeating-linear-gradient(0deg,
+    rgba(0,255,65,0.028) 0, rgba(0,255,65,0.028) 1px,
+    transparent 1px, transparent 4px);
+}
+html[data-theme="matrix"] .modal-box,
+html[data-theme="matrix"] .ac-box,
+html[data-theme="matrix"] .confirm-box,
+html[data-theme="matrix"] .imp-box {
+  background: rgba(4,13,4,.98);
+  border-color: rgba(0,255,65,.22);
+}
+html[data-theme="matrix"] .form-input:focus,
+html[data-theme="matrix"] .form-select:focus {
+  border-color: #00ff41;
+  box-shadow: 0 0 0 3px rgba(0,255,65,.15);
+}
+html[data-theme="matrix"] .add-btn:hover { border-color: #00ff41; color: #00ff41; }
+html[data-theme="matrix"] .sync-btn:hover { border-color: #00ff41; color: #00ff41; }
+
+/* ══════════════════════════════════════════
    DESIGN TOKENS — SOLARIZED LIGHT
    Warm cream, easy on the eyes
 ══════════════════════════════════════════ */
