@@ -65,10 +65,12 @@ export const THEMES = [
   { id: 'light',     label: 'Light',     bg: '#f8f9fc', bg2: '#ffffff', accent: '#6366f1', bar: '#0284c7' },
   { id: 'midnight',  label: 'Midnight',  bg: '#060b18', bg2: '#0a1122', accent: '#3b82f6', bar: '#06b6d4' },
   { id: 'forest',    label: 'Forest',    bg: '#060e09', bg2: '#0a1610', accent: '#34d399', bar: '#6ee7b7' },
-  { id: 'dracula',   label: 'Dracula',   bg: '#1a1226', bg2: '#211630', accent: '#bd93f9', bar: '#ff79c6' },
+  { id: 'dracula',    label: 'Dracula',    bg: '#1a1226', bg2: '#211630', accent: '#bd93f9', bar: '#ff79c6' },
   { id: 'amoled',    label: 'AMOLED',    bg: '#000000', bg2: '#080808', accent: '#a78bfa', bar: '#34d399' },
   { id: 'solarized', label: 'Solarized', bg: '#fdf6e3', bg2: '#eee8d5', accent: '#6c71c4', bar: '#268bd2' },
   { id: 'colorful',  label: 'Colorful',  bg: '#0d0d14', bg2: '#131320', accent: '#f472b6', bar: '#34d399' },
+  { id: 'cyberpunk', label: 'Cyberpunk', bg: '#0a0700', bg2: '#110e00', accent: '#ffe600', bar: '#00f5ff' },
+  { id: 'matrix',    label: 'Matrix',    bg: '#000000', bg2: '#040d04', accent: '#00ff41', bar: '#39ff14' },
 ];
 
 export function setTheme(id) {
