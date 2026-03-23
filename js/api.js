@@ -81,6 +81,78 @@ export async function fetchYahoo(sym) {
   return p;
 }
 
+// ── Logam Mulia Gold Price (IDR/gram langsung, no conversion needed) ──
+// Source: https://www.logammulia.com/id/harga-emas-hari-ini
+// Harga Jual 1 gram Antam — angka dalam IDR langsung
+export async function fetchLogamMulia() {
+  const LM_URL = 'https://www.logammulia.com/id/harga-emas-hari-ini';
+
+  let html = null;
+
+  // Try via allorigins first, then corsproxy.io fallback
+  for (const proxyFn of [
+    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+  ]) {
+    try {
+      const r = await fetch(proxyFn(LM_URL), { signal: AbortSignal.timeout(10_000) });
+      if (r.ok) { html = await r.text(); break; }
+    } catch (_) {}
+  }
+
+  if (!html) throw new Error('[LM] Semua proxy gagal');
+
+  // ── Strategi 1: cari harga di tabel dengan data-gram="1" atau td nearest "1 gr"
+  // Contoh HTML Logam Mulia: <td>1 gr</td><td>Rp 1.687.000</td>
+  // atau <span class="price">1.687.000</span> dekat "1 gr"
+
+  // Cari semua angka yang kemungkinan harga IDR/gram (range 1jt – 4jt)
+  // setelah teks "1 gr" atau "1 gram" atau "harga jual"
+
+  // Pattern A: angka IDR format setelah "1 gr" atau "1 gram" dalam radius ~200 karakter
+  const blockA = html.match(/1\s*gr(?:am)?.{0,200}?Rp\s*([\d.]+)/i)
+               || html.match(/1\s*gr(?:am)?.{0,200}?([\d]{1,3}(?:[.,][\d]{3})+)/);
+  if (blockA) {
+    const price = _parseIdrHtml(blockA[1] || blockA[2]);
+    if (price >= 1_000_000 && price <= 4_000_000) {
+      console.log(`[LM] Harga emas (Pattern A): Rp ${price.toLocaleString('id-ID')}/gr`);
+      return price;
+    }
+  }
+
+  // Pattern B: cari semua angka 7-digit di halaman, ambil yang di range 1jt–4jt, paling awal
+  const allPrices = [...html.matchAll(/([\d]{1,3}(?:\.[\d]{3}){2,3})/g)]
+    .map(m => _parseIdrHtml(m[1]))
+    .filter(p => p >= 1_000_000 && p <= 4_000_000);
+
+  if (allPrices.length > 0) {
+    // Harga 1 gram biasanya yang terkecil (termurah) di antara semua harga
+    const price = Math.min(...allPrices);
+    console.log(`[LM] Harga emas (Pattern B): Rp ${price.toLocaleString('id-ID')}/gr`);
+    return price;
+  }
+
+  // Pattern C: cari di JSON-LD / script tag structured data
+  const scriptMatch = html.match(/"price"\s*:\s*"?([\d.,]+)"?/i);
+  if (scriptMatch) {
+    const price = _parseIdrHtml(scriptMatch[1]);
+    if (price >= 1_000_000 && price <= 4_000_000) {
+      console.log(`[LM] Harga emas (Pattern C / JSON-LD): Rp ${price.toLocaleString('id-ID')}/gr`);
+      return price;
+    }
+  }
+
+  throw new Error('[LM] Tidak dapat menemukan harga dalam HTML');
+}
+
+/** Parse angka IDR dari HTML: "1.687.000" → 1687000 */
+function _parseIdrHtml(str) {
+  if (!str) return 0;
+  // Hilangkan semua titik (separator ribuan IDR), ganti koma desimal jika ada
+  const cleaned = String(str).replace(/\./g, '').replace(',', '.');
+  return Math.round(parseFloat(cleaned) || 0);
+}
+
 // ── Sync UI Helpers (null-safe — DOM mungkin tidak ada di test env) ─
 function _syncUiStart() {
   const btn = document.getElementById('syncBtn');
@@ -150,35 +222,53 @@ export async function syncAllPrices() {
       setStatus('fx', 'stale');
     }
 
-    // 3. Gold — metals.live primary, Yahoo fallback
-    let goldUsd = null;
-    try {
-      const mRes = await fetch('https://api.metals.live/v1/spot/gold', { signal: AbortSignal.timeout(7000) });
-      if (mRes.ok) {
-        const mData = await mRes.json();
-        // metals.live returns [{ metal: 'gold', price: 3050.xx }]
-        const entry = Array.isArray(mData) ? mData[0] : mData;
-        const candidate = entry?.price || entry?.gold || null;
-        if (candidate && candidate > 3000) goldUsd = candidate;
-      }
-    } catch (_) {}
+    // 3. Gold — Logam Mulia primary (IDR/gram langsung), metals.live & Yahoo fallback
+    let goldGramIdr = null;
 
-    // Fallback to Yahoo if metals.live failed
-    if (!goldUsd) {
+    // 3a. Logam Mulia (sumber utama — harga resmi Antam dalam IDR)
+    try {
+      const lmPrice = await fetchLogamMulia();
+      if (lmPrice >= 1_000_000 && lmPrice <= 4_000_000) {
+        goldGramIdr = lmPrice;
+        console.log(`[API] Gold (Logam Mulia): Rp ${lmPrice.toLocaleString('id-ID')}/gr`);
+      }
+    } catch (e) {
+      console.warn('[API] Logam Mulia fetch gagal:', e.message);
+    }
+
+    // 3b. Fallback: metals.live (USD/oz) → konversi ke IDR/gram
+    if (!goldGramIdr) {
       try {
-        const yGold = await fetchYahoo('GC=F');
-        if (yGold && yGold > 3000) goldUsd = yGold;
+        const mRes = await fetch('https://api.metals.live/v1/spot/gold', { signal: AbortSignal.timeout(7000) });
+        if (mRes.ok) {
+          const mData = await mRes.json();
+          const entry = Array.isArray(mData) ? mData[0] : mData;
+          const goldUsd = entry?.price || entry?.gold || null;
+          if (goldUsd && goldUsd > 3000) {
+            goldGramIdr = Math.round((goldUsd / 31.1035) * S.usdIdr);
+            console.log(`[API] Gold (metals.live fallback): $${goldUsd}/oz → Rp ${goldGramIdr.toLocaleString('id-ID')}/gr`);
+          }
+        }
       } catch (_) {}
     }
 
-    const ozToGram = 31.1035;
-    if (goldUsd) {
-      setPrice('goldGramIdr', Math.round((goldUsd / ozToGram) * S.usdIdr));
+    // 3c. Fallback: Yahoo Finance GC=F
+    if (!goldGramIdr) {
+      try {
+        const yGold = await fetchYahoo('GC=F');
+        if (yGold && yGold > 3000) {
+          goldGramIdr = Math.round((yGold / 31.1035) * S.usdIdr);
+          console.log(`[API] Gold (Yahoo fallback): $${yGold}/oz → Rp ${goldGramIdr.toLocaleString('id-ID')}/gr`);
+        }
+      } catch (_) {}
+    }
+
+    if (goldGramIdr) {
+      setPrice('goldGramIdr', goldGramIdr);
       setStatus('gold', 'live');
-      console.log(`[API] Gold: $${goldUsd}/oz → Rp ${S.goldGramIdr.toLocaleString()}/g`);
     } else {
       if (!S.goldGramIdr || S.goldGramIdr < 1_000_000) {
-        setPrice('goldGramIdr', Math.round((5000 / ozToGram) * S.usdIdr));
+        setPrice('goldGramIdr', 1_700_000); // fallback default ~harga Antam saat ini
       }
       setStatus('gold', 'stale');
       console.warn('[API] Gold price unavailable — using last known value');
