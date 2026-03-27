@@ -61,6 +61,40 @@
 <link rel="stylesheet" href="css/styles.css">
 <link rel="stylesheet" href="css/mobile.css">
 
+<style>
+/* ── NEW ONBOARDING STYLES ───────────────────────────── */
+.ob-dots { display:flex; gap:8px; margin-bottom:28px; justify-content:center; }
+.ob-dot  { width:8px; height:8px; border-radius:50%; background:var(--border2); transition:all .3s cubic-bezier(.22,1,.36,1); flex-shrink:0; }
+.ob-dot.active { background:var(--crypto); width:28px; border-radius:4px; }
+
+.ob-slide-tag { font-size:9px; color:var(--crypto); letter-spacing:.22em; text-transform:uppercase; font-weight:700; margin-bottom:10px; }
+
+/* Value props (slide 1) */
+.ob-value-props { display:flex; flex-direction:column; gap:10px; width:100%; margin:16px 0 20px; }
+.ob-vp          { display:flex; align-items:flex-start; gap:12px; background:var(--bg2); border:1px solid var(--border2); border-radius:10px; padding:12px 14px; text-align:left; }
+.ob-vp-icon     { width:38px; height:38px; border-radius:10px; display:grid; place-items:center; flex-shrink:0; }
+.ob-vp-title    { font-size:12px; font-weight:700; color:var(--text); margin-bottom:2px; }
+.ob-vp-sub      { font-size:10px; color:var(--muted); line-height:1.5; }
+
+/* Asset showcase grid (slide 2) */
+.ob-asset-showcase { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; margin:14px 0 20px; }
+.ob-asset-show-card {
+  border-radius:12px; padding:14px 12px;
+  display:flex; flex-direction:column; align-items:flex-start; gap:7px;
+  border-width:1px; border-style:solid;
+}
+.ob-asc-name { font-family:'Syne',sans-serif; font-size:11px; font-weight:800; letter-spacing:.08em; }
+.ob-asc-sub  { font-size:10px; color:var(--muted); line-height:1.5; }
+
+/* Features grid (slide 3) */
+.ob-features-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; width:100%; margin:12px 0 20px; }
+.ob-feat-card  { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:12px 14px; display:flex; flex-direction:column; gap:4px; transition:border-color .2s; }
+.ob-feat-card:hover { border-color:var(--border2); }
+.ob-fc-icon  { margin-bottom:4px; }
+.ob-fc-label { font-size:11px; font-weight:700; color:var(--text); }
+.ob-fc-sub   { font-size:9px; color:var(--muted); line-height:1.4; }
+</style>
+
 </head>
 <body>
 
@@ -131,30 +165,156 @@
 <!-- ══ ONBOARDING OVERLAY ══ -->
 <div class="onboarding-overlay" id="onboardingOverlay" style="display:none;">
   <div class="onboarding-box">
-    <!-- Step indicator -->
-    <div class="ob-steps">
-      <div class="ob-step active" id="obStep1"></div>
-      <div class="ob-step" id="obStep2"></div>
-      <div class="ob-step" id="obStep3"></div>
+
+    <!-- Progress Dots -->
+    <div class="ob-dots">
+      <div class="ob-dot active" id="obDot1"></div>
+      <div class="ob-dot" id="obDot2"></div>
+      <div class="ob-dot" id="obDot3"></div>
+      <div class="ob-dot" id="obDot4"></div>
     </div>
 
-    <!-- Step 1: Welcome -->
+    <!-- ── SLIDE 1: Welcome ── -->
     <div class="ob-slide" id="obSlide1">
       <div class="ob-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="40" height="40"><polygon points="12 2 22 7.5 22 16.5 12 22 2 16.5 2 7.5"/></svg></div>
-      <div class="ob-title">Welcome to<br>PORTFOLIO.SYS</div>
-      <div class="ob-desc">Track all your investments in one place — crypto, gold, stocks, and savings.</div>
-      <div class="ob-features">
-        <div class="ob-feature"><span class="ob-feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span><span>Live price sync</span></div>
-        <div class="ob-feature"><span class="ob-feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span><span>Private &amp; secure</span></div>
-        <div class="ob-feature"><span class="ob-feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" width="14" height="14"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg></span><span>Synced to cloud</span></div>
+      <div class="ob-title">PORTFOLIO.SYS</div>
+      <div class="ob-desc">Dashboard investasi pribadi — lacak crypto, emas, saham, dan tabungan dalam satu tempat.</div>
+
+      <div class="ob-value-props">
+        <div class="ob-vp">
+          <div class="ob-vp-icon" style="background:rgba(139,92,246,.15);color:#a78bfa;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          </div>
+          <div>
+            <div class="ob-vp-title">Harga Live Otomatis</div>
+            <div class="ob-vp-sub">Sync dari CoinGecko, Yahoo Finance &amp; ExchangeRate-API — setiap 5 menit</div>
+          </div>
+        </div>
+        <div class="ob-vp">
+          <div class="ob-vp-icon" style="background:rgba(52,211,153,.12);color:#34d399;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+          </div>
+          <div>
+            <div class="ob-vp-title">Cloud Sync &amp; Privat</div>
+            <div class="ob-vp-sub">Data tersimpan di Firebase — aman, hanya kamu yang bisa melihatnya</div>
+          </div>
+        </div>
+        <div class="ob-vp">
+          <div class="ob-vp-icon" style="background:rgba(34,211,238,.12);color:#67e8f9;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </div>
+          <div>
+            <div class="ob-vp-title">Import dari PDF &amp; CSV</div>
+            <div class="ob-vp-sub">Tokocrypto, Pluang, Bibit, Indodax, Stockbit, IBKR, dan lainnya</div>
+          </div>
+        </div>
       </div>
-      <button class="ob-btn-primary" onclick="obNext()">Get Started →</button>
+
+      <button class="ob-btn-primary" onclick="obNext()">Mulai Tour →</button>
     </div>
 
-    <!-- Step 2: What do you have? -->
+    <!-- ── SLIDE 2: 4 Asset Types ── -->
     <div class="ob-slide" id="obSlide2" style="display:none;">
-      <div class="ob-title">What do you invest in?</div>
-      <div class="ob-desc">Select all that apply. You can always add more later.</div>
+      <div class="ob-slide-tag">FITUR 1 / 3</div>
+      <div class="ob-title" style="font-size:20px;">Lacak 4 Jenis Aset</div>
+      <div class="ob-desc">Semua kepemilikanmu dalam satu dashboard yang rapi.</div>
+
+      <div class="ob-asset-showcase">
+        <div class="ob-asset-show-card" style="background:rgba(139,92,246,.09);border-color:rgba(139,92,246,.25);">
+          <div class="ob-asc-icon" style="color:#a78bfa;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="24" height="24"><path d="M9.5 7H14a2.5 2.5 0 0 1 0 5H9.5V7z"/><path d="M9.5 12H15a2.5 2.5 0 0 1 0 5H9.5V12z"/><line x1="9.5" y1="7" x2="9.5" y2="17"/><line x1="7" y1="9" x2="9.5" y2="9"/><line x1="7" y1="15" x2="9.5" y2="15"/></svg>
+          </div>
+          <div class="ob-asc-name" style="color:#a78bfa;">CRYPTO</div>
+          <div class="ob-asc-sub">BTC, ETH, SOL &amp; 20+ koin. Multi-platform.</div>
+        </div>
+        <div class="ob-asset-show-card" style="background:rgba(245,197,24,.08);border-color:rgba(245,197,24,.22);">
+          <div class="ob-asc-icon" style="color:#fcd34d;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="24" height="24"><circle cx="12" cy="14" r="7"/><path d="M7.4 6.3L9 2h6l1.6 4.3"/><path d="M12 11v6M9.5 14h5"/></svg>
+          </div>
+          <div class="ob-asc-name" style="color:#fcd34d;">EMAS</div>
+          <div class="ob-asc-sub">Antam &amp; LM fisik. Harga live IDR/gram.</div>
+        </div>
+        <div class="ob-asset-show-card" style="background:rgba(34,211,238,.08);border-color:rgba(34,211,238,.22);">
+          <div class="ob-asc-icon" style="color:#67e8f9;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="24" height="24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          </div>
+          <div class="ob-asc-name" style="color:#67e8f9;">SAHAM</div>
+          <div class="ob-asc-sub">IDX (lot) &amp; US (shares). Harga Yahoo Finance.</div>
+        </div>
+        <div class="ob-asset-show-card" style="background:rgba(244,114,182,.08);border-color:rgba(244,114,182,.22);">
+          <div class="ob-asc-icon" style="color:#f9a8d4;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="24" height="24"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>
+          </div>
+          <div class="ob-asc-name" style="color:#f9a8d4;">TABUNGAN</div>
+          <div class="ob-asc-sub">Multi-currency. Deposito &amp; kas. Konversi FX live.</div>
+        </div>
+      </div>
+
+      <button class="ob-btn-primary" onclick="obNext()">Selanjutnya →</button>
+      <button class="ob-btn-skip" onclick="obFinish()">Lewati tour</button>
+    </div>
+
+    <!-- ── SLIDE 3: Features Overview ── -->
+    <div class="ob-slide" id="obSlide3" style="display:none;">
+      <div class="ob-slide-tag">FITUR 2 / 3</div>
+      <div class="ob-title" style="font-size:20px;">Semua yang Kamu Butuhkan</div>
+      <div class="ob-desc">Dirancang khusus untuk investor Indonesia.</div>
+
+      <div class="ob-features-grid">
+        <div class="ob-feat-card">
+          <div class="ob-fc-icon" style="color:var(--up);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
+          </div>
+          <div class="ob-fc-label">Sync Otomatis</div>
+          <div class="ob-fc-sub">Harga diperbarui setiap 5 menit</div>
+        </div>
+        <div class="ob-feat-card">
+          <div class="ob-fc-icon" style="color:var(--crypto);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="20" height="20"><circle cx="13.5" cy="6.5" r="1.3"/><circle cx="17.5" cy="10.5" r="1.3"/><circle cx="8.5" cy="7.5" r="1.3"/><circle cx="6.5" cy="12.5" r="1.3"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c.98 0 1.78-.81 1.78-1.78 0-.47-.19-.9-.5-1.2-.29-.3-.5-.73-.5-1.14 0-.98.78-1.78 1.78-1.78H16c2.76 0 5-2.24 5-5 0-4.97-4.03-9-9-9z"/></svg>
+          </div>
+          <div class="ob-fc-label">10 Tema</div>
+          <div class="ob-fc-sub">Dark, Light, Cyberpunk, Matrix &amp; lainnya</div>
+        </div>
+        <div class="ob-feat-card">
+          <div class="ob-fc-icon" style="color:var(--gold);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </div>
+          <div class="ob-fc-label">Import PDF/CSV</div>
+          <div class="ob-fc-sub">Bibit, Stockbit, Pluang, Indodax &amp; lainnya</div>
+        </div>
+        <div class="ob-feat-card">
+          <div class="ob-fc-icon" style="color:var(--stocks);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          </div>
+          <div class="ob-fc-label">Analytics Lengkap</div>
+          <div class="ob-fc-sub">Sharpe ratio, drawdown, benchmark IHSG &amp; S&amp;P500</div>
+        </div>
+        <div class="ob-feat-card">
+          <div class="ob-fc-icon" style="color:var(--savings);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
+          <div class="ob-fc-label">Rebalancing</div>
+          <div class="ob-fc-sub">Kalkulator beli/jual untuk target alokasi</div>
+        </div>
+        <div class="ob-feat-card">
+          <div class="ob-fc-icon" style="color:var(--warn);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          </div>
+          <div class="ob-fc-label">PWA Mobile</div>
+          <div class="ob-fc-sub">Install di HP, bisa dipakai offline</div>
+        </div>
+      </div>
+
+      <button class="ob-btn-primary" onclick="obNext()">Selanjutnya →</button>
+      <button class="ob-btn-skip" onclick="obFinish()">Lewati tour</button>
+    </div>
+
+    <!-- ── SLIDE 4: Get Started ── -->
+    <div class="ob-slide" id="obSlide4" style="display:none;">
+      <div class="ob-slide-tag">LANGKAH TERAKHIR</div>
+      <div class="ob-title" style="font-size:20px;">Apa yang kamu miliki?</div>
+      <div class="ob-desc">Pilih jenis aset yang ingin kamu lacak. Kamu bisa menambah lebih banyak kapan saja.</div>
+
       <div class="ob-asset-grid">
         <div class="ob-asset-card" id="obAssetCrypto" onclick="obToggleAsset('crypto')">
           <span class="ob-asset-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><path d="M9.5 7H14a2.5 2.5 0 0 1 0 5H9.5V7z"/><path d="M9.5 12H15a2.5 2.5 0 0 1 0 5H9.5V12z"/><line x1="9.5" y1="7" x2="9.5" y2="17"/><line x1="7" y1="9" x2="9.5" y2="9"/><line x1="7" y1="15" x2="9.5" y2="15"/></svg></span>
@@ -163,36 +323,24 @@
         </div>
         <div class="ob-asset-card" id="obAssetGold" onclick="obToggleAsset('gold')">
           <span class="ob-asset-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><circle cx="12" cy="14" r="7"/><path d="M7.4 6.3L9 2h6l1.6 4.3"/><path d="M12 11v6M9.5 14h5"/></svg></span>
-          <span class="ob-asset-label">Gold</span>
+          <span class="ob-asset-label">Emas</span>
           <span class="ob-asset-sub">Antam, LM…</span>
         </div>
         <div class="ob-asset-card" id="obAssetStocks" onclick="obToggleAsset('stocks')">
           <span class="ob-asset-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
-          <span class="ob-asset-label">Stocks</span>
+          <span class="ob-asset-label">Saham</span>
           <span class="ob-asset-sub">IDX, US…</span>
         </div>
         <div class="ob-asset-card" id="obAssetSavings" onclick="obToggleAsset('savings')">
           <span class="ob-asset-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg></span>
-          <span class="ob-asset-label">Savings</span>
+          <span class="ob-asset-label">Tabungan</span>
           <span class="ob-asset-sub">Bank, deposit…</span>
         </div>
       </div>
-      <button class="ob-btn-primary" onclick="obNext()">Continue →</button>
-      <button class="ob-btn-skip" onclick="obFinish()">Skip for now</button>
+
+      <button class="ob-btn-primary" onclick="obFinish()">Buka Dashboard →</button>
     </div>
 
-    <!-- Step 3: Ready -->
-    <div class="ob-slide" id="obSlide3" style="display:none;">
-      <div class="ob-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><polyline points="20 6 9 17 4 12"/></svg></div>
-      <div class="ob-title">You're all set!</div>
-      <div class="ob-desc">Your portfolio is ready. Add your first asset by tapping <strong>+ Add</strong> in any section.</div>
-      <div class="ob-tips">
-        <div class="ob-tip"><span class="tip-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg></span> Tap <strong>Sync</strong> to get live prices</div>
-        <div class="ob-tip"><span class="tip-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg></span> Use <strong>Holdings</strong> to manage your assets</div>
-        <div class="ob-tip"><span class="tip-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg></span> Check <strong>Analytics</strong> for insights</div>
-      </div>
-      <button class="ob-btn-primary" onclick="obFinish()">Open My Portfolio →</button>
-    </div>
   </div>
 </div>
 
@@ -471,19 +619,6 @@
   <div class="yield-row" id="yieldRow"></div>
 </div>
 
-<!-- ── AI INSIGHTS ── -->
-<div class="sec-head"><span>AI Analytics</span><div class="line"></div></div>
-<div class="card c-ai" style="margin-bottom:14px;">
-  <div class="card-head">
-    <div class="card-title"><div class="class-dot"></div><div class="card-title-text" data-i18n="ai_advisor">Gemini Portfolio Advisor</div></div>
-    <div class="card-head-right">
-      <button class="add-btn" id="aiBtn" onclick="generateAIInsights()" style="border-color:var(--crypto);color:var(--crypto);display:inline-flex;align-items:center;gap:5px;" data-i18n="generate_insights"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="display:inline-block;vertical-align:middle"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Generate Insights</button>
-    </div>
-  </div>
-  <div class="ai-content" id="aiContent">
-    <div class="ai-placeholder" data-i18n="ai_placeholder">Klik "Generate Insights" untuk mendapatkan analisis portofolio Anda menggunakan Gemini API.</div>
-  </div>
-</div>
 
 </div><!-- /panelAnalytics -->
 
@@ -1009,7 +1144,6 @@
 <script type="module">
   // Import main app module which initializes everything
   import './js/app.js';
-  import { analyzePortfolio } from './js/gemini.js';
   window.toggleMobileMenu = function() {
     const drawer = document.getElementById('mobileDrawer');
     const overlay = document.getElementById('mobileDrawerOverlay');
@@ -1093,39 +1227,6 @@
   window.setHistoryRange = function(r) {
     if (typeof window._setHistoryRange === 'function') {
       window._setHistoryRange(r);
-    }
-  };
-
-  // Markdown renderer for AI content panel
-  function _renderAiMarkdown(text) {
-    return text
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/^### (.+)$/gm, '<strong style="font-size:13px">$1</strong>')
-      .replace(/^## (.+)$/gm,  '<strong style="font-size:14px">$1</strong>')
-      .replace(/^# (.+)$/gm,   '<strong style="font-size:15px">$1</strong>')
-      .replace(/^[-•] (.+)$/gm, '• $1')
-      .replace(/\n/g, '<br>');
-  }
-
-  // AI Insights — calls real Gemini analyzePortfolio
-  window.generateAIInsights = async function() {
-    const btn = document.getElementById('aiBtn');
-    const content = document.getElementById('aiContent');
-    btn.disabled = true;
-    btn.innerHTML = '↻ Analyzing...';
-    content.innerHTML = '<div class="ai-loading"><div class="ai-skeleton w-3-4"></div><div class="ai-skeleton w-full"></div><div class="ai-skeleton w-5-6"></div></div>';
-
-    try {
-      const analysis = await analyzePortfolio();
-      content.style.cssText = 'font-size:12px;line-height:1.7;color:var(--text);white-space:pre-wrap;';
-      content.innerHTML = _renderAiMarkdown(analysis);
-    } catch (e) {
-      content.innerHTML = `<div style="color:var(--down);font-size:11px;">Error: ${e.message}. Check Gemini API key in gemini.js.</div>`;
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="display:inline-block;vertical-align:middle"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Generate Insights';
     }
   };
 
@@ -1298,6 +1399,7 @@ window.addEventListener('load', function() {
 <script>
 // ── Onboarding ────────────────────────────────────────────────────
 var _obStep = 1;
+var _obMaxSteps = 4;
 var _obAssets = new Set();
 
 window.obToggleAsset = function(type) {
@@ -1312,13 +1414,28 @@ window.obToggleAsset = function(type) {
 };
 
 window.obNext = function() {
+  // Hide current slide
   var current = document.getElementById('obSlide' + _obStep);
   if (current) current.style.display = 'none';
-  document.getElementById('obStep' + _obStep)?.classList.remove('active');
+  // Deactivate current dot
+  var dot = document.getElementById('obDot' + _obStep);
+  if (dot) dot.classList.remove('active');
+
   _obStep++;
+
+  if (_obStep > _obMaxSteps) { obFinish(); return; }
+
+  // Show next slide with animation
   var next = document.getElementById('obSlide' + _obStep);
-  if (next) next.style.display = 'flex';
-  document.getElementById('obStep' + _obStep)?.classList.add('active');
+  if (next) {
+    next.style.display = 'flex';
+    next.style.animation = 'none';
+    next.offsetHeight; // force reflow
+    next.style.animation = 'slideUp .28s cubic-bezier(.22,1,.36,1)';
+  }
+  // Activate next dot
+  var nextDot = document.getElementById('obDot' + _obStep);
+  if (nextDot) nextDot.classList.add('active');
 };
 
 window.obFinish = function() {
@@ -1329,9 +1446,11 @@ window.obFinish = function() {
     setTimeout(function() { overlay.style.display = 'none'; }, 400);
   }
   localStorage.setItem('portfolio-onboarded', '1');
-  // If user selected asset types, open the first relevant modal
-  if (_obAssets.has('crypto') && typeof window.openModal === 'function') {
-    setTimeout(function() { window.openModal('crypto'); }, 600);
+  // Open modal for first selected asset type
+  if (_obAssets.size > 0 && typeof window.openModal === 'function') {
+    var priority = ['crypto', 'stocks', 'gold', 'savings'];
+    var first = priority.find(function(t) { return _obAssets.has(t); }) || [..._obAssets][0];
+    setTimeout(function() { window.openModal(first); }, 600);
   }
 };
 

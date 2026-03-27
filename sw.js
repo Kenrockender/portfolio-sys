@@ -21,8 +21,6 @@ const PRECACHE_URLS = [
   '/js/api.js',
   '/js/charts.js',
   '/js/config.js',
-  '/js/gemini.js',
-  '/js/gemini-ui.js',
   '/js/import-parsers.js',
   '/js/state.js',
   '/js/storage.js',
