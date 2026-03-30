@@ -5,6 +5,7 @@
  */
 
 import { S, DATA, setDATA, setHistoryData, setPrice, setFxRate } from '../js/state.js';
+import { setPlan } from '../js/plans.js';
 
 // ══════════════════════════════════════════
 // FIREBASE CONFIG — ganti dengan milikmu
@@ -169,6 +170,10 @@ export function initCloud() {
 
       // Load data dari cloud
       await loadDataFromCloud();
+
+      // Load plan user (free / pro)
+      await loadUserPlan();
+
       setCloudStatus('SYNCED');
 
     } else {
@@ -286,5 +291,53 @@ export async function saveDailySnapshot() {
 
   window.dispatchEvent(new CustomEvent('portfolio:update'));
 }
+
+// ── Load User Plan ────────────────────────────────────────────────
+export async function loadUserPlan() {
+  if (!currentUser || !db) return;
+  try {
+    const planRef = firebase.doc(db, 'users', currentUser.uid, 'subscription', 'plan');
+    const snap = await firebase.getDoc(planRef);
+    if (snap.exists()) {
+      const data = snap.data();
+      // Cek expired
+      if (data.expiresAt && new Date(data.expiresAt) < new Date()) {
+        setPlan('free');
+        console.log('[PLANS] Plan expired, downgraded to free');
+      } else {
+        setPlan(data.plan || 'free');
+      }
+    } else {
+      setPlan('free');
+    }
+  } catch (e) {
+    console.warn('[PLANS] loadUserPlan error:', e);
+    setPlan('free');
+  }
+}
+
+/**
+ * Set user sebagai Pro (dipanggil manual setelah konfirmasi pembayaran).
+ * @param {string} uid - Firebase UID user
+ * @param {'lifetime'|'annual'} type
+ * @param {string} note - mis. "Trakteer #12345"
+ */
+export async function setUserPro(uid, type = 'lifetime', note = '') {
+  if (!db) { console.error('[PLANS] Firestore not ready'); return; }
+  const planRef = firebase.doc(db, 'users', uid, 'subscription', 'plan');
+  const expiresAt = type === 'lifetime' ? null
+    : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+  await firebase.setDoc(planRef, {
+    plan:        'pro',
+    type,
+    upgradedAt:  new Date().toISOString(),
+    expiresAt,
+    note,
+  });
+  console.log(`[PLANS] User ${uid} upgraded to PRO (${type})`);
+}
+
+// Expose setUserPro untuk admin console
+window._setUserPro = setUserPro;
 
 console.log('[FIREBASE] firebase-config loaded — Google Auth ready');

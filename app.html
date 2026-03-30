@@ -217,6 +217,7 @@
   </div>
   <div class="topbar-controls">
     <div class="cloud-badge" id="cloudStatus"><span class="cloud-badge-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" width="13" height="13"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg></span><span id="cloudStatusText">CONNECTING...</span></div>
+    <span id="planBadge" style="font-size:9px;padding:3px 8px;border-radius:5px;font-weight:800;letter-spacing:.1em;background:rgba(100,116,139,.12);color:#94a3b8;border:1px solid rgba(100,116,139,.2);cursor:pointer;" onclick="showUpgradeModal('Pro Lifetime','⚡')">FREE</span>
     <div class="live-badge"><div class="live-dot"></div>LIVE</div>
     <div class="currency-toggle">
       <button class="currency-btn active" id="btnIDR" onclick="setCurrency('IDR')">IDR</button>
@@ -311,7 +312,7 @@
   <button class="tab-btn"        id="tabHoldings"  onclick="setTab('holdings')"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg> <span data-i18n="holdings">Holdings</span></button>
   <button class="tab-btn"        id="tabHistory"   onclick="setTab('history')"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> <span data-i18n="portfolio_history">History</span></button>
   <button class="tab-btn"        id="tabAnalytics" onclick="setTab('analytics')"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> <span data-i18n="advanced_analytics">Analytics</span></button>
-  <button class="tab-btn"        id="tabRebalance" onclick="setTab('rebalance')"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> Rebalance</button>
+  <button class="tab-btn"        id="tabRebalance" onclick="if(requiresPro('rebalance'))setTab('rebalance')"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> Rebalance</button>
   <button class="tab-btn"        id="tabTxlog"     onclick="setTab('txlog')"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Log</button>
 </nav>
 
@@ -477,7 +478,7 @@
   <div class="card-head">
     <div class="card-title"><div class="class-dot"></div><div class="card-title-text" data-i18n="ai_advisor">Gemini Portfolio Advisor</div></div>
     <div class="card-head-right">
-      <button class="add-btn" id="aiBtn" onclick="generateAIInsights()" style="border-color:var(--crypto);color:var(--crypto);display:inline-flex;align-items:center;gap:5px;" data-i18n="generate_insights"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="display:inline-block;vertical-align:middle"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Generate Insights</button>
+      <button class="add-btn" id="aiBtn" onclick="if(requiresPro('ai'))generateAIInsights()" style="border-color:var(--crypto);color:var(--crypto);display:inline-flex;align-items:center;gap:5px;" data-i18n="generate_insights"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="display:inline-block;vertical-align:middle"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Generate Insights</button>
     </div>
   </div>
   <div class="ai-content" id="aiContent">
@@ -536,7 +537,7 @@
   <div style="margin-left:auto;display:flex;gap:6px;">
     <button class="sync-btn" onclick="exportCSV()" title="Export ke CSV" style="font-size:10px;padding:6px 10px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> CSV</button>
     <button class="sync-btn" onclick="exportJSON()" title="Export ke JSON" style="font-size:10px;padding:6px 10px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> JSON</button>
-    <button class="sync-btn" onclick="exportPDF()" title="Export laporan PDF" style="font-size:10px;padding:6px 10px;border-color:rgba(251,113,133,.4);color:#fb7185;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PDF</button>
+    <button class="sync-btn" onclick="if(requiresPro('export_pdf'))exportPDF()" title="Export laporan PDF" style="font-size:10px;padding:6px 10px;border-color:rgba(251,113,133,.4);color:#fb7185;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PDF</button>
   </div>
 </div>
 
@@ -805,7 +806,7 @@
     <svg class="mobile-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
     <span class="mobile-nav-label">Analytics</span>
   </button>
-  <button class="mobile-nav-btn" id="mtabRebalance" onclick="setTab('rebalance')">
+  <button class="mobile-nav-btn" id="mtabRebalance" onclick="if(requiresPro('rebalance'))setTab('rebalance')">
     <svg class="mobile-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
     <span class="mobile-nav-label">Rebalance</span>
   </button>
@@ -1006,9 +1007,48 @@
   </div>
 </div>
 
+<!-- ══ UPGRADE MODAL ══ -->
+<div id="upgradeOverlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)closeUpgradeModal()">
+  <div style="background:var(--bg2);border:1px solid rgba(139,92,246,.4);border-radius:20px;padding:36px 28px;width:100%;max-width:380px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.6),0 0 40px rgba(139,92,246,.12);animation:slideUp .25s cubic-bezier(.22,1,.36,1);">
+    <div style="width:56px;height:56px;border-radius:14px;background:rgba(139,92,246,.12);border:1.5px solid rgba(139,92,246,.3);display:grid;place-items:center;margin:0 auto 16px;box-shadow:0 0 24px rgba(139,92,246,.2);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:800;letter-spacing:.18em;color:#a78bfa;text-transform:uppercase;margin-bottom:8px;">Fitur Pro</div>
+    <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:10px;">Upgrade diperlukan</div>
+    <div id="upgradeFeatureName" style="display:inline-block;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;color:#a78bfa;margin-bottom:16px;"></div>
+    <p style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:20px;">Fitur ini tersedia untuk pengguna <strong style="color:var(--text);">Pro Lifetime</strong>. Bayar sekali, pakai selamanya.</p>
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-align:left;margin-bottom:20px;">
+      <div style="font-size:9px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px;">Yang kamu dapatkan dengan Pro:</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;"><span style="color:var(--up);">✓</span> Export PDF Laporan</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;"><span style="color:var(--up);">✓</span> AI Insights (Gemini)</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;"><span style="color:var(--up);">✓</span> Rebalancing Calculator</div>
+      </div>
+    </div>
+    <div style="margin-bottom:20px;">
+      <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">Lifetime Deal</div>
+      <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Rp 199k</div>
+      <div style="font-size:10px;color:var(--muted);"><del style="color:var(--down);">Rp 499.000</del> &nbsp;—&nbsp; <span style="color:var(--up);">hemat 60%</span></div>
+    </div>
+    <a href="https://trakteer.id/YOUR_TRAKTEER_ID" target="_blank"
+       style="display:block;width:100%;padding:13px;background:var(--crypto);color:#fff;border:none;border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.08em;text-decoration:none;text-align:center;margin-bottom:10px;box-sizing:border-box;">
+      ⚡ Upgrade ke Pro — Rp 199k
+    </a>
+    <button onclick="closeUpgradeModal()"
+      style="width:100%;padding:10px;background:transparent;border:1px solid var(--border2);border-radius:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;">
+      Nanti saja
+    </button>
+  </div>
+</div>
+
 <script type="module">
   // Import main app module which initializes everything
   import './js/app.js';
+  import { setPlan, showUpgradeModal, closeUpgradeModal, requiresPro } from './js/plans.js';
+  // Expose plan functions globally so inline onclick handlers work
+  window.showUpgradeModal  = showUpgradeModal;
+  window.closeUpgradeModal = closeUpgradeModal;
+  window.requiresPro       = requiresPro;
   import { analyzePortfolio } from './js/gemini.js';
   window.toggleMobileMenu = function() {
     const drawer = document.getElementById('mobileDrawer');
