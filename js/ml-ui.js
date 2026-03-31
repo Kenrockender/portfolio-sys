@@ -448,4 +448,7 @@ window.refreshMLAnalysis = function () {
   renderMLPanel();
 };
 
+// Expose to window so app.js setTab('ml') can call it
+window.renderMLPanel = renderMLPanel;
+
 console.log('[ML-UI] ML UI module loaded');
