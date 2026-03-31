@@ -314,6 +314,7 @@
   <button class="tab-btn"        id="tabAnalytics" onclick="setTab('analytics')"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> <span data-i18n="advanced_analytics">Analytics</span></button>
   <button class="tab-btn"        id="tabRebalance" onclick="if(requiresPro('rebalance'))setTab('rebalance')"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> Rebalance</button>
   <button class="tab-btn"        id="tabTxlog"     onclick="setTab('txlog')"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Log</button>
+  <button class="tab-btn"        id="tabMl"        onclick="setTab('ml')"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>ML</button>
 </nav>
 
 <div class="content-wrap">
@@ -518,6 +519,22 @@
     <div id="txLogList" style="margin-top:8px;"></div>
   </div>
 </div><!-- /panelTxlog -->
+
+<!-- ══ TAB: ML INTELLIGENCE ══ -->
+<div class="tab-panel" id="panelMl">
+  <div class="sec-head">
+    <span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+        stroke-linecap="round" stroke-linejoin="round" width="13" height="13"
+        style="display:inline-block;vertical-align:middle">
+        <circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/>
+      </svg>
+      Portfolio Intelligence
+    </span>
+    <div class="line"></div>
+  </div>
+  <div id="mlPanel" style="padding-bottom:8px;"></div>
+</div><!-- /panelMl -->
 
 <!-- ══ TAB: HOLDINGS ══ -->
 <div class="tab-panel" id="panelHoldings">
@@ -814,6 +831,12 @@
     <svg class="mobile-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
     <span class="mobile-nav-label">Log</span>
   </button>
+  <button class="mobile-nav-btn" id="mtabMl" onclick="setTab('ml')">
+    <svg class="mobile-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/>
+    </svg>
+    <span class="mobile-nav-label">ML</span>
+  </button>
 </nav>
 
 <!-- ══ IMPORT MODAL ══ -->
@@ -1030,7 +1053,8 @@
       <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Rp 199k</div>
       <div style="font-size:10px;color:var(--muted);"><del style="color:var(--down);">Rp 499.000</del> &nbsp;—&nbsp; <span style="color:var(--up);">hemat 60%</span></div>
     </div>
-    <a href="https://trakteer.id/betterfinance" target="_blank"
+    <a href="https://trakteer.id/betterfinance
+    " target="_blank"
        style="display:block;width:100%;padding:13px;background:var(--crypto);color:#fff;border:none;border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.08em;text-decoration:none;text-align:center;margin-bottom:10px;box-sizing:border-box;">
       ⚡ Upgrade ke Pro — Rp 199k
     </a>
@@ -1173,6 +1197,8 @@
 </script>
 
 <script type="module" src="./js/import-parsers.js"></script>
+
+<script type="module" src="./js/ml-ui.js"></script>
 
 <!-- PWA Service Worker Registration -->
 <script>
