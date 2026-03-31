@@ -55,7 +55,7 @@ function md(text) {
     .replace(/\n/g,'<br>');
 }
 
-// ── Gauge SVG ─────────────────────────────────────────────────────
+// ── Gauge SVG (BERSIH, tanpa zone segments) ──────────────────────
 function buildGauge(score, color) {
   const W = 200, H = 115;
   const cx = 100, cy = 105;
@@ -67,51 +67,70 @@ function buildGauge(score, color) {
     +(cy - R * Math.sin(toRad(deg))).toFixed(1),
   ];
 
-  const [lx, ly] = pt(180);
-  const [rx, ry] = pt(0);
-  const scoreDeg = 180 - score * 1.8;
+  // Endpoints of full semicircle
+  const [lx, ly] = pt(180); // left
+  const [rx, ry] = pt(0);   // right
+
+  // Score position: 0 → left (180°), 100 → right (0°)
+  const clampedScore = Math.max(0, Math.min(100, score));
+  const scoreDeg = 180 - clampedScore * 1.8;
   const [sx, sy] = pt(scoreDeg);
 
+  // Needle
   const nl = 72;
   const nx = +(cx + nl * Math.cos(toRad(scoreDeg))).toFixed(1);
   const ny = +(cy - nl * Math.sin(toRad(scoreDeg))).toFixed(1);
 
-  // 5 zone segments (matching ml.js thresholds)
-  const zones = [
-    { from: 180, to: 180 - 20 * 1.8, col: '#34d39940' },  // 0-19  RENDAH
-    { from: 180 - 20 * 1.8, to: 180 - 40 * 1.8, col: '#a3e63540' },  // 20-39 MODERAT
-    { from: 180 - 40 * 1.8, to: 180 - 60 * 1.8, col: '#fbbf2440' },  // 40-59 TINGGI
-    { from: 180 - 60 * 1.8, to: 180 - 80 * 1.8, col: '#fb923c40' },  // 60-79 SANGAT TINGGI
-    { from: 180 - 80 * 1.8, to: 0, col: '#fb718540' },      // 80-100 EKSTREM
-  ];
-  const zoneArcs = zones.map(z => {
-    const [zx, zy] = pt(z.from);
-    const [zx2, zy2] = pt(z.to);
-    const largeArc = (z.from - z.to) > 180 ? 1 : 0;
-    return `<path d="M ${zx} ${zy} A ${R} ${R} 0 ${largeArc} 0 ${zx2} ${zy2}"
-      fill="none" stroke="${z.col}" stroke-width="10" stroke-linecap="butt"/>`;
+  // Tick marks at 0, 20, 40, 60, 80, 100
+  const tickPositions = [0, 20, 40, 60, 80, 100];
+  const ticks = tickPositions.map(v => {
+    const d = 180 - v * 1.8;
+    const [ix, iy] = pt(d);
+    // Make threshold ticks slightly longer
+    const isThreshold = v > 0 && v < 100;
+    const innerR = isThreshold ? R - 10 : R - 7;
+    const outerR = R + 4;
+    const [ix2, iy2] = [
+      +(cx + innerR * Math.cos(toRad(d))).toFixed(1),
+      +(cy - innerR * Math.sin(toRad(d))).toFixed(1),
+    ];
+    const [ox, oy] = [
+      +(cx + outerR * Math.cos(toRad(d))).toFixed(1),
+      +(cy - outerR * outerR * Math.sin(toRad(d))).toFixed(1),
+    ];
+    // Fix: ox/oy should use outerR for cos too
+    const [oxFixed, oyFixed] = [
+      +(cx + outerR * Math.cos(toRad(d))).toFixed(1),
+      +(cy - outerR * Math.sin(toRad(d))).toFixed(1),
+    ];
+    const strokeCol = isThreshold ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.25)';
+    const strokeW = isThreshold ? '1' : '1.5';
+    return `<line x1="${ix2}" y1="${iy2}" x2="${oxFixed}" y2="${oyFixed}" stroke="${strokeCol}" stroke-width="${strokeW}"/>`;
   }).join('');
 
-  // Tick marks at each threshold
-  const ticks = [0, 20, 40, 60, 80, 100].map(v => {
-    const d = 180 - v * 1.8;
-    const [ix, iy] = [+(cx + (R-7) * Math.cos(toRad(d))).toFixed(1), +(cy - (R-7) * Math.sin(toRad(d))).toFixed(1)];
-    const [ox, oy] = [+(cx + (R+4) * Math.cos(toRad(d))).toFixed(1), +(cy - (R+4) * Math.sin(toRad(d))).toFixed(1)];
-    return `<line x1="${ix}" y1="${iy}" x2="${ox}" y2="${oy}" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>`;
-  }).join('');
+  // Score arc (only if > 0)
+  const scoreArc = clampedScore > 0
+    ? `<path d="M ${lx} ${ly} A ${R} ${R} 0 0 0 ${sx} ${sy}"
+        fill="none" stroke="${color}" stroke-width="10" stroke-linecap="round"
+        style="filter:drop-shadow(0 0 10px ${color}90)"/>`
+    : '';
 
   return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    ${zoneArcs}
-    ${score > 0 ? `
-    <path d="M ${lx} ${ly} A ${R} ${R} 0 0 0 ${sx} ${sy}"
-      fill="none" stroke="${color}" stroke-width="11" stroke-linecap="round"
-      style="filter:drop-shadow(0 0 10px ${color}90)"/>` : ''}
+    <!-- Gray background track -->
+    <path d="M ${lx} ${ly} A ${R} ${R} 0 0 0 ${rx} ${ry}"
+      fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="10" stroke-linecap="round"/>
+    <!-- Colored score arc -->
+    ${scoreArc}
+    <!-- Tick marks -->
     ${ticks}
+    <!-- Needle -->
     <line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}"
       stroke="${color}" stroke-width="2.5" stroke-linecap="round"
       style="filter:drop-shadow(0 0 5px ${color})"/>
+    <!-- Hub dot -->
     <circle cx="${cx}" cy="${cy}" r="6" fill="${color}"
       style="filter:drop-shadow(0 0 8px ${color})"/>
+    <!-- Score number -->
     <text x="${cx}" y="${cy - 32}" text-anchor="middle"
       font-family="Syne,sans-serif" font-size="26" font-weight="800" fill="${color}">${score}</text>
     <text x="${cx}" y="${cy - 16}" text-anchor="middle"
