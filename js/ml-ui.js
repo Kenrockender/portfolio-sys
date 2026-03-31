@@ -55,7 +55,7 @@ function md(text) {
     .replace(/\n/g,'<br>');
 }
 
-// ── Gauge SVG — improved version (smoother arc, better precision, cleaner glow) ──────────────────────
+// ── Gauge SVG — FIXED: besar lagi + curve ke ATAS (bukan bawah) ──────────────────────
 function buildGauge(score, color) {
   const W = 200, H = 115;
   const cx = 100, cy = 105;
@@ -79,36 +79,38 @@ function buildGauge(score, color) {
   const nx = +(cx + nl * Math.cos(toRad(scoreDeg))).toFixed(2);
   const ny = +(cy - nl * Math.sin(toRad(scoreDeg))).toFixed(2);
 
-  // Tick marks
+  // Tick marks (cleaner)
   const tickPositions = [0, 20, 40, 60, 80, 100];
   const ticks = tickPositions.map(v => {
     const d = 180 - v * 1.8;
+    const innerR = v > 0 && v < 100 ? R - 10 : R - 7;
+    const outerR = R + 4;
     const [ix, iy] = [
-      +(cx + (R - (v > 0 && v < 100 ? 10 : 7)) * Math.cos(toRad(d))).toFixed(2),
-      +(cy - (R - (v > 0 && v < 100 ? 10 : 7)) * Math.sin(toRad(d))).toFixed(2)
+      +(cx + innerR * Math.cos(toRad(d))).toFixed(2),
+      +(cy - innerR * Math.sin(toRad(d))).toFixed(2)
     ];
     const [ox, oy] = [
-      +(cx + (R + 4) * Math.cos(toRad(d))).toFixed(2),
-      +(cy - (R + 4) * Math.sin(toRad(d))).toFixed(2)
+      +(cx + outerR * Math.cos(toRad(d))).toFixed(2),
+      +(cy - outerR * Math.sin(toRad(d))).toFixed(2)
     ];
     const strokeCol = v > 0 && v < 100 ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.25)';
     const strokeW = v > 0 && v < 100 ? '1' : '1.5';
     return `<line x1="${ix}" y1="${iy}" x2="${ox}" y2="${oy}" stroke="${strokeCol}" stroke-width="${strokeW}"/>`;
   }).join('');
 
-  // Score arc (only if > 0)
+  // Score arc — FLIPPED ke ATAS (sweep=1)
   const scoreArc = clampedScore > 0
-    ? `<path d="M ${lx} ${ly} A ${R} ${R} 0 0 0 ${sx} ${sy}"
+    ? `<path d="M ${lx} ${ly} A ${R} ${R} 0 0 1 ${sx} ${sy}"
         fill="none" stroke="${color}" stroke-width="10" stroke-linecap="round"
-        style="filter: drop-shadow(0 0 8px ${color}90);"/>`
+        style="filter: drop-shadow(0 0 10px ${color}90);"/>`
     : '';
 
-  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" width="200" height="115">
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <!-- Gray background track -->
-    <path d="M ${lx} ${ly} A ${R} ${R} 0 0 0 ${rx} ${ry}"
+    <path d="M ${lx} ${ly} A ${R} ${R} 0 0 1 ${rx} ${ry}"
       fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="10" stroke-linecap="round"/>
 
-    <!-- Colored score arc -->
+    <!-- Colored score arc (sekarang ke atas) -->
     ${scoreArc}
 
     <!-- Tick marks -->
