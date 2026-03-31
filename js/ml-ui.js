@@ -21,6 +21,25 @@ let _healthMetrics = null;
 let _riskLoading   = false;
 let _predLoading   = false;
 
+// ── Grade color map (MUST match ml.js 5-tier system) ─────────────
+const GRADE_COLORS = {
+  'RENDAH':        { color: '#34d399', label: 'Rendah' },
+  'MODERAT':       { color: '#a3e635', label: 'Moderat' },
+  'TINGGI':        { color: '#fbbf24', label: 'Tinggi' },
+  'SANGAT TINGGI': { color: '#fb923c', label: 'Sangat Tinggi' },
+  'EKSTREM':       { color: '#fb7185', label: 'Ekstrem' },
+  'N/A':           { color: '#64748b',  label: 'N/A' },
+};
+
+// Map a 0-100 sub-score to the matching 5-tier color
+function scoreColor(s) {
+  if (s < 20) return '#34d399';
+  if (s < 40) return '#a3e635';
+  if (s < 60) return '#fbbf24';
+  if (s < 80) return '#fb923c';
+  return '#fb7185';
+}
+
 // ── Mini Markdown Renderer ────────────────────────────────────────
 function md(text) {
   return text
@@ -37,58 +56,62 @@ function md(text) {
 }
 
 // ── Gauge SVG ─────────────────────────────────────────────────────
-// Semicircle gauge: arc goes from 180° (left) → 0° (right) through the top.
-// Center (cx, cy) sits at the bottom of the viewBox so the arc stays inside.
 function buildGauge(score, color) {
   const W = 200, H = 115;
-  const cx = 100, cy = 105; // hub at bottom-centre
-  const R  = 88;            // radius — top of arc is at y = 105-88 = 17 ✓
+  const cx = 100, cy = 105;
+  const R  = 88;
 
   const toRad = d => d * Math.PI / 180;
-  // Point on circle at standard math angle `deg`
   const pt = deg => [
     +(cx + R * Math.cos(toRad(deg))).toFixed(1),
     +(cy - R * Math.sin(toRad(deg))).toFixed(1),
   ];
 
-  // Full track: 180° (left) → 0° (right) counter-clockwise through top
-  // SVG arc: sweep-flag=0 = counter-clockwise (= visually upward)
-  const [lx, ly] = pt(180); // ≈ (12, 105)
-  const [rx, ry] = pt(0);   // ≈ (188, 105)
-
-  // Score position: 0% → 180° (left), 100% → 0° (right)
+  const [lx, ly] = pt(180);
+  const [rx, ry] = pt(0);
   const scoreDeg = 180 - score * 1.8;
   const [sx, sy] = pt(scoreDeg);
 
-  // Needle
   const nl = 72;
   const nx = +(cx + nl * Math.cos(toRad(scoreDeg))).toFixed(1);
   const ny = +(cy - nl * Math.sin(toRad(scoreDeg))).toFixed(1);
 
-  // Zone ticks at 0 / 25 / 50 / 75 / 100 %
-  const ticks = [0, 25, 50, 75, 100].map(v => {
+  // 5 zone segments (matching ml.js thresholds)
+  const zones = [
+    { from: 180, to: 180 - 20 * 1.8, col: '#34d39940' },  // 0-19  RENDAH
+    { from: 180 - 20 * 1.8, to: 180 - 40 * 1.8, col: '#a3e63540' },  // 20-39 MODERAT
+    { from: 180 - 40 * 1.8, to: 180 - 60 * 1.8, col: '#fbbf2440' },  // 40-59 TINGGI
+    { from: 180 - 60 * 1.8, to: 180 - 80 * 1.8, col: '#fb923c40' },  // 60-79 SANGAT TINGGI
+    { from: 180 - 80 * 1.8, to: 0, col: '#fb718540' },      // 80-100 EKSTREM
+  ];
+  const zoneArcs = zones.map(z => {
+    const [zx, zy] = pt(z.from);
+    const [zx2, zy2] = pt(z.to);
+    const largeArc = (z.from - z.to) > 180 ? 1 : 0;
+    return `<path d="M ${zx} ${zy} A ${R} ${R} 0 ${largeArc} 0 ${zx2} ${zy2}"
+      fill="none" stroke="${z.col}" stroke-width="10" stroke-linecap="butt"/>`;
+  }).join('');
+
+  // Tick marks at each threshold
+  const ticks = [0, 20, 40, 60, 80, 100].map(v => {
     const d = 180 - v * 1.8;
     const [ix, iy] = [+(cx + (R-7) * Math.cos(toRad(d))).toFixed(1), +(cy - (R-7) * Math.sin(toRad(d))).toFixed(1)];
     const [ox, oy] = [+(cx + (R+4) * Math.cos(toRad(d))).toFixed(1), +(cy - (R+4) * Math.sin(toRad(d))).toFixed(1)];
-    return `<line x1="${ix}" y1="${iy}" x2="${ox}" y2="${oy}" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>`;
+    return `<line x1="${ix}" y1="${iy}" x2="${ox}" y2="${oy}" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>`;
   }).join('');
 
   return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <!-- Gray track (full semicircle) -->
-    <path d="M ${lx} ${ly} A ${R} ${R} 0 0 0 ${rx} ${ry}"
-      fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="10" stroke-linecap="round"/>
-    <!-- Coloured score arc -->
+    ${zoneArcs}
+    ${score > 0 ? `
     <path d="M ${lx} ${ly} A ${R} ${R} 0 0 0 ${sx} ${sy}"
-      fill="none" stroke="${color}" stroke-width="10" stroke-linecap="round"
-      style="filter:drop-shadow(0 0 8px ${color}90)"/>
+      fill="none" stroke="${color}" stroke-width="11" stroke-linecap="round"
+      style="filter:drop-shadow(0 0 10px ${color}90)"/>` : ''}
     ${ticks}
-    <!-- Needle -->
     <line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}"
       stroke="${color}" stroke-width="2.5" stroke-linecap="round"
-      style="filter:drop-shadow(0 0 4px ${color})"/>
+      style="filter:drop-shadow(0 0 5px ${color})"/>
     <circle cx="${cx}" cy="${cy}" r="6" fill="${color}"
       style="filter:drop-shadow(0 0 8px ${color})"/>
-    <!-- Score label (inside arc, above hub) -->
     <text x="${cx}" y="${cy - 32}" text-anchor="middle"
       font-family="Syne,sans-serif" font-size="26" font-weight="800" fill="${color}">${score}</text>
     <text x="${cx}" y="${cy - 16}" text-anchor="middle"
@@ -98,18 +121,19 @@ function buildGauge(score, color) {
 }
 
 // ── Bar for sub-score ─────────────────────────────────────────────
-function riskBar(score, weight, color, label, desc) {
-  const barColor = score < 30 ? '#34d399' : score < 60 ? '#fbbf24' : '#fb7185';
+function riskBar(score, weight, label, desc) {
+  const clamped = Math.max(0, Math.min(100, score));
+  const barColor = scoreColor(clamped);
   return `<div class="ml-risk-row">
     <div class="ml-risk-row-head">
       <span class="ml-risk-label">${label}</span>
       <div style="display:flex;align-items:center;gap:8px;">
         <span class="ml-risk-weight">w: ${weight}%</span>
-        <span class="ml-risk-score" style="color:${barColor}">${Math.round(score)}</span>
+        <span class="ml-risk-score" style="color:${barColor}">${Math.round(clamped)}</span>
       </div>
     </div>
     <div class="ml-bar-track">
-      <div class="ml-bar-fill" style="width:${score.toFixed(1)}%;background:${barColor};box-shadow:0 0 8px ${barColor}50;"></div>
+      <div class="ml-bar-fill" style="width:${clamped.toFixed(1)}%;background:${barColor};box-shadow:0 0 8px ${barColor}50;"></div>
     </div>
     <div class="ml-risk-desc">${desc}</div>
   </div>`;
@@ -117,16 +141,21 @@ function riskBar(score, weight, color, label, desc) {
 
 // ── Health metric chip ────────────────────────────────────────────
 function healthChip(label, val, unit, hint, good, warn) {
-  const numVal = parseFloat(val);
-  const color = good == null ? 'var(--text)'
-    : typeof good === 'function' ? (good(numVal) ? 'var(--up)' : 'var(--down)')
-    : !isNaN(numVal) && numVal >= good ? 'var(--up)'
-    : !isNaN(numVal) && numVal >= (warn ?? 0) ? 'var(--warn)'
+  const raw = val != null ? parseFloat(String(val).replace(/[^0-9.\-]/g, '')) : null;
+  const isNum = raw !== null && !isNaN(raw);
+
+  const color = !isNum ? 'var(--muted)'
+    : good == null ? 'var(--text)'
+    : typeof good === 'function' ? (good(raw) ? 'var(--up)' : 'var(--down)')
+    : raw >= good ? 'var(--up)'
+    : warn != null && raw >= warn ? 'var(--warn)'
     : 'var(--down)';
+
+  const display = val != null ? val + (unit || '') : '–';
 
   return `<div class="ml-health-chip">
     <div class="ml-health-label">${label}</div>
-    <div class="ml-health-val" style="color:${color}">${val != null ? val + (unit||'') : '–'}</div>
+    <div class="ml-health-val" style="color:${color}">${display}</div>
     <div class="ml-health-hint">${hint}</div>
   </div>`;
 }
@@ -146,17 +175,119 @@ function signalBadge(sig) {
   </span>`;
 }
 
+// ── Setup API card ────────────────────────────────────────────────
+function apiSetupCard(title) {
+  return `<div style="padding:20px;background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.15);border-radius:10px;text-align:center;">
+    <div style="font-size:28px;margin-bottom:8px;">🔑</div>
+    <div style="color:var(--warn);font-weight:700;font-size:12px;margin-bottom:6px;">API Key Belum Dikonfigurasi</div>
+    <div style="color:var(--muted);font-size:10px;line-height:1.6;max-width:340px;margin:0 auto;">
+      Fitur <strong>${title}</strong> membutuhkan Claude API key dari Anthropic.<br><br>
+      <strong>Cara setup:</strong><br>
+      1. Dapatkan API key di <span style="color:var(--crypto);">console.anthropic.com</span><br>
+      2. Tambahkan header <code style="background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px;">x-api-key</code> di fungsi <code>callClaude()</code> pada <code>ml.js</code><br>
+      3. Tambahkan header <code style="background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px;">anthropic-version: 2023-06-01</code>
+    </div>
+  </div>`;
+}
+
+// ── Smart error renderer ──────────────────────────────────────────
+function renderError(e, title) {
+  const msg = e.message || String(e);
+
+  // Detect auth / no-key errors
+  if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('Load failed')) {
+    return apiSetupCard(title);
+  }
+  if (msg.includes('401') || msg.includes('403')) {
+    return `<div style="padding:16px;background:rgba(251,113,133,.08);border:1px solid rgba(251,113,133,.2);border-radius:8px;">
+      <div style="color:var(--down);font-size:11px;">
+        <strong>⚠ API Key Invalid</strong><br>
+        <span style="color:var(--muted)">Response: ${msg}</span><br><br>
+        Pastikan API key Claude valid dan memiliki akses ke model <code>claude-sonnet-4-20250514</code>.
+      </div>
+    </div>`;
+  }
+  if (msg.includes('429')) {
+    return `<div style="padding:16px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:8px;">
+      <div style="color:var(--warn);font-size:11px;">
+        <strong>⏳ Rate Limit</strong><br>
+        <span style="color:var(--muted)">Terlalu banyak request. Tunggu 10-30 detik lalu coba lagi.</span>
+      </div>
+    </div>`;
+  }
+
+  return `<div style="padding:16px;background:rgba(251,113,133,.08);border:1px solid rgba(251,113,133,.2);border-radius:8px;">
+    <div style="color:var(--down);font-size:11px;">
+      <strong>⚠ Error:</strong> ${msg}
+    </div>
+  </div>`;
+}
+
 // ── Main render function ──────────────────────────────────────────
 export function renderMLPanel() {
   const el = document.getElementById('mlPanel');
   if (!el) return;
 
-  _riskResult    = computeRiskScore();
-  _signals       = computeTechnicalSignals(S.historyData || []);
-  _healthMetrics = computeHealthMetrics();
+  // Compute with safety
+  try {
+    _riskResult    = computeRiskScore();
+    _signals       = computeTechnicalSignals(S.historyData || []);
+    _healthMetrics = computeHealthMetrics();
+  } catch (e) {
+    console.error('[ML-UI] Computation error:', e);
+    el.innerHTML = `<div class="ml-info-note" style="padding:32px;text-align:center;">
+      ⚠️ Gagal menghitung metrik: ${e.message}<br>
+      <span style="color:var(--muted);font-size:10px;">Pastikan data portofolio sudah tersedia.</span>
+    </div>`;
+    return;
+  }
 
   const { total, grade, color, breakdown } = _riskResult;
-  const h = _healthMetrics;
+  const h = _healthMetrics || {};
+  const gradeInfo = GRADE_COLORS[grade] || GRADE_COLORS['N/A'];
+
+  // Safe signal calculations
+  const bullCount = _signals?.bullSignals || 0;
+  const bearCount = _signals?.bearSignals || 0;
+  const totalSig  = bullCount + bearCount;
+  const sigBarW   = totalSig > 0 ? (bullCount / totalSig * 100).toFixed(0) : 50;
+  const sigColor  = !_signals ? 'var(--muted)'
+    : _signals.signal === 'BULLISH' ? 'var(--up)'
+    : _signals.signal === 'BEARISH' ? 'var(--down)'
+    : 'var(--warn)';
+
+  // Zone legend (5 tiers matching ml.js)
+  const zoneLegend = Object.entries(GRADE_COLORS)
+    .filter(([k]) => k !== 'N/A')
+    .map(([, v]) => `<span style="color:${v.color};font-size:10px;">● ${v.label}</span>`)
+    .join('&nbsp;&nbsp;');
+
+  // Health chips
+  const hChips = [
+    healthChip('Total Return', h.totalReturn, '%', 'Sejak awal investasi', 0, -10),
+    healthChip('Ann. Return', h.annualReturn, '%', 'Diannualisasi', 5, 0),
+    healthChip('Sharpe Ratio', h.sharpe, '', 'Risk-adj. return (Rf=6%)', n => n > 1, n => n > 0),
+    healthChip('Max Drawdown', h.maxDD != null ? '-' + h.maxDD : null, '%', 'Penurunan terbesar dari puncak', null, null),
+    healthChip('Calmar Ratio', h.calmar, '', 'Return / Max Drawdown', n => n > 1, n => n > 0.5),
+    healthChip('Win Rate', h.winRate, '%', 'Hari portofolio naik', n => n > 55, n => n > 45),
+    healthChip('Data Points', h.dataPoints, ' hari', 'Snapshot historis tersimpan', n => n >= 30, n => n >= 7),
+    healthChip(
+      'Unrealized P&L',
+      h.unrealizedPnl != null
+        ? (h.unrealizedPnl >= 0 ? '+' : '-') + toDisp(Math.abs(h.unrealizedPnl))
+        : null,
+      '',
+      h.unrealizedPnl != null
+        ? (h.unrealizedPnl >= 0 ? 'Keuntungan belum terealisasi' : 'Kerugian belum terealisasi')
+        : 'Belum ada cost basis',
+      h.unrealizedPnl != null ? () => h.unrealizedPnl >= 0 : null,
+      null
+    ),
+  ].join('');
+
+  const dataWarning = (h.dataPoints || 0) < 7
+    ? `<div class="ml-info-note">💡 Sync harga setiap hari untuk analisis lebih akurat. Butuh minimal 7 snapshot.</div>`
+    : '';
 
   el.innerHTML = `
   <!-- ── HEADER ── -->
@@ -186,11 +317,8 @@ export function renderMLPanel() {
       <div class="ml-grade-badge" style="background:${color}20;color:${color};border:1px solid ${color}40;">
         ${grade}
       </div>
-      <div class="ml-gauge-zones">
-        <span style="color:#34d399">●</span> Rendah
-        <span style="color:#fbbf24">●</span> Moderat
-        <span style="color:#fb923c">●</span> Tinggi
-        <span style="color:#fb7185">●</span> Ekstrem
+      <div class="ml-gauge-zones" style="display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;">
+        ${zoneLegend}
       </div>
       <div class="ml-card-footer">
         <button class="ml-action-btn" id="mlRiskAiBtn" onclick="window.runRiskAI()">
@@ -205,44 +333,29 @@ export function renderMLPanel() {
       <div class="ml-card-label">RISK BREAKDOWN</div>
       <div class="ml-breakdown-list">
         ${Object.values(breakdown).map(b =>
-          riskBar(b.score, b.weight, color, b.label, b.desc)
+          riskBar(b.score, b.weight, b.label, b.desc)
         ).join('')}
       </div>
     </div>
 
   </div>
 
-  <!-- ── AI RISK NARRATIVE ── -->
+  <!-- ── AI RISK NARRATIVE (hidden until clicked) ── -->
   <div class="ml-card" id="mlRiskAiCard" style="display:none;">
     <div class="ml-card-label" style="display:flex;align-items:center;gap:8px;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
       AI RISK NARRATIVE
     </div>
-    <div class="ml-ai-output" id="mlRiskAiOutput">
-      <div class="ml-skeleton-wrap">
-        <div class="ml-skeleton w80"></div>
-        <div class="ml-skeleton wfull"></div>
-        <div class="ml-skeleton w60"></div>
-      </div>
-    </div>
+    <div class="ml-ai-output" id="mlRiskAiOutput"></div>
   </div>
 
   <!-- ── ROW 2: HEALTH METRICS ── -->
   <div class="ml-card">
     <div class="ml-card-label">PORTFOLIO HEALTH METRICS</div>
     <div class="ml-health-grid">
-      ${healthChip('Total Return', h.totalReturn, '%', 'Sejak awal investasi', 0, -10)}
-      ${healthChip('Ann. Return', h.annualReturn, '%', 'Diannualisasi', 5, 0)}
-      ${healthChip('Sharpe Ratio', h.sharpe, '', 'Risk-adj. return (Rf=6%)', n => n > 1, n => n > 0)}
-      ${healthChip('Max Drawdown', '-'+h.maxDD, '%', 'Penurunan terbesar dari puncak', null, null)}
-      ${healthChip('Calmar Ratio', h.calmar, '', 'Return/Max Drawdown', n => n > 1, n => n > 0.5)}
-      ${healthChip('Win Rate', h.winRate, '%', 'Hari portofolio naik', n => n > 55, n => n > 45)}
-      ${healthChip('Data Points', h.dataPoints, ' hari', 'Snapshot historis tersimpan', n => n >= 30, n => n >= 7)}
-      ${healthChip('Unrealized P&L', h.unrealizedPnl != null ? toDisp(Math.abs(h.unrealizedPnl)) : null, '',
-        h.unrealizedPnl != null ? (h.unrealizedPnl >= 0 ? 'Keuntungan belum terealisasi' : 'Kerugian belum terealisasi') : 'Belum ada cost basis',
-        n => h.unrealizedPnl >= 0, null)}
+      ${hChips}
     </div>
-    ${h.dataPoints < 7 ? `<div class="ml-info-note">💡 Sync harga setiap hari untuk mendapatkan analisis yang lebih akurat. Butuh minimal 7 snapshot.</div>` : ''}
+    ${dataWarning}
   </div>
 
   <!-- ── ROW 3: TECHNICAL SIGNALS + PREDICTION ── -->
@@ -297,11 +410,11 @@ export function renderMLPanel() {
         </div>
       </div>
       <div class="ml-signal-bar-wrap">
-        <span style="font-size:9px;color:var(--muted)">Bear ${_signals.bearSignals}</span>
+        <span style="font-size:9px;color:var(--muted)">Bear ${bearCount}</span>
         <div class="ml-signal-bar-track">
-          <div class="ml-signal-bar-fill" style="width:${(_signals.bullSignals/(_signals.bullSignals+_signals.bearSignals||1)*100).toFixed(0)}%;background:${_signals.signal==='BULLISH'?'var(--up)':_signals.signal==='BEARISH'?'var(--down)':'var(--warn)'}"></div>
+          <div class="ml-signal-bar-fill" style="width:${sigBarW}%;background:${sigColor}"></div>
         </div>
-        <span style="font-size:9px;color:var(--muted)">Bull ${_signals.bullSignals}</span>
+        <span style="font-size:9px;color:var(--muted)">Bull ${bullCount}</span>
       </div>
     </div>
 
@@ -315,7 +428,7 @@ export function renderMLPanel() {
         <div class="ml-proj-val-wrap">
           <div class="ml-proj-val" style="color:${_signals.projected7d>=_signals.currentVal?'var(--up)':'var(--down)'}">${toDisp(_signals.projected7d)}</div>
           <span class="ml-proj-delta" style="color:${_signals.projected7d>=_signals.currentVal?'var(--up)':'var(--down)'}">
-            ${_signals.projected7d>=_signals.currentVal?'+':''}${(((_signals.projected7d-_signals.currentVal)/_signals.currentVal)*100).toFixed(1)}%
+            ${_signals.projected7d>=_signals.currentVal?'+':''}${(((_signals.projected7d-_signals.currentVal)/Math.max(_signals.currentVal,1))*100).toFixed(1)}%
           </span>
         </div>
         <div class="ml-proj-band">±${_signals.bandPct}% per hari volatilitas</div>
@@ -328,10 +441,10 @@ export function renderMLPanel() {
         <div class="ml-proj-val-wrap">
           <div class="ml-proj-val" style="color:${_signals.projected30d>=_signals.currentVal?'var(--up)':'var(--down)'}">${toDisp(_signals.projected30d)}</div>
           <span class="ml-proj-delta" style="color:${_signals.projected30d>=_signals.currentVal?'var(--up)':'var(--down)'}">
-            ${_signals.projected30d>=_signals.currentVal?'+':''}${(((_signals.projected30d-_signals.currentVal)/_signals.currentVal)*100).toFixed(1)}%
+            ${_signals.projected30d>=_signals.currentVal?'+':''}${(((_signals.projected30d-_signals.currentVal)/Math.max(_signals.currentVal,1))*100).toFixed(1)}%
           </span>
         </div>
-        <div class="ml-proj-band">Menggunakan slope ${_signals.trend30>0?'+':''}${_signals.trend30}% / 30 hari</div>
+        <div class="ml-proj-band">Slope: ${_signals.trend30>0?'+':''}${_signals.trend30}% / 30 hari</div>
       </div>
 
       <div class="ml-proj-divider"></div>
@@ -344,24 +457,18 @@ export function renderMLPanel() {
 
   </div>
 
-  <!-- AI Prediction output -->
+  <!-- AI Prediction output (hidden until clicked) -->
   <div class="ml-card" id="mlPredAiCard" style="display:none;">
     <div class="ml-card-label" style="display:flex;align-items:center;gap:8px;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
       AI PRICE PREDICTION ANALYSIS
     </div>
-    <div class="ml-ai-output" id="mlPredAiOutput">
-      <div class="ml-skeleton-wrap">
-        <div class="ml-skeleton w80"></div>
-        <div class="ml-skeleton wfull"></div>
-        <div class="ml-skeleton w60"></div>
-      </div>
-    </div>
+    <div class="ml-ai-output" id="mlPredAiOutput"></div>
   </div>
 
   ` : `
   <div class="ml-card">
-    <div class="ml-info-note" style="text-align:center;padding:24px;font-size:11px;">
+    <div class="ml-info-note" style="text-align:center;padding:28px;font-size:11px;">
       📈 <strong>Sinyal teknikal & proyeksi harga</strong> akan muncul setelah minimal 7 snapshot historis.<br>
       Klik <strong>SYNC</strong> setiap hari untuk membangun data historis portofolio.
     </div>
@@ -402,10 +509,11 @@ window.runRiskAI = async function () {
     const narrative = await generateRiskNarrative(_riskResult);
     out.innerHTML = `<div class="ml-ai-content">${md(narrative)}</div>`;
   } catch (e) {
-    out.innerHTML = `<div style="color:var(--down);font-size:11px;padding:12px;">Error: ${e.message}</div>`;
+    console.error('[ML-UI] Risk AI error:', e);
+    out.innerHTML = renderError(e, 'AI Risk Analysis');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Refresh AI Analysis`;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Retry AI Analysis`;
     _riskLoading = false;
   }
 };
@@ -434,10 +542,11 @@ window.runPredictionAI = async function () {
     const prediction = await generatePricePrediction(_signals);
     out.innerHTML = `<div class="ml-ai-content">${md(prediction)}</div>`;
   } catch (e) {
-    out.innerHTML = `<div style="color:var(--down);font-size:11px;padding:12px;">Error: ${e.message}</div>`;
+    console.error('[ML-UI] Prediction AI error:', e);
+    out.innerHTML = renderError(e, 'AI Price Prediction');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Refresh AI Prediction`;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Retry AI Prediction`;
     _predLoading = false;
   }
 };
@@ -446,7 +555,7 @@ window.refreshMLAnalysis = function () {
   renderMLPanel();
 };
 
-// Expose to window so app.js setTab('ml') can call it
+// Expose
 window.renderMLPanel = renderMLPanel;
 
 console.log('[ML-UI] ML UI module loaded');
