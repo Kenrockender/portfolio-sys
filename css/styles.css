@@ -2381,3 +2381,229 @@ html[data-theme="light"] .stk-sub-row:hover { background: rgba(0,0,0,.03); }
   gap: 4px;
 }
 .clear-filter-btn svg { display: block; }
+
+
+
+
+/* ══════════════════════════════════════════
+   ML MODULE — Risk Scoring & Prediction UI
+══════════════════════════════════════════ */
+
+/* ── Panel Header ── */
+.ml-panel-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.ml-panel-tag {
+  font-size: 9px; font-weight: 800; letter-spacing: .22em;
+  text-transform: uppercase; color: var(--crypto);
+  margin-bottom: 4px;
+}
+.ml-panel-title {
+  font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800;
+  margin-bottom: 4px;
+}
+.ml-panel-sub { font-size: 10px; color: var(--muted); }
+.ml-refresh-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border-radius: 7px;
+  border: 1px solid var(--border2); background: var(--bg3);
+  color: var(--muted); font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; font-weight: 700; letter-spacing: .1em;
+  cursor: pointer; text-transform: uppercase; transition: all .2s;
+}
+.ml-refresh-btn:hover { border-color: var(--crypto); color: var(--crypto); }
+
+/* ── Layout Grid ── */
+.ml-grid-2 {
+  display: grid; grid-template-columns: 1fr 1.4fr;
+  gap: 14px; margin-bottom: 14px;
+}
+@media (max-width: 900px) { .ml-grid-2 { grid-template-columns: 1fr; } }
+
+/* ── Card ── */
+.ml-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 20px; margin-bottom: 14px;
+  position: relative; overflow: hidden;
+  transition: border-color .2s;
+}
+.ml-card:last-child { margin-bottom: 0; }
+.ml-card-glow {
+  border-color: var(--glow-border, var(--border));
+  box-shadow: 0 0 30px var(--glow, transparent);
+}
+.ml-card-label {
+  font-size: 9px; font-weight: 800; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--muted);
+  margin-bottom: 14px;
+}
+.ml-card-footer { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
+
+/* ── Gauge ── */
+.ml-gauge-wrap { display: flex; justify-content: center; margin: 4px 0 8px; }
+.ml-grade-badge {
+  display: block; text-align: center; font-family: 'Syne', sans-serif;
+  font-size: 13px; font-weight: 800; letter-spacing: .12em;
+  text-transform: uppercase; padding: 5px 16px;
+  border-radius: 100px; margin: 0 auto 10px;
+  width: fit-content;
+}
+.ml-gauge-zones {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; font-size: 8px; color: var(--muted); letter-spacing: .06em;
+}
+
+/* ── Action Button ── */
+.ml-action-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 9px 18px; border-radius: 8px;
+  border: 1px solid rgba(139,92,246,.4); background: rgba(139,92,246,.1);
+  color: var(--crypto); font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  cursor: pointer; transition: all .2s; width: 100%;
+}
+.ml-action-btn:hover:not(:disabled) { background: rgba(139,92,246,.2); }
+.ml-action-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+/* ── Risk Breakdown Bars ── */
+.ml-breakdown-list { display: flex; flex-direction: column; gap: 12px; }
+.ml-risk-row { }
+.ml-risk-row-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 4px;
+}
+.ml-risk-label { font-size: 10px; font-weight: 600; color: var(--text); }
+.ml-risk-weight { font-size: 8px; color: var(--muted); letter-spacing: .08em; }
+.ml-risk-score { font-size: 11px; font-weight: 800; min-width: 24px; text-align: right; }
+.ml-bar-track {
+  height: 5px; background: var(--border2); border-radius: 4px;
+  overflow: hidden; margin-bottom: 3px;
+}
+.ml-bar-fill {
+  height: 100%; border-radius: 4px;
+  transition: width 1.2s cubic-bezier(.22,1,.36,1);
+}
+.ml-risk-desc { font-size: 9px; color: var(--muted); }
+
+/* ── Health Metrics Grid ── */
+.ml-health-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 10px; margin-top: 4px;
+}
+@media (max-width: 700px) { .ml-health-grid { grid-template-columns: repeat(2, 1fr); } }
+.ml-health-chip {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 14px;
+}
+.ml-health-label {
+  font-size: 8px; color: var(--muted); letter-spacing: .16em;
+  text-transform: uppercase; margin-bottom: 5px;
+}
+.ml-health-val {
+  font-family: 'Syne', sans-serif; font-size: 17px;
+  font-weight: 800; line-height: 1.1; margin-bottom: 3px;
+}
+.ml-health-hint { font-size: 8px; color: var(--muted); line-height: 1.4; }
+
+/* ── Technical Signals Grid ── */
+.ml-tech-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 10px; margin-bottom: 12px;
+}
+.ml-tech-item {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 12px;
+}
+.ml-tech-label { font-size: 8px; color: var(--muted); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 4px; }
+.ml-tech-val { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; }
+
+/* ── Signal Bar ── */
+.ml-signal-bar-wrap {
+  display: flex; align-items: center; gap: 8px; margin-top: 4px;
+}
+.ml-signal-bar-track {
+  flex: 1; height: 6px; background: rgba(251,113,133,.2);
+  border-radius: 4px; overflow: hidden;
+}
+.ml-signal-bar-fill { height: 100%; border-radius: 4px; transition: width .8s ease; }
+
+/* ── Projections ── */
+.ml-proj-warn {
+  font-size: 9px; color: var(--warn); background: rgba(251,191,36,.07);
+  border: 1px solid rgba(251,191,36,.18); border-radius: 6px;
+  padding: 6px 10px; margin-bottom: 14px;
+}
+.ml-proj-item { padding: 10px 0; }
+.ml-proj-label { font-size: 9px; color: var(--muted); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 6px; }
+.ml-proj-val-wrap { display: flex; align-items: center; gap: 10px; }
+.ml-proj-val { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; }
+.ml-proj-delta {
+  font-size: 11px; font-weight: 700;
+  background: rgba(255,255,255,.06); border-radius: 5px;
+  padding: 2px 7px;
+}
+.ml-proj-band { font-size: 9px; color: var(--muted); margin-top: 4px; }
+.ml-proj-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+/* ── AI Output ── */
+.ml-ai-output {
+  padding: 4px 0;
+}
+.ml-ai-content {
+  font-size: 12px; line-height: 1.75; color: var(--text);
+}
+.ml-h1 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; margin: 12px 0 6px; }
+.ml-h2 { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 800; margin: 10px 0 5px; color: var(--crypto); }
+.ml-h3 { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; margin: 8px 0 4px; }
+.ml-li {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 5px 0; border-bottom: 1px solid var(--border);
+  font-size: 11px; line-height: 1.6;
+}
+.ml-li:last-child { border-bottom: none; }
+.ml-li::before { content: '•'; color: var(--crypto); flex-shrink: 0; font-weight: 800; }
+.ml-li.ml-num { gap: 10px; }
+.ml-li.ml-num::before { display: none; }
+.ml-num-badge {
+  background: rgba(139,92,246,.15); color: var(--crypto);
+  border: 1px solid rgba(139,92,246,.3); border-radius: 4px;
+  padding: 1px 6px; font-size: 9px; font-weight: 800; flex-shrink: 0;
+}
+.ml-p { margin: 6px 0; }
+
+/* ── Skeleton Loader ── */
+.ml-skeleton-wrap { display: flex; flex-direction: column; gap: 8px; }
+.ml-skeleton {
+  height: 12px; background: var(--bg4); border-radius: 4px;
+  animation: ml-shimmer 1.4s ease-in-out infinite;
+}
+.w80  { width: 80%; }
+.w60  { width: 60%; }
+.w70  { width: 70%; }
+.wfull{ width: 100%; }
+@keyframes ml-shimmer { 0%,100%{opacity:1} 50%{opacity:.4} }
+@keyframes ml-spin { to { transform: rotate(360deg); } }
+
+/* ── Info Notes ── */
+.ml-info-note {
+  font-size: 10px; color: var(--muted);
+  background: rgba(139,92,246,.06); border: 1px solid rgba(139,92,246,.15);
+  border-radius: 8px; padding: 10px 14px; margin-top: 12px;
+  line-height: 1.7;
+}
+
+/* ── Disclaimer ── */
+.ml-disclaimer {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 10px; color: var(--muted); line-height: 1.7;
+  background: rgba(251,191,36,.05); border: 1px solid rgba(251,191,36,.12);
+  border-radius: 10px; padding: 12px 16px; margin-top: 4px;
+}
+.ml-disclaimer strong { color: var(--warn); }
+
+/* ── Light theme overrides ── */
+html[data-theme="light"] .ml-card { background: #ffffff; }
+html[data-theme="light"] .ml-health-chip { background: var(--bg3); }
+html[data-theme="light"] .ml-tech-item { background: var(--bg3); }
+html[data-theme="light"] .ml-skeleton { background: var(--bg4); }
