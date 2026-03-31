@@ -55,7 +55,7 @@ function md(text) {
     .replace(/\n/g,'<br>');
 }
 
-// ── Gauge SVG — FIXED: Jarum dihilangkan + curve tetap ke atas ──────────────────────
+// ── Gauge SVG — CLEAN: Tanpa jarum + tanpa buletan tengah ──────────────────────
 function buildGauge(score, color) {
   const W = 200, H = 115;
   const cx = 100, cy = 105;
@@ -74,7 +74,7 @@ function buildGauge(score, color) {
   const scoreDeg = 180 - clampedScore * 1.8;
   const [sx, sy] = pt(scoreDeg);
 
-  // Tick marks (cleaner)
+  // Tick marks
   const tickPositions = [0, 20, 40, 60, 80, 100];
   const ticks = tickPositions.map(v => {
     const d = 180 - v * 1.8;
@@ -111,11 +111,7 @@ function buildGauge(score, color) {
     <!-- Tick marks -->
     ${ticks}
 
-    <!-- Hub dot (tetap kecil di tengah biar rapi) -->
-    <circle cx="${cx}" cy="${cy}" r="5" fill="${color}"
-      style="filter: drop-shadow(0 0 6px ${color});"/>
-
-    <!-- Score number (sekarang bebas tertutup) -->
+    <!-- Score number (sekarang benar-benar bebas) -->
     <text x="${cx}" y="${cy - 32}" text-anchor="middle"
       font-family="Syne,sans-serif" font-size="26" font-weight="800" fill="${color}">${clampedScore}</text>
     <text x="${cx}" y="${cy - 16}" text-anchor="middle"
