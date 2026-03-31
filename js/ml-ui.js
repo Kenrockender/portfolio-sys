@@ -55,7 +55,7 @@ function md(text) {
     .replace(/\n/g,'<br>');
 }
 
-// ── Gauge SVG — CLEAN: Tanpa jarum + tanpa buletan tengah ──────────────────────
+// ── Gauge SVG — SUPER CLEAN: Tanpa jarum + tanpa dot kuning sama sekali ──────────────────────
 function buildGauge(score, color) {
   const W = 200, H = 115;
   const cx = 100, cy = 105;
@@ -111,7 +111,7 @@ function buildGauge(score, color) {
     <!-- Tick marks -->
     ${ticks}
 
-    <!-- Score number (sekarang benar-benar bebas) -->
+    <!-- Score number (sekarang 100% bebas, tidak ada dot kuning lagi) -->
     <text x="${cx}" y="${cy - 32}" text-anchor="middle"
       font-family="Syne,sans-serif" font-size="26" font-weight="800" fill="${color}">${clampedScore}</text>
     <text x="${cx}" y="${cy - 16}" text-anchor="middle"
