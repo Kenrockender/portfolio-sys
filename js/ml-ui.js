@@ -55,7 +55,7 @@ function md(text) {
     .replace(/\n/g,'<br>');
 }
 
-// ── Gauge SVG — FIXED: besar lagi + curve ke ATAS (bukan bawah) ──────────────────────
+// ── Gauge SVG — FIXED: Jarum dihilangkan + curve tetap ke atas ──────────────────────
 function buildGauge(score, color) {
   const W = 200, H = 115;
   const cx = 100, cy = 105;
@@ -73,11 +73,6 @@ function buildGauge(score, color) {
   const clampedScore = Math.max(0, Math.min(100, score));
   const scoreDeg = 180 - clampedScore * 1.8;
   const [sx, sy] = pt(scoreDeg);
-
-  // Needle
-  const nl = 72;
-  const nx = +(cx + nl * Math.cos(toRad(scoreDeg))).toFixed(2);
-  const ny = +(cy - nl * Math.sin(toRad(scoreDeg))).toFixed(2);
 
   // Tick marks (cleaner)
   const tickPositions = [0, 20, 40, 60, 80, 100];
@@ -98,7 +93,7 @@ function buildGauge(score, color) {
     return `<line x1="${ix}" y1="${iy}" x2="${ox}" y2="${oy}" stroke="${strokeCol}" stroke-width="${strokeW}"/>`;
   }).join('');
 
-  // Score arc — FLIPPED ke ATAS (sweep=1)
+  // Score arc (ke atas)
   const scoreArc = clampedScore > 0
     ? `<path d="M ${lx} ${ly} A ${R} ${R} 0 0 1 ${sx} ${sy}"
         fill="none" stroke="${color}" stroke-width="10" stroke-linecap="round"
@@ -110,22 +105,17 @@ function buildGauge(score, color) {
     <path d="M ${lx} ${ly} A ${R} ${R} 0 0 1 ${rx} ${ry}"
       fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="10" stroke-linecap="round"/>
 
-    <!-- Colored score arc (sekarang ke atas) -->
+    <!-- Colored score arc -->
     ${scoreArc}
 
     <!-- Tick marks -->
     ${ticks}
 
-    <!-- Needle -->
-    <line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}"
-      stroke="${color}" stroke-width="2.8" stroke-linecap="round"
+    <!-- Hub dot (tetap kecil di tengah biar rapi) -->
+    <circle cx="${cx}" cy="${cy}" r="5" fill="${color}"
       style="filter: drop-shadow(0 0 6px ${color});"/>
 
-    <!-- Hub dot -->
-    <circle cx="${cx}" cy="${cy}" r="6" fill="${color}"
-      style="filter: drop-shadow(0 0 8px ${color});"/>
-
-    <!-- Score number -->
+    <!-- Score number (sekarang bebas tertutup) -->
     <text x="${cx}" y="${cy - 32}" text-anchor="middle"
       font-family="Syne,sans-serif" font-size="26" font-weight="800" fill="${color}">${clampedScore}</text>
     <text x="${cx}" y="${cy - 16}" text-anchor="middle"
