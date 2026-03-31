@@ -55,84 +55,77 @@ function md(text) {
     .replace(/\n/g,'<br>');
 }
 
-// ── Gauge SVG (BERSIH, tanpa zone segments) ──────────────────────
+// ── Gauge SVG — improved version (smoother arc, better precision, cleaner glow) ──────────────────────
 function buildGauge(score, color) {
   const W = 200, H = 115;
   const cx = 100, cy = 105;
-  const R  = 88;
+  const R = 88;
 
   const toRad = d => d * Math.PI / 180;
   const pt = deg => [
-    +(cx + R * Math.cos(toRad(deg))).toFixed(1),
-    +(cy - R * Math.sin(toRad(deg))).toFixed(1),
+    +(cx + R * Math.cos(toRad(deg))).toFixed(2),
+    +(cy - R * Math.sin(toRad(deg))).toFixed(2)
   ];
 
-  // Endpoints of full semicircle
   const [lx, ly] = pt(180); // left
   const [rx, ry] = pt(0);   // right
 
-  // Score position: 0 → left (180°), 100 → right (0°)
   const clampedScore = Math.max(0, Math.min(100, score));
   const scoreDeg = 180 - clampedScore * 1.8;
   const [sx, sy] = pt(scoreDeg);
 
   // Needle
   const nl = 72;
-  const nx = +(cx + nl * Math.cos(toRad(scoreDeg))).toFixed(1);
-  const ny = +(cy - nl * Math.sin(toRad(scoreDeg))).toFixed(1);
+  const nx = +(cx + nl * Math.cos(toRad(scoreDeg))).toFixed(2);
+  const ny = +(cy - nl * Math.sin(toRad(scoreDeg))).toFixed(2);
 
-  // Tick marks at 0, 20, 40, 60, 80, 100
+  // Tick marks
   const tickPositions = [0, 20, 40, 60, 80, 100];
   const ticks = tickPositions.map(v => {
     const d = 180 - v * 1.8;
-    const [ix, iy] = pt(d);
-    // Make threshold ticks slightly longer
-    const isThreshold = v > 0 && v < 100;
-    const innerR = isThreshold ? R - 10 : R - 7;
-    const outerR = R + 4;
-    const [ix2, iy2] = [
-      +(cx + innerR * Math.cos(toRad(d))).toFixed(1),
-      +(cy - innerR * Math.sin(toRad(d))).toFixed(1),
+    const [ix, iy] = [
+      +(cx + (R - (v > 0 && v < 100 ? 10 : 7)) * Math.cos(toRad(d))).toFixed(2),
+      +(cy - (R - (v > 0 && v < 100 ? 10 : 7)) * Math.sin(toRad(d))).toFixed(2)
     ];
     const [ox, oy] = [
-      +(cx + outerR * Math.cos(toRad(d))).toFixed(1),
-      +(cy - outerR * outerR * Math.sin(toRad(d))).toFixed(1),
+      +(cx + (R + 4) * Math.cos(toRad(d))).toFixed(2),
+      +(cy - (R + 4) * Math.sin(toRad(d))).toFixed(2)
     ];
-    // Fix: ox/oy should use outerR for cos too
-    const [oxFixed, oyFixed] = [
-      +(cx + outerR * Math.cos(toRad(d))).toFixed(1),
-      +(cy - outerR * Math.sin(toRad(d))).toFixed(1),
-    ];
-    const strokeCol = isThreshold ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.25)';
-    const strokeW = isThreshold ? '1' : '1.5';
-    return `<line x1="${ix2}" y1="${iy2}" x2="${oxFixed}" y2="${oyFixed}" stroke="${strokeCol}" stroke-width="${strokeW}"/>`;
+    const strokeCol = v > 0 && v < 100 ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.25)';
+    const strokeW = v > 0 && v < 100 ? '1' : '1.5';
+    return `<line x1="${ix}" y1="${iy}" x2="${ox}" y2="${oy}" stroke="${strokeCol}" stroke-width="${strokeW}"/>`;
   }).join('');
 
   // Score arc (only if > 0)
   const scoreArc = clampedScore > 0
     ? `<path d="M ${lx} ${ly} A ${R} ${R} 0 0 0 ${sx} ${sy}"
         fill="none" stroke="${color}" stroke-width="10" stroke-linecap="round"
-        style="filter:drop-shadow(0 0 10px ${color}90)"/>`
+        style="filter: drop-shadow(0 0 8px ${color}90);"/>`
     : '';
 
-  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" width="200" height="115">
     <!-- Gray background track -->
     <path d="M ${lx} ${ly} A ${R} ${R} 0 0 0 ${rx} ${ry}"
       fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="10" stroke-linecap="round"/>
+
     <!-- Colored score arc -->
     ${scoreArc}
+
     <!-- Tick marks -->
     ${ticks}
+
     <!-- Needle -->
     <line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}"
-      stroke="${color}" stroke-width="2.5" stroke-linecap="round"
-      style="filter:drop-shadow(0 0 5px ${color})"/>
+      stroke="${color}" stroke-width="2.8" stroke-linecap="round"
+      style="filter: drop-shadow(0 0 6px ${color});"/>
+
     <!-- Hub dot -->
     <circle cx="${cx}" cy="${cy}" r="6" fill="${color}"
-      style="filter:drop-shadow(0 0 8px ${color})"/>
+      style="filter: drop-shadow(0 0 8px ${color});"/>
+
     <!-- Score number -->
     <text x="${cx}" y="${cy - 32}" text-anchor="middle"
-      font-family="Syne,sans-serif" font-size="26" font-weight="800" fill="${color}">${score}</text>
+      font-family="Syne,sans-serif" font-size="26" font-weight="800" fill="${color}">${clampedScore}</text>
     <text x="${cx}" y="${cy - 16}" text-anchor="middle"
       font-family="JetBrains Mono,monospace" font-size="8" fill="rgba(255,255,255,0.4)"
       letter-spacing="1">/ 100</text>
