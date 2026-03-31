@@ -37,64 +37,62 @@ function md(text) {
 }
 
 // ── Gauge SVG ─────────────────────────────────────────────────────
+// Semicircle gauge: arc goes from 180° (left) → 0° (right) through the top.
+// Center (cx, cy) sits at the bottom of the viewBox so the arc stays inside.
 function buildGauge(score, color) {
-  // Arc from 220° to -40° (280° span), score maps to position
-  const R = 72, cx = 90, cy = 90;
-  const startAngle = 220; // degrees
-  const totalArc   = 280;
-  const angle = startAngle - (score / 100) * totalArc;
+  const W = 200, H = 115;
+  const cx = 100, cy = 105; // hub at bottom-centre
+  const R  = 88;            // radius — top of arc is at y = 105-88 = 17 ✓
 
-  const toRad = d => (d * Math.PI) / 180;
-  const arcEnd = {
-    x: cx + R * Math.cos(toRad(angle)),
-    y: cy - R * Math.sin(toRad(angle)),
-  };
-  const arcStart = {
-    x: cx + R * Math.cos(toRad(startAngle)),
-    y: cy - R * Math.sin(toRad(startAngle)),
-  };
+  const toRad = d => d * Math.PI / 180;
+  // Point on circle at standard math angle `deg`
+  const pt = deg => [
+    +(cx + R * Math.cos(toRad(deg))).toFixed(1),
+    +(cy - R * Math.sin(toRad(deg))).toFixed(1),
+  ];
 
-  const largeArc = (score / 100) * totalArc > 180 ? 1 : 0;
+  // Full track: 180° (left) → 0° (right) counter-clockwise through top
+  // SVG arc: sweep-flag=0 = counter-clockwise (= visually upward)
+  const [lx, ly] = pt(180); // ≈ (12, 105)
+  const [rx, ry] = pt(0);   // ≈ (188, 105)
 
-  // Track (gray)
-  const trackEndAngle = startAngle - totalArc;
-  const trackEnd = {
-    x: cx + R * Math.cos(toRad(trackEndAngle)),
-    y: cy - R * Math.sin(toRad(trackEndAngle)),
-  };
+  // Score position: 0% → 180° (left), 100% → 0° (right)
+  const scoreDeg = 180 - score * 1.8;
+  const [sx, sy] = pt(scoreDeg);
 
   // Needle
-  const needleAngle = toRad(angle);
-  const needleLen = 55;
-  const nx = cx + needleLen * Math.cos(needleAngle);
-  const ny = cy - needleLen * Math.sin(needleAngle);
+  const nl = 72;
+  const nx = +(cx + nl * Math.cos(toRad(scoreDeg))).toFixed(1);
+  const ny = +(cy - nl * Math.sin(toRad(scoreDeg))).toFixed(1);
 
-  return `<svg viewBox="0 0 180 110" xmlns="http://www.w3.org/2000/svg">
-    <!-- Track -->
-    <path d="M ${arcStart.x} ${arcStart.y} A ${R} ${R} 0 1 0 ${trackEnd.x} ${trackEnd.y}"
+  // Zone ticks at 0 / 25 / 50 / 75 / 100 %
+  const ticks = [0, 25, 50, 75, 100].map(v => {
+    const d = 180 - v * 1.8;
+    const [ix, iy] = [+(cx + (R-7) * Math.cos(toRad(d))).toFixed(1), +(cy - (R-7) * Math.sin(toRad(d))).toFixed(1)];
+    const [ox, oy] = [+(cx + (R+4) * Math.cos(toRad(d))).toFixed(1), +(cy - (R+4) * Math.sin(toRad(d))).toFixed(1)];
+    return `<line x1="${ix}" y1="${iy}" x2="${ox}" y2="${oy}" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>`;
+  }).join('');
+
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <!-- Gray track (full semicircle) -->
+    <path d="M ${lx} ${ly} A ${R} ${R} 0 0 0 ${rx} ${ry}"
       fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="10" stroke-linecap="round"/>
-    <!-- Filled arc -->
-    <path d="M ${arcStart.x} ${arcStart.y} A ${R} ${R} 0 ${largeArc} 0 ${arcEnd.x} ${arcEnd.y}"
+    <!-- Coloured score arc -->
+    <path d="M ${lx} ${ly} A ${R} ${R} 0 0 0 ${sx} ${sy}"
       fill="none" stroke="${color}" stroke-width="10" stroke-linecap="round"
-      style="filter:drop-shadow(0 0 6px ${color}80)"/>
-    <!-- Zone ticks -->
-    ${[0,20,40,60,80,100].map(v => {
-      const a = toRad(startAngle - (v / 100) * totalArc);
-      const x1 = cx + (R - 8) * Math.cos(a), y1 = cy - (R - 8) * Math.sin(a);
-      const x2 = cx + (R + 2) * Math.cos(a), y2 = cy - (R + 2) * Math.sin(a);
-      return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>`;
-    }).join('')}
+      style="filter:drop-shadow(0 0 8px ${color}90)"/>
+    ${ticks}
     <!-- Needle -->
-    <line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}"
+    <line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}"
       stroke="${color}" stroke-width="2.5" stroke-linecap="round"
       style="filter:drop-shadow(0 0 4px ${color})"/>
-    <circle cx="${cx}" cy="${cy}" r="5" fill="${color}"
-      style="filter:drop-shadow(0 0 6px ${color})"/>
-    <!-- Score label -->
-    <text x="${cx}" y="${cy + 26}" text-anchor="middle"
-      font-family="Syne,sans-serif" font-size="22" font-weight="800" fill="${color}">${score}</text>
-    <text x="${cx}" y="${cy + 38}" text-anchor="middle"
-      font-family="JetBrains Mono,monospace" font-size="7" fill="rgba(255,255,255,0.45)"
+    <circle cx="${cx}" cy="${cy}" r="6" fill="${color}"
+      style="filter:drop-shadow(0 0 8px ${color})"/>
+    <!-- Score label (inside arc, above hub) -->
+    <text x="${cx}" y="${cy - 32}" text-anchor="middle"
+      font-family="Syne,sans-serif" font-size="26" font-weight="800" fill="${color}">${score}</text>
+    <text x="${cx}" y="${cy - 16}" text-anchor="middle"
+      font-family="JetBrains Mono,monospace" font-size="8" fill="rgba(255,255,255,0.4)"
       letter-spacing="1">/ 100</text>
   </svg>`;
 }
