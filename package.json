@@ -1,0 +1,20 @@
+{
+  "name": "portfolio-sys",
+  "version": "1.0.0",
+  "description": "Personal Net Worth Dashboard",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint js/**/*.js",
+    "lint:fix": "eslint js/**/*.js --fix",
+    "serve": "npx serve .",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "typescript": "^5.4.0"
+  },
+  "keywords": ["finance", "portfolio", "dashboard"],
+  "author": "",
+  "license": "MIT"
+}

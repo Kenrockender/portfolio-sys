@@ -60,6 +60,8 @@
 <!-- Styles -->
 <link rel="stylesheet" href="css/styles.css">
 <link rel="stylesheet" href="css/mobile.css">
+<link rel="stylesheet" href="css/loading-states.css">
+<link rel="stylesheet" href="css/pwa-install.css">
 
 </head>
 <body>
@@ -1036,12 +1038,24 @@
 </div>
 
 <script type="module">
+  // Import PWA and loading utilities first
+  import { initPWAInstallPrompt } from './js/pwa-install.js';
+  import { preloadModules } from './js/module-loader.js';
+  
   // Import main app module which initializes everything
   import './js/app.js';
   import { setPlan, showUpgradeModal, closeUpgradeModal, requiresPro } from './js/plans.js';
   import { deleteDemoData } from './js/state.js';
   import { saveDataToCloud } from './firebase/firebase-config.js';
   import { renderAll } from './js/ui.js';
+  
+  // Initialize PWA install prompt
+  window.addEventListener('DOMContentLoaded', () => {
+    initPWAInstallPrompt();
+    
+    // Preload charts after first user interaction
+    preloadModules(['./charts.js']);
+  });
   
   // Expose plan functions globally so inline onclick handlers work
   window.showUpgradeModal  = showUpgradeModal;
