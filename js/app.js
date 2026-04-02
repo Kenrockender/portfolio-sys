@@ -348,10 +348,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Load goal target sekali di awal — bukan setiap render
   const savedGoal = localStorage.getItem('portfolio-goal');
-  if (savedGoal && !isNaN(savedGoal)) {
-    const parsed = parseInt(savedGoal);
-    if (parsed > 0 && parsed < 1e15) S.goalTarget = parsed;
-  }
+  if (savedGoal && !isNaN(savedGoal)) S.goalTarget = parseInt(savedGoal);
 
   // Init crypto nav active state
   document.getElementById('cryptoNavAlloc')?.classList.add('crypto-active');
@@ -371,7 +368,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   } catch (e) {
     console.error('[APP] renderAll crashed:', e);
     const _cs1 = document.getElementById('cloudStatusText') || document.getElementById('cloudStatus'); if(_cs1) _cs1.textContent = 'renderAll crash: ' + e.message;
-    document.getElementById('cloudStatus')?.classList.add('err');
+    document.getElementById('cloudStatus').classList.add('err');
   }
 });
 
@@ -383,7 +380,7 @@ function initCloudSafe() {
     } catch (e) {
       console.error('[APP] initCloud crashed:', e);
       const _cs2 = document.getElementById('cloudStatusText') || document.getElementById('cloudStatus'); if(_cs2) _cs2.textContent = 'initCloud crash: ' + e.message;
-      document.getElementById('cloudStatus')?.classList.add('err');
+      document.getElementById('cloudStatus').classList.add('err');
     }
   } else {
     // Wait for firebase-ready event
@@ -393,7 +390,7 @@ function initCloudSafe() {
       } catch (e) {
         console.error('[APP] initCloud crashed:', e);
         const _cs2 = document.getElementById('cloudStatusText') || document.getElementById('cloudStatus'); if(_cs2) _cs2.textContent = 'initCloud crash: ' + e.message;
-        document.getElementById('cloudStatus')?.classList.add('err');
+        document.getElementById('cloudStatus').classList.add('err');
       }
     }, { once: true });
   }
@@ -402,11 +399,11 @@ initCloudSafe();
 
 // Timeout check
 setTimeout(() => {
-  const txt = document.getElementById('cloudStatus')?.textContent;
-  if (txt === 'CONNECTING...' || txt?.includes('CONNECTING')) {
+  const txt = document.getElementById('cloudStatus').textContent;
+  if (txt === 'CONNECTING...' || txt.includes('CONNECTING')) {
     console.warn('[APP] Still CONNECTING after 10s');
     (document.getElementById('cloudStatusText') || document.getElementById('cloudStatus')).textContent = 'TIMEOUT';
-    document.getElementById('cloudStatus')?.classList.add('err');
+    document.getElementById('cloudStatus').classList.add('err');
   }
 }, 10000);
 

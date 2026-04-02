@@ -17,7 +17,6 @@
 import { CRYPTO_PARSERS } from './parsers/tokocrypto.js';
 import { STOCK_PARSERS }  from './parsers/stock.js';
 import { SAVINGS_PARSERS } from './parsers/savings.js';
-import { PORTFOLIOSYS_PARSERS } from './parsers/portfoliosys-pdf.js';
 // parser-utils & binance diimport lewat file di atas (transitive)
 
 /* ── Bridge: access main module internals via window getters ── */
@@ -204,7 +203,6 @@ const IMPORT_RULES = {
   // ── Dari savings.js ──────────────────────────────────────────────
   bank_generic:    { ...SAVINGS_PARSERS['savings-generic'] },
   'savings-csv':   { ...SAVINGS_PARSERS['savings-csv'] },
-  ...PORTFOLIOSYS_PARSERS,
 
   // ── STOCKBIT TRADE CONFIRMATION PDF ──────────────────────────
   // Format: email konfirmasi transaksi PDF dari PT. Stockbit Sekuritas Digital
@@ -554,8 +552,8 @@ const IMPORT_RULES = {
         if (/CRYPTO\s+HOLDINGS/i.test(line))  { section = 'crypto';  continue; }
         if (/GOLD\s+HOLDINGS/i.test(line))    { section = 'gold';    continue; }
         if (/STOCK\s+HOLDINGS/i.test(line))   { section = 'stocks';  continue; }
-        if (/^SAVINGS$/i.test(line))          { section = 'savings'; continue; }
-        if (/PORTFOLIO\.SYS\s*—/i.test(line)) { section = null;      continue; }
+        if (/^SAVINGS\s*$/i.test(line))        { section = 'savings'; continue; }
+        if (/PORTFOLIO\.SYS[\s\u2013\u2014-]/i.test(line)) { section = null; continue; }
         if (/^Nama\s+Qty\s+Nilai/i.test(line)) continue;
 
         if (section === 'crypto') {
@@ -613,7 +611,7 @@ const IMPORT_RULES = {
         else if (section === 'savings') {
           // "OCBC CAD 136.93 Rp 1.70Jt – 2025-07-28"
           // "CNY 2026 IDR 6,250,000 Rp 6.25Jt – 2026-02-17"
-          const m = line.match(/^(.+?)\s+(IDR|USD|SGD|AUD|EUR|GBP|JPY|CAD|CNY|HKD|CHF|NZD)\s+([\d,]+(?:\.\d+)?)\s+Rp\s*([\d.,A-Za-z]+)\s+[–-]\s+(\d{4}-\d{2}-\d{2})/i);
+          const m = line.match(/^(.+?)\s+(IDR|USD|SGD|AUD|EUR|GBP|JPY|CAD|CNY|HKD|CHF|NZD)\s+([\d,]+(?:\.\d+)?)\s+Rp\s*([\d.,A-Za-z]+)\s+(?:–|-|—)\s+(\d{4}-\d{2}-\d{2})/i);
           if (m) {
             const name     = m[1].trim();
             const currency = m[2].toUpperCase();
@@ -927,9 +925,6 @@ function impSetMethod(m){
 // ════════════════════════════════════════════════════════════════
 function autoDetectSource(rawText) {
   const t = rawText;
-
-  if (/PORTFOLIO\.SYS/.test(t) && /CRYPTO HOLDINGS|GOLD HOLDINGS/i.test(t))
-  return 'portfoliosys-pdf';
 
   // Stockbit Trade Confirmation
   if (/STOCKBIT/i.test(t) && /Trade\s*Confirmation/i.test(t))
@@ -1306,7 +1301,7 @@ function impRenderPreview(body){
             assetCell=`<strong>${r.name}</strong>`;
             qtyCell=`${r.grams} g`;
             costCell=`Rp ${Math.round((r.costBasisPerGram||0) * r.grams).toLocaleString('id-ID')}`;
-            platCell='physical';
+            platCell='antam';
           } else {
             assetCell=`<strong>${r.name}</strong>`;
             qtyCell=`${r.currency} ${(r.foreignAmt||0).toLocaleString('id-ID')}`;
