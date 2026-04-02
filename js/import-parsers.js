@@ -976,6 +976,10 @@ function autoDetectSource(rawText) {
     return 'tokocrypto';
 
   // Indodax Tax Report PDF — cek lebih spesifik dulu
+  if (/PORTFOLIO\.SYS/i.test(t) && /CRYPTO\s+HOLDINGS|GOLD\s+HOLDINGS|STOCK\s+HOLDINGS/i.test(t))
+    return 'portfolio-sys';
+
+  // Indodax Tax Report PDF — cek lebih spesifik dulu
   if (/indodax/i.test(t) && /Final\s+Tax\s+Collection\s+Slip|Tax\s+Collection\s+Slip/i.test(t))
     return 'indodax-tax';
 
