@@ -272,10 +272,17 @@ function _acSyntheticPts(item, type, m) {
 // ── Global Render All Function ────────────────────────────────────
 window._renderAll = function() {
   const T = totals();
+  window.__portfolioTotals = T;
   renderAll(T);
   renderCharts(T);
   renderBenchChart(T);
   renderHistoryLineChart(T);
+  // Update app badge (Android/desktop only)
+  try {
+    if ('setAppBadge' in navigator && T.total > 0) {
+      navigator.setAppBadge(Math.round(T.total / 1_000_000));
+    }
+  } catch (_) {}
 };
 
 // ── portfolio:update event — used by api.js and firebase-config.js ─
@@ -333,8 +340,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   applyTheme();
 
   // Apply language
-  const savedLang = localStorage.getItem('portfolio-lang') || 'id';
+  const savedLang = localStorage.getItem('portfolio-lang') || 'en';
   S.lang = savedLang;
+  document.getElementById('btnLangID')?.classList.toggle('active', savedLang === 'id');
+  document.getElementById('btnLangEN')?.classList.toggle('active', savedLang === 'en');
+  applyI18n();
 
   // Load goal target sekali di awal — bukan setiap render
   const savedGoal = localStorage.getItem('portfolio-goal');
@@ -405,3 +415,4 @@ setInterval(() => {
 }, 5 * 60 * 1000);
 
 console.log('[APP] Application initialized');
+window.__syncAllPrices = syncAllPrices;

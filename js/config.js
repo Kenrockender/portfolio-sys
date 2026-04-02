@@ -51,7 +51,17 @@ export const CG_IDS = {
   SOL: 'solana', ADA: 'cardano', BNB: 'binancecoin', DOGE: 'dogecoin',
   AVAX: 'avalanche-2', DOT: 'polkadot', MATIC: 'matic-network',
   LINK: 'chainlink', UNI: 'uniswap', ATOM: 'cosmos', LTC: 'litecoin',
-  SHIB: 'shiba-inu', USDT: 'tether', USDC: 'usd-coin'
+  SHIB: 'shiba-inu', USDT: 'tether', USDC: 'usd-coin',
+  TRX: 'tron', TON: 'the-open-network', SUI: 'sui',
+  APT: 'aptos', ARB: 'arbitrum', OP: 'optimism',
+  INJ: 'injective-protocol', SEI: 'sei-network',
+  NEAR: 'near', FTM: 'fantom', SAND: 'the-sandbox',
+  MANA: 'decentraland', AXS: 'axie-infinity',
+  CRO: 'crypto-com-chain', VET: 'vechain',
+  ALGO: 'algorand', XLM: 'stellar', FIL: 'filecoin',
+  HBAR: 'hedera-hashgraph', ICP: 'internet-computer',
+  PEPE: 'pepe', WIF: 'dogwifcoin', BONK: 'bonk',
+  JUP: 'jupiter-exchange-solana', PYTH: 'pyth-network',
 };
 
 // ── Chart Range Days Mapping ─────────────────────────────────────

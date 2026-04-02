@@ -203,9 +203,10 @@ export async function loadDataFromCloud() {
 
       window.dispatchEvent(new CustomEvent('portfolio:update'));
     } else {
-      // User baru — belum ada data, reset semua ke kosong
-      setDATA({ crypto: [], gold: [], stocks: [], savings: [], history: [], lastRates: null, txLog: [] });
-      setHistoryData([]);
+      // User baru — belum ada data di cloud, pakai default demo data dari state.js
+      // DATA sudah terisi default dari state.js, jadi cukup sync historyData saja
+      if (!DATA.history) DATA.history = [];
+      setHistoryData([...DATA.history]);
       window.dispatchEvent(new CustomEvent('portfolio:update'));
     }
   } catch (e) {
