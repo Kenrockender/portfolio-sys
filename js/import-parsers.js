@@ -17,6 +17,7 @@
 import { CRYPTO_PARSERS } from './parsers/tokocrypto.js';
 import { STOCK_PARSERS }  from './parsers/stock.js';
 import { SAVINGS_PARSERS } from './parsers/savings.js';
+import { PORTFOLIOSYS_PARSERS } from './parsers/portfoliosys-pdf.js';
 // parser-utils & binance diimport lewat file di atas (transitive)
 
 /* ── Bridge: access main module internals via window getters ── */
@@ -203,6 +204,7 @@ const IMPORT_RULES = {
   // ── Dari savings.js ──────────────────────────────────────────────
   bank_generic:    { ...SAVINGS_PARSERS['savings-generic'] },
   'savings-csv':   { ...SAVINGS_PARSERS['savings-csv'] },
+  ...PORTFOLIOSYS_PARSERS,
 
   // ── STOCKBIT TRADE CONFIRMATION PDF ──────────────────────────
   // Format: email konfirmasi transaksi PDF dari PT. Stockbit Sekuritas Digital
@@ -926,6 +928,9 @@ function impSetMethod(m){
 function autoDetectSource(rawText) {
   const t = rawText;
 
+  if (/PORTFOLIO\.SYS/.test(t) && /CRYPTO HOLDINGS|GOLD HOLDINGS/i.test(t))
+  return 'portfoliosys-pdf';
+
   // Stockbit Trade Confirmation
   if (/STOCKBIT/i.test(t) && /Trade\s*Confirmation/i.test(t))
     return 'stockbit_trade';
@@ -1301,7 +1306,7 @@ function impRenderPreview(body){
             assetCell=`<strong>${r.name}</strong>`;
             qtyCell=`${r.grams} g`;
             costCell=`Rp ${Math.round((r.costBasisPerGram||0) * r.grams).toLocaleString('id-ID')}`;
-            platCell='antam';
+            platCell='physical';
           } else {
             assetCell=`<strong>${r.name}</strong>`;
             qtyCell=`${r.currency} ${(r.foreignAmt||0).toLocaleString('id-ID')}`;
