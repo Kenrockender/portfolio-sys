@@ -8,8 +8,6 @@ import {
   computeRiskScore,
   computeTechnicalSignals,
   computeHealthMetrics,
-  generateRiskNarrative,
-  generatePricePrediction,
 } from './ml.js';
 import { S } from './state.js';
 import { toDisp } from './storage.js';
@@ -18,8 +16,6 @@ import { toDisp } from './storage.js';
 let _riskResult    = null;
 let _signals       = null;
 let _healthMetrics = null;
-let _riskLoading   = false;
-let _predLoading   = false;
 
 // ── Grade color map (MUST match ml.js 5-tier system) ─────────────
 const GRADE_COLORS = {
@@ -173,54 +169,6 @@ function signalBadge(sig) {
     letter-spacing:.1em;font-family:'JetBrains Mono',monospace;">
     ${m.icon} ${sig}
   </span>`;
-}
-
-// ── Setup API card ────────────────────────────────────────────────
-function apiSetupCard(title) {
-  return `<div style="padding:20px;background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.15);border-radius:10px;text-align:center;">
-    <div style="font-size:28px;margin-bottom:8px;">🔑</div>
-    <div style="color:var(--warn);font-weight:700;font-size:12px;margin-bottom:6px;">API Key Belum Dikonfigurasi</div>
-    <div style="color:var(--muted);font-size:10px;line-height:1.6;max-width:340px;margin:0 auto;">
-      Fitur <strong>${title}</strong> membutuhkan Claude API key dari Anthropic.<br><br>
-      <strong>Cara setup:</strong><br>
-      1. Dapatkan API key di <span style="color:var(--crypto);">console.anthropic.com</span><br>
-      2. Tambahkan header <code style="background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px;">x-api-key</code> di fungsi <code>callClaude()</code> pada <code>ml.js</code><br>
-      3. Tambahkan header <code style="background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px;">anthropic-version: 2023-06-01</code>
-    </div>
-  </div>`;
-}
-
-// ── Smart error renderer ──────────────────────────────────────────
-function renderError(e, title) {
-  const msg = e.message || String(e);
-
-  // Detect auth / no-key errors
-  if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('Load failed')) {
-    return apiSetupCard(title);
-  }
-  if (msg.includes('401') || msg.includes('403')) {
-    return `<div style="padding:16px;background:rgba(251,113,133,.08);border:1px solid rgba(251,113,133,.2);border-radius:8px;">
-      <div style="color:var(--down);font-size:11px;">
-        <strong>⚠ API Key Invalid</strong><br>
-        <span style="color:var(--muted)">Response: ${msg}</span><br><br>
-        Pastikan API key Claude valid dan memiliki akses ke model <code>claude-sonnet-4-20250514</code>.
-      </div>
-    </div>`;
-  }
-  if (msg.includes('429')) {
-    return `<div style="padding:16px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:8px;">
-      <div style="color:var(--warn);font-size:11px;">
-        <strong>⏳ Rate Limit</strong><br>
-        <span style="color:var(--muted)">Terlalu banyak request. Tunggu 10-30 detik lalu coba lagi.</span>
-      </div>
-    </div>`;
-  }
-
-  return `<div style="padding:16px;background:rgba(251,113,133,.08);border:1px solid rgba(251,113,133,.2);border-radius:8px;">
-    <div style="color:var(--down);font-size:11px;">
-      <strong>⚠ Error:</strong> ${msg}
-    </div>
-  </div>`;
 }
 
 // ── Main render function ──────────────────────────────────────────
@@ -450,74 +398,6 @@ export function renderMLPanel() {
   </div>
   `;
 }
-
-// ── AI Handlers ───────────────────────────────────────────────────
-
-window.runRiskAI = async function () {
-  if (_riskLoading) return;
-  _riskLoading = true;
-
-  const card = document.getElementById('mlRiskAiCard');
-  const out  = document.getElementById('mlRiskAiOutput');
-  const btn  = document.getElementById('mlRiskAiBtn');
-  if (!card || !out || !btn) { _riskLoading = false; return; }
-
-  card.style.display = '';
-  btn.disabled = true;
-  btn.innerHTML = '<span style="animation:ml-spin .6s linear infinite;display:inline-block">↻</span> Analyzing…';
-  out.innerHTML = `<div class="ml-skeleton-wrap">
-    <div class="ml-skeleton w80"></div><div class="ml-skeleton wfull"></div>
-    <div class="ml-skeleton w60"></div><div class="ml-skeleton wfull"></div>
-    <div class="ml-skeleton w70"></div>
-  </div>`;
-
-  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-  try {
-    const narrative = await generateRiskNarrative(_riskResult);
-    out.innerHTML = `<div class="ml-ai-content">${md(narrative)}</div>`;
-  } catch (e) {
-    console.error('[ML-UI] Risk AI error:', e);
-    out.innerHTML = renderError(e, 'AI Risk Analysis');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Retry AI Analysis`;
-    _riskLoading = false;
-  }
-};
-
-window.runPredictionAI = async function () {
-  if (_predLoading || !_signals) return;
-  _predLoading = true;
-
-  const card = document.getElementById('mlPredAiCard');
-  const out  = document.getElementById('mlPredAiOutput');
-  const btn  = document.getElementById('mlPredAiBtn');
-  if (!card || !out || !btn) { _predLoading = false; return; }
-
-  card.style.display = '';
-  btn.disabled = true;
-  btn.innerHTML = '<span style="animation:ml-spin .6s linear infinite;display:inline-block">↻</span> Predicting…';
-  out.innerHTML = `<div class="ml-skeleton-wrap">
-    <div class="ml-skeleton w80"></div><div class="ml-skeleton wfull"></div>
-    <div class="ml-skeleton w60"></div><div class="ml-skeleton wfull"></div>
-    <div class="ml-skeleton w70"></div>
-  </div>`;
-
-  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-  try {
-    const prediction = await generatePricePrediction(_signals);
-    out.innerHTML = `<div class="ml-ai-content">${md(prediction)}</div>`;
-  } catch (e) {
-    console.error('[ML-UI] Prediction AI error:', e);
-    out.innerHTML = renderError(e, 'AI Price Prediction');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Retry AI Prediction`;
-    _predLoading = false;
-  }
-};
 
 window.refreshMLAnalysis = function () {
   renderMLPanel();

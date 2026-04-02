@@ -237,6 +237,9 @@
     <button class="sync-btn" id="manualPriceBtn" onclick="openManualPrice()" title="Manual price input" style="border-color:rgba(251,191,36,.5);color:#fbbf24;">
       <span class="btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span> HARGA
     </button>
+    <button class="sync-btn" id="clearDemoBtn" onclick="clearDemoData()" title="Hapus semua data portofolio" style="border-color:rgba(251,113,133,.5);color:#fb7185;">
+      <span class="btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></span> RESET
+    </button>
     <div class="last-sync" id="lastSync" data-i18n="not_synced">not synced</div>
     <button class="logout-btn" id="logoutBtn" onclick="window._signOut()" title="Logout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg></button>
   </div>
@@ -472,19 +475,6 @@
   <div class="yield-row" id="yieldRow"></div>
 </div>
 
-<!-- ── AI INSIGHTS ── -->
-<div class="sec-head"><span>AI Analytics</span><div class="line"></div></div>
-<div class="card c-ai" style="margin-bottom:14px;">
-  <div class="card-head">
-    <div class="card-title"><div class="class-dot"></div><div class="card-title-text" data-i18n="ai_advisor">Gemini Portfolio Advisor</div></div>
-    <div class="card-head-right">
-      <button class="add-btn" id="aiBtn" onclick="if(requiresPro('ai'))generateAIInsights()" style="border-color:var(--crypto);color:var(--crypto);display:inline-flex;align-items:center;gap:5px;" data-i18n="generate_insights"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="display:inline-block;vertical-align:middle"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Generate Insights</button>
-    </div>
-  </div>
-  <div class="ai-content" id="aiContent">
-    <div class="ai-placeholder" data-i18n="ai_placeholder">Klik "Generate Insights" untuk mendapatkan analisis portofolio Anda menggunakan Gemini API.</div>
-  </div>
-</div>
 <!-- ── ML INTELLIGENCE (merged into Analytics) ── -->
 <div class="sec-head" style="margin-top:8px;"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="display:inline-block;vertical-align:middle"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg> Portfolio Intelligence</span><div class="line"></div></div>
 <div id="mlPanel" style="padding-bottom:8px;"></div>
@@ -1028,7 +1018,6 @@
       <div style="font-size:9px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px;">Yang kamu dapatkan dengan Pro:</div>
       <div style="display:flex;flex-direction:column;gap:7px;">
         <div style="display:flex;align-items:center;gap:8px;font-size:11px;"><span style="color:var(--up);">✓</span> Export PDF Laporan</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:11px;"><span style="color:var(--up);">✓</span> AI Insights (Gemini)</div>
         <div style="display:flex;align-items:center;gap:8px;font-size:11px;"><span style="color:var(--up);">✓</span> Rebalancing Calculator</div>
       </div>
     </div>
@@ -1057,7 +1046,6 @@
   window.showUpgradeModal  = showUpgradeModal;
   window.closeUpgradeModal = closeUpgradeModal;
   window.requiresPro       = requiresPro;
-  import { analyzePortfolio } from './js/gemini.js';
   window.toggleMobileMenu = function() {
     const drawer = document.getElementById('mobileDrawer');
     const overlay = document.getElementById('mobileDrawerOverlay');
@@ -1141,39 +1129,6 @@
   window.setHistoryRange = function(r) {
     if (typeof window._setHistoryRange === 'function') {
       window._setHistoryRange(r);
-    }
-  };
-
-  // Markdown renderer for AI content panel
-  function _renderAiMarkdown(text) {
-    return text
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/^### (.+)$/gm, '<strong style="font-size:13px">$1</strong>')
-      .replace(/^## (.+)$/gm,  '<strong style="font-size:14px">$1</strong>')
-      .replace(/^# (.+)$/gm,   '<strong style="font-size:15px">$1</strong>')
-      .replace(/^[-•] (.+)$/gm, '• $1')
-      .replace(/\n/g, '<br>');
-  }
-
-  // AI Insights — calls real Gemini analyzePortfolio
-  window.generateAIInsights = async function() {
-    const btn = document.getElementById('aiBtn');
-    const content = document.getElementById('aiContent');
-    btn.disabled = true;
-    btn.innerHTML = '↻ Analyzing...';
-    content.innerHTML = '<div class="ai-loading"><div class="ai-skeleton w-3-4"></div><div class="ai-skeleton w-full"></div><div class="ai-skeleton w-5-6"></div></div>';
-
-    try {
-      const analysis = await analyzePortfolio();
-      content.style.cssText = 'font-size:12px;line-height:1.7;color:var(--text);white-space:pre-wrap;';
-      content.innerHTML = _renderAiMarkdown(analysis);
-    } catch (e) {
-      content.innerHTML = `<div style="color:var(--down);font-size:11px;">Error: ${e.message}. Check Gemini API key in gemini.js.</div>`;
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="display:inline-block;vertical-align:middle"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Generate Insights';
     }
   };
 

@@ -13,29 +13,6 @@
 
 import { S, DATA } from './state.js';
 import { totals, computeMetrics, savingsIdr, stockMul, cryptoPrice, stockPrice } from './storage.js';
-import { toDisp } from './storage.js';
-
-// ─────────────────────────────────────────
-//  CLAUDE API CONFIG
-// ─────────────────────────────────────────
-const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
-const CLAUDE_MODEL = 'claude-sonnet-4-20250514';
-
-async function callClaude(prompt, maxTokens = 1200) {
-  const res = await fetch(CLAUDE_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: CLAUDE_MODEL,
-      max_tokens: maxTokens,
-      messages: [{ role: 'user', content: prompt }],
-    }),
-    signal: AbortSignal.timeout(40_000),
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const d = await res.json();
-  return d.content?.map(b => b.text || '').join('') || '';
-}
 
 // ─────────────────────────────────────────
 //  1. QUANTITATIVE RISK ENGINE
@@ -226,55 +203,7 @@ export function computeRiskScore() {
 }
 
 // ─────────────────────────────────────────
-//  2. AI RISK NARRATIVE (Claude)
-// ─────────────────────────────────────────
-
-export async function generateRiskNarrative(riskResult) {
-  const T = totals();
-  const M = computeMetrics(T);
-
-  const prompt = `Kamu adalah risk analyst portofolio investasi profesional. Analisis SINGKAT dan ACTIONABLE.
-
-DATA PORTOFOLIO:
-- Total aset: ${toDisp(T.t)}
-- Crypto: ${toDisp(T.c)} (${(T.c/T.t*100).toFixed(1)}%)
-- Emas: ${toDisp(T.g)} (${(T.g/T.t*100).toFixed(1)}%)
-- Saham: ${toDisp(T.k)} (${(T.k/T.t*100).toFixed(1)}%)
-- Tabungan: ${toDisp(T.sv)} (${(T.sv/T.t*100).toFixed(1)}%)
-- Total return: ${M.total.ret != null ? M.total.ret.toFixed(1)+'%' : 'N/A'}
-
-SKOR RISIKO KUANTITATIF: ${riskResult.total}/100 (${riskResult.grade})
-- Konsentrasi aset: ${riskResult.raw.concentration.toFixed(0)}/100
-- Eksposur kripto: ${riskResult.raw.crypto.toFixed(0)}/100
-- Volatilitas: ${riskResult.raw.volatility.toFixed(0)}/100
-- Diversifikasi: ${riskResult.raw.diversification.toFixed(0)}/100
-- Drawdown: ${riskResult.raw.drawdown.toFixed(0)}/100
-- Risiko mata uang: ${riskResult.raw.currency.toFixed(0)}/100
-${riskResult.annualVol ? `- Volatilitas tahunan: ${riskResult.annualVol.toFixed(1)}%` : ''}
-
-Berikan analisis PADAT dalam format PERSIS ini (WAJIB ikuti format, isi dalam bahasa Indonesia):
-
-**🎯 Ringkasan Risiko**
-[1–2 kalimat intisari profil risiko portofolio ini]
-
-**⚠️ 3 Risiko Utama**
-1. [Risiko terbesar + angka spesifik]
-2. [Risiko kedua]
-3. [Risiko ketiga]
-
-**✅ 3 Langkah Mitigasi**
-1. [Aksi konkret + target alokasi spesifik]
-2. [Aksi konkret kedua]
-3. [Aksi konkret ketiga]
-
-**📊 Profil Investor Cocok**
-[Tipe investor yang sesuai dengan portofolio ini dalam 1 kalimat]`;
-
-  return callClaude(prompt, 800);
-}
-
-// ─────────────────────────────────────────
-//  3. PRICE PREDICTION ENGINE
+//  2. PRICE PREDICTION ENGINE
 // ─────────────────────────────────────────
 
 /**
@@ -373,66 +302,7 @@ export function computeTechnicalSignals(historyData) {
 }
 
 // ─────────────────────────────────────────
-//  4. AI PRICE PREDICTION (Claude)
-// ─────────────────────────────────────────
-
-export async function generatePricePrediction(signals) {
-  const T = totals();
-  const hist = [...(S.historyData || [])].sort((a, b) => a.date.localeCompare(b.date));
-  const recentHistory = hist.slice(-30).map(h => `${h.date}: ${toDisp(h.value)}`).join('\n');
-
-  const prompt = `Kamu adalah quantitative analyst yang ahli dalam analisis teknikal dan fundamental portofolio investasi Indonesia.
-
-DATA TEKNIKAL PORTOFOLIO (30 hari terakhir):
-Nilai saat ini: ${toDisp(signals.currentVal)}
-SMA 7 hari: ${toDisp(signals.sma7)}
-SMA 14 hari: ${toDisp(signals.sma14)}
-SMA 30 hari: ${toDisp(signals.sma30)}
-Tren 7 hari: ${signals.trend7 > 0 ? '+' : ''}${signals.trend7}%
-Tren 30 hari: ${signals.trend30 > 0 ? '+' : ''}${signals.trend30}%
-RSI (14): ${signals.rsi}
-Support: ${toDisp(signals.support)}
-Resistance: ${toDisp(signals.resistance)}
-Sinyal teknikal: ${signals.signal} (confidence: ${signals.confidence}%)
-Proyeksi linier 7 hari: ${toDisp(signals.projected7d)}
-Proyeksi linier 30 hari: ${toDisp(signals.projected30d)}
-Volatilitas (±): ${signals.bandPct}% per hari
-
-KOMPOSISI PORTOFOLIO:
-${DATA.crypto.length} crypto, ${DATA.stocks.length} saham, ${DATA.gold.length} emas, ${DATA.savings.length} tabungan
-
-RIWAYAT NILAI (30 hari terakhir):
-${recentHistory || '(belum ada data — sync tiap hari)'}
-
-Berikan analisis prediksi PADAT dan SPESIFIK dalam format PERSIS ini:
-
-**🔮 Sinyal Teknikal Utama**
-[Penjelasan sinyal bullish/bearish/neutral dalam 2 kalimat dengan angka konkret]
-
-**📅 Proyeksi 7 Hari**
-- Skenario Bullish: [nilai IDR target + kondisi yang mendukung]
-- Skenario Base: [nilai IDR paling mungkin + reasoning]
-- Skenario Bearish: [nilai IDR jika turun + trigger risiko]
-- Confidence: ${signals.confidence}%
-
-**📅 Proyeksi 30 Hari**
-- Skenario Bullish: [nilai IDR target]
-- Skenario Base: [nilai IDR paling mungkin]
-- Skenario Bearish: [nilai IDR jika turun]
-
-**⚡ Faktor Kunci yang Perlu Dipantau**
-1. [Faktor paling penting + threshold yang perlu diperhatikan]
-2. [Faktor kedua]
-3. [Faktor ketiga]
-
-**⚠️ Disclaimer**
-Prediksi ini berdasarkan analisis teknikal historis dan BUKAN saran investasi. Pasar bisa bergerak di luar ekspektasi model.`;
-
-  return callClaude(prompt, 900);
-}
-
-// ─────────────────────────────────────────
-//  5. PORTFOLIO HEALTH METRICS
+//  3. PORTFOLIO HEALTH METRICS
 // ─────────────────────────────────────────
 
 export function computeHealthMetrics() {

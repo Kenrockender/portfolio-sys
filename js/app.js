@@ -313,6 +313,15 @@ window.App = {
 };
 Object.assign(window, window.App);
 
+// ── Clear Demo Data ───────────────────────────────────────────────
+window.clearDemoData = async function () {
+  if (!confirm('Hapus semua data portofolio? Tindakan ini tidak dapat dibatalkan.')) return;
+  setDATA({ crypto: [], gold: [], stocks: [], savings: [], history: [], lastRates: null, txLog: [] });
+  setHistoryData([]);
+  await saveDataToCloud();
+  window.dispatchEvent(new CustomEvent('portfolio:update'));
+};
+
 // ── Internal / Debug Utilities ────────────────────────────────────
 window._setHistoryRange    = setHistoryRange;
 window._destroyAllCharts   = destroyAllCharts;
