@@ -12,10 +12,10 @@ import { CG_IDS, FX_PAIRS, RANGE_DAYS } from './config.js';
 // ── CoinGecko Price Fetch ────────────────────────────────────────
 export async function fetchCG() {
   const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,ripple&vs_currencies=idr,usd');
-  if (!r.ok) throw 0;
+  if (!r.ok) throw new Error(`CoinGecko error: HTTP ${r.status}`);
   const d = await r.json();
   const usdIdr = (d.bitcoin?.usd && d.bitcoin?.idr) ? Math.round(d.bitcoin.idr / d.bitcoin.usd) : null;
-  return { btcIdr: d.bitcoin.idr, ethIdr: d.ethereum.idr, xrpIdr: d.ripple.idr, usdIdr };
+  return { btcIdr: d.bitcoin?.idr, ethIdr: d.ethereum?.idr, xrpIdr: d.ripple?.idr, usdIdr };
 }
 
 // ── [Fix 1] Fetch Altcoin Prices (SOL, ADA, BNB, dll) ────────────
@@ -77,7 +77,7 @@ export async function fetchYahoo(sym) {
   const r = await _proxyFetch(url);
   const d = await r.json();
   const p = d?.chart?.result?.[0]?.meta?.regularMarketPrice;
-  if (!p) throw 0;
+  if (!p) throw new Error(`Yahoo Finance: no price data for ${sym}`);
   return p;
 }
 
@@ -177,141 +177,149 @@ function _syncUiEnd(errorMsg = null) {
 
 // ── Sync All Prices ──────────────────────────────────────────────
 export async function syncAllPrices() {
-  _syncUiStart();
-  S.isSyncing = true;
+  if (_syncAllPricesPromise) return _syncAllPricesPromise;
 
-  const FALLBACK = {
-    btcIdr: 1_590_000_000,
-    ethIdr: 52_000_000,
-    xrpIdr: 10_800,
-    goldGramIdr: 2_700_000,
-    usdIdr: 16_200
-  };
+  _syncAllPricesPromise = (async () => {
+    _syncUiStart();
+    S.isSyncing = true;
 
-  try {
-    // 1a. Major crypto via CoinGecko
-    const cg = await fetchCG().catch(() => FALLBACK);
-    setPrice('btcIdr', cg.btcIdr || FALLBACK.btcIdr);
-    setPrice('ethIdr', cg.ethIdr || FALLBACK.ethIdr);
-    setPrice('xrpIdr', cg.xrpIdr || FALLBACK.xrpIdr);
-    if (cg.usdIdr) setPrice('usdIdr', cg.usdIdr);
+    const FALLBACK = {
+      btcIdr: 1_590_000_000,
+      ethIdr: 52_000_000,
+      xrpIdr: 10_800,
+      goldGramIdr: 2_700_000,
+      usdIdr: 16_200
+    };
 
-    setStatus('btc', 'live');
-    setStatus('eth', 'live');
-    setStatus('xrp', 'live');
-
-    // 1b. Altcoins — batched, non-fatal jika gagal
-    await fetchAltcoinPrices();
-
-    // 2. FX via ExchangeRate-API
-    const fxRes = await fetch('https://api.exchangerate-api.com/v4/latest/USD',
-      { signal: AbortSignal.timeout(7000) }).catch(() => ({ ok: false }));
-    if (fxRes.ok) {
-      const fx = await fxRes.json();
-      const toIDR = c => Math.round((fx.rates.IDR || S.usdIdr) / (fx.rates[c] || 1));
-      setPrice('usdIdr', Math.round(fx.rates.IDR || S.usdIdr));
-      S.fxRates = {
-        USD: S.usdIdr, IDR: 1,
-        AUD: toIDR('AUD'), SGD: toIDR('SGD'), JPY: Math.round((fx.rates.IDR || S.usdIdr) / (fx.rates.JPY || 1)),
-        HKD: toIDR('HKD'), EUR: toIDR('EUR'), GBP: toIDR('GBP'),
-        NZD: toIDR('NZD'), CHF: toIDR('CHF'), CAD: toIDR('CAD'), CNH: toIDR('CNY')
-      };
-      setStatus('fx', 'live');
-    } else {
-      console.warn('[API] FX fetch failed — savings in foreign currency may show stale rates');
-      setStatus('fx', 'stale');
-    }
-
-    // 3. Gold — Logam Mulia primary (IDR/gram langsung), metals.live & Yahoo fallback
-    let goldGramIdr = null;
-
-    // 3a. Logam Mulia (sumber utama — harga resmi Antam dalam IDR)
     try {
-      const lmPrice = await fetchLogamMulia();
-      if (lmPrice >= 1_000_000 && lmPrice <= 4_000_000) {
-        goldGramIdr = lmPrice;
-        console.log(`[API] Gold (Logam Mulia): Rp ${lmPrice.toLocaleString('id-ID')}/gr`);
-      }
-    } catch (e) {
-      console.warn('[API] Logam Mulia fetch gagal:', e.message);
-    }
+      // 1a. Major crypto via CoinGecko
+      const cg = await fetchCG().catch(() => FALLBACK);
+      setPrice('btcIdr', cg.btcIdr || FALLBACK.btcIdr);
+      setPrice('ethIdr', cg.ethIdr || FALLBACK.ethIdr);
+      setPrice('xrpIdr', cg.xrpIdr || FALLBACK.xrpIdr);
+      if (cg.usdIdr) setPrice('usdIdr', cg.usdIdr);
 
-    // 3b. Fallback: metals.live (USD/oz) → konversi ke IDR/gram
-    if (!goldGramIdr) {
+      setStatus('btc', 'live');
+      setStatus('eth', 'live');
+      setStatus('xrp', 'live');
+
+      // 1b. Altcoins — batched, non-fatal jika gagal
+      await fetchAltcoinPrices();
+
+      // 2. FX via ExchangeRate-API
+      const fxRes = await fetch('https://api.exchangerate-api.com/v4/latest/USD',
+        { signal: AbortSignal.timeout(7000) }).catch(() => ({ ok: false }));
+      if (fxRes.ok) {
+        const fx = await fxRes.json();
+        const toIDR = c => Math.round((fx.rates.IDR || S.usdIdr) / (fx.rates[c] || 1));
+        setPrice('usdIdr', Math.round(fx.rates.IDR || S.usdIdr));
+        S.fxRates = {
+          USD: S.usdIdr, IDR: 1,
+          AUD: toIDR('AUD'), SGD: toIDR('SGD'), JPY: Math.round((fx.rates.IDR || S.usdIdr) / (fx.rates.JPY || 1)),
+          HKD: toIDR('HKD'), EUR: toIDR('EUR'), GBP: toIDR('GBP'),
+          NZD: toIDR('NZD'), CHF: toIDR('CHF'), CAD: toIDR('CAD'), CNH: toIDR('CNY')
+        };
+        setStatus('fx', 'live');
+      } else {
+        console.warn('[API] FX fetch failed — savings in foreign currency may show stale rates');
+        setStatus('fx', 'stale');
+      }
+
+      // 3. Gold — Logam Mulia primary (IDR/gram langsung), metals.live & Yahoo fallback
+      let goldGramIdr = null;
+
+      // 3a. Logam Mulia (sumber utama — harga resmi Antam dalam IDR)
       try {
-        const mRes = await fetch('https://api.metals.live/v1/spot/gold', { signal: AbortSignal.timeout(7000) });
-        if (mRes.ok) {
-          const mData = await mRes.json();
-          const entry = Array.isArray(mData) ? mData[0] : mData;
-          const goldUsd = entry?.price || entry?.gold || null;
-          if (goldUsd && goldUsd > 3000) {
-            goldGramIdr = Math.round((goldUsd / 31.1035) * S.usdIdr);
-            console.log(`[API] Gold (metals.live fallback): $${goldUsd}/oz → Rp ${goldGramIdr.toLocaleString('id-ID')}/gr`);
+        const lmPrice = await fetchLogamMulia();
+        if (lmPrice >= 1_000_000 && lmPrice <= 4_000_000) {
+          goldGramIdr = lmPrice;
+          console.log(`[API] Gold (Logam Mulia): Rp ${lmPrice.toLocaleString('id-ID')}/gr`);
+        }
+      } catch (e) {
+        console.warn('[API] Logam Mulia fetch gagal:', e.message);
+      }
+
+      // 3b. Fallback: metals.live (USD/oz) → konversi ke IDR/gram
+      if (!goldGramIdr) {
+        try {
+          const mRes = await fetch('https://api.metals.live/v1/spot/gold', { signal: AbortSignal.timeout(7000) });
+          if (mRes.ok) {
+            const mData = await mRes.json();
+            const entry = Array.isArray(mData) ? mData[0] : mData;
+            const goldUsd = entry?.price || entry?.gold || null;
+            if (goldUsd && goldUsd > 3000) {
+              goldGramIdr = Math.round((goldUsd / 31.1035) * S.usdIdr);
+              console.log(`[API] Gold (metals.live fallback): $${goldUsd}/oz → Rp ${goldGramIdr.toLocaleString('id-ID')}/gr`);
+            }
           }
-        }
-      } catch (_) {}
-    }
-
-    // 3c. Fallback: Yahoo Finance GC=F
-    if (!goldGramIdr) {
-      try {
-        const yGold = await fetchYahoo('GC=F');
-        if (yGold && yGold > 3000) {
-          goldGramIdr = Math.round((yGold / 31.1035) * S.usdIdr);
-          console.log(`[API] Gold (Yahoo fallback): $${yGold}/oz → Rp ${goldGramIdr.toLocaleString('id-ID')}/gr`);
-        }
-      } catch (_) {}
-    }
-
-    if (goldGramIdr) {
-      setPrice('goldGramIdr', goldGramIdr);
-      setStatus('gold', 'live');
-    } else {
-      if (!S.goldGramIdr || S.goldGramIdr < 1_000_000) {
-        setPrice('goldGramIdr', 1_700_000); // fallback default ~harga Antam saat ini
+        } catch (_) {}
       }
-      setStatus('gold', 'stale');
-      console.warn('[API] Gold price unavailable — using last known value');
+
+      // 3c. Fallback: Yahoo Finance GC=F
+      if (!goldGramIdr) {
+        try {
+          const yGold = await fetchYahoo('GC=F');
+          if (yGold && yGold > 3000) {
+            goldGramIdr = Math.round((yGold / 31.1035) * S.usdIdr);
+            console.log(`[API] Gold (Yahoo fallback): $${yGold}/oz → Rp ${goldGramIdr.toLocaleString('id-ID')}/gr`);
+          }
+        } catch (_) {}
+      }
+
+      if (goldGramIdr) {
+        setPrice('goldGramIdr', goldGramIdr);
+        setStatus('gold', 'live');
+      } else {
+        if (!S.goldGramIdr || S.goldGramIdr < 1_000_000) {
+          setPrice('goldGramIdr', 1_700_000); // fallback default ~harga Antam saat ini
+        }
+        setStatus('gold', 'stale');
+        console.warn('[API] Gold price unavailable — using last known value');
+      }
+
+      // 4. Stocks — silent=true: syncAllPrices dispatches once after all prices ready
+      await syncStocksOnly(true);
+
+      console.log('[API] Sync complete');
+
+      // Save last rates to cloud
+      DATA.lastRates = {
+        usdIdr: S.usdIdr,
+        fxRates: { ...S.fxRates },
+        goldGramIdr: S.goldGramIdr,
+        btcIdr: S.btcIdr,
+        ethIdr: S.ethIdr,
+        xrpIdr: S.xrpIdr,
+        timestamp: Date.now()
+      };
+
+      _syncUiEnd();
+
+      window.dispatchEvent(new CustomEvent('portfolio:update'));
+
+      // Update app badge with total net worth (in Jt)
+      try {
+        if ('setAppBadge' in navigator) {
+          const total = Object.values(window.__portfolioTotals || {}).reduce((s, v) => s + (v || 0), 0);
+          if (total > 0) navigator.setAppBadge(Math.round(total / 1_000_000));
+        }
+      } catch (_) {}
+
+      await saveDailySnapshot();
+
+    } catch (e) {
+      console.error('Sync error:', e);
+      _syncUiEnd('sync error');
+      S.isSyncing = false;
+      return;
+    } finally {
+      S.isSyncing = false;
     }
+  })().finally(() => {
+    _syncAllPricesPromise = null;
+  });
 
-    // 4. Stocks — silent=true: syncAllPrices dispatches once after all prices ready
-    await syncStocksOnly(true);
-
-    console.log('[API] Sync complete');
-
-  } catch (e) {
-    console.error('Sync error:', e);
-    _syncUiEnd('sync error');
-    S.isSyncing = false;
-    return;
-  } finally {
-    S.isSyncing = false;
-  }
-
-  // Save last rates to cloud
-  DATA.lastRates = {
-    usdIdr: S.usdIdr,
-    fxRates: { ...S.fxRates },
-    goldGramIdr: S.goldGramIdr,
-    btcIdr: S.btcIdr,
-    ethIdr: S.ethIdr,
-    xrpIdr: S.xrpIdr,
-    timestamp: Date.now()
-  };
-
-  _syncUiEnd();
-
-  window.dispatchEvent(new CustomEvent('portfolio:update'));
-
-  // Update app badge with total net worth (in Jt)
-  try {
-    if ('setAppBadge' in navigator) {
-      const total = Object.values(window.__portfolioTotals || {}).reduce((s, v) => s + (v || 0), 0);
-      if (total > 0) navigator.setAppBadge(Math.round(total / 1_000_000));
-    }
-  } catch (_) {}
-
-  await saveDailySnapshot();
+  return _syncAllPricesPromise;
 }
 
 // ── Sync Stocks Only ──────────────────────────────────────────────

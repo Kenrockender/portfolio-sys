@@ -5,7 +5,7 @@
  */
 
 import { S, DATA } from './state.js';
-import { totals, computeMetrics, savingsIdr } from './storage.js';
+import { totals, computeMetrics, savingsIdr, cryptoPrice } from './storage.js';
 import { toDisp } from './storage.js';
 
 // ── Config ────────────────────────────────────────────────────────
@@ -22,7 +22,7 @@ function buildPortfolioContext() {
   const fmt = (idr) => toDisp(idr);
 
   const cryptoLines = DATA.crypto.map(a =>
-    `  - ${a.coin} (${a.platform}): ${a.amount} coin, nilai ~${fmt(a.amount * (S.btcIdr || S.ethIdr || S.xrpIdr || 0))}`
+    `  - ${a.coin} (${a.platform}): ${a.amount} coin, nilai ~${fmt(a.amount * cryptoPrice(a))}`
   ).join('\n');
 
   const goldLines = DATA.gold.map(a =>
