@@ -86,10 +86,8 @@ export async function fetchYahoo(sym) {
 // Harga Jual 1 gram Antam — angka dalam IDR langsung
 export async function fetchLogamMulia() {
   const LM_URL = 'https://www.logammulia.com/id/harga-emas-hari-ini';
-
   let html = null;
 
-  // Try via allorigins first, then corsproxy.io fallback
   for (const proxyFn of [
     u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
     u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
@@ -102,49 +100,45 @@ export async function fetchLogamMulia() {
 
   if (!html) throw new Error('[LM] Semua proxy gagal');
 
-  // ── Strategi 1: cari harga di tabel dengan data-gram="1" atau td nearest "1 gr"
-  // Contoh HTML Logam Mulia: <td>1 gr</td><td>Rp 1.687.000</td>
-  // atau <span class="price">1.687.000</span> dekat "1 gr"
+  // ── Strategy 1: parse <tr> rows, cari baris "1 gr" di kolom pertama ──
+  // Handles: <tr><td>1 gr</td><td>2.922.000</td><td>2.929.305</td></tr>
+  const rowRe = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
+  for (const rowMatch of html.matchAll(rowRe)) {
+    const cells = [...rowMatch[1].matchAll(/<td[^>]*>([\s\S]*?)<\/td>/gi)]
+      .map(c => c[1].replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim());
+    if (cells.length >= 2 && /^1\s*gr$/i.test(cells[0])) {
+      const price = _parseIdrHtml(cells[1]);
+      if (price >= 1_500_000 && price <= 5_000_000) {
+        console.log(`[LM] Harga emas (table row 1gr): Rp ${price.toLocaleString('id-ID')}/gr`);
+        return price;
+      }
+    }
+  }
 
-  // Cari semua angka yang kemungkinan harga IDR/gram (range 1jt – 4jt)
-  // setelah teks "1 gr" atau "1 gram" atau "harga jual"
-
-  // Pattern A: angka IDR format setelah "1 gr" atau "1 gram" dalam radius ~200 karakter
-  const blockA = html.match(/1\s*gr(?:am)?.{0,200}?Rp\s*([\d.]+)/i)
-               || html.match(/1\s*gr(?:am)?.{0,200}?([\d]{1,3}(?:[.,][\d]{3})+)/);
-  if (blockA) {
-    const price = _parseIdrHtml(blockA[1] || blockA[2]);
-    if (price >= 1_000_000 && price <= 4_000_000) {
-      console.log(`[LM] Harga emas (Pattern A): Rp ${price.toLocaleString('id-ID')}/gr`);
+  // ── Strategy 2: cari pola "1 gr" diikuti harga di teks dekatnya (radius 120 char) ──
+  // Fallback jika tabel pakai class/structure yang berbeda
+  const blockRe = /1\s*gr[\s\S]{0,120}?([\d]{1,2}\.[\d]{3}\.[\d]{3})/;
+  const blockMatch = html.match(blockRe);
+  if (blockMatch) {
+    const price = _parseIdrHtml(blockMatch[1]);
+    if (price >= 1_500_000 && price <= 5_000_000) {
+      console.log(`[LM] Harga emas (block match): Rp ${price.toLocaleString('id-ID')}/gr`);
       return price;
     }
   }
 
-  // Pattern B: cari semua angka 7-digit di halaman, ambil yang di range 1jt–4jt, paling awal
-  const allPrices = [...html.matchAll(/([\d]{1,3}(?:\.[\d]{3}){2,3})/g)]
-    .map(m => _parseIdrHtml(m[1]))
-    .filter(p => p >= 1_000_000 && p <= 4_000_000);
-
-  if (allPrices.length > 0) {
-    // Harga 1 gram biasanya yang terkecil (termurah) di antara semua harga
-    const price = Math.min(...allPrices);
-    console.log(`[LM] Harga emas (Pattern B): Rp ${price.toLocaleString('id-ID')}/gr`);
-    return price;
-  }
-
-  // Pattern C: cari di JSON-LD / script tag structured data
+  // ── Strategy 3: JSON-LD / structured data ──
   const scriptMatch = html.match(/"price"\s*:\s*"?([\d.,]+)"?/i);
   if (scriptMatch) {
     const price = _parseIdrHtml(scriptMatch[1]);
-    if (price >= 1_000_000 && price <= 4_000_000) {
-      console.log(`[LM] Harga emas (Pattern C / JSON-LD): Rp ${price.toLocaleString('id-ID')}/gr`);
+    if (price >= 1_500_000 && price <= 5_000_000) {
+      console.log(`[LM] Harga emas (JSON-LD): Rp ${price.toLocaleString('id-ID')}/gr`);
       return price;
     }
   }
 
-  throw new Error('[LM] Tidak dapat menemukan harga dalam HTML');
+  throw new Error('[LM] Tidak dapat menemukan harga 1gr dalam HTML');
 }
-
 /** Parse angka IDR dari HTML: "1.687.000" → 1687000 */
 function _parseIdrHtml(str) {
   if (!str) return 0;
