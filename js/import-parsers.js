@@ -446,6 +446,194 @@ const IMPORT_RULES = {
 
   // ── GENERIC UNIVERSAL ─────────────────────────────────────────
 
+  // ── PORTFOLIO.SYS PDF RE-IMPORT ───────────────────────────────
+  // Baca kembali PDF export dari PORTFOLIO.SYS itu sendiri.
+  // Semua 4 kelas aset: crypto, gold, stocks, savings.
+  'portfolio-sys': {
+    label: 'PORTFOLIO.SYS (PDF Export)',
+    category: 'auto',
+    hint: `Upload PDF laporan yang di-export dari PORTFOLIO.SYS sendiri.\n\nParser membaca semua aset:\n• Crypto (coin, jumlah, cost basis, platform)\n• Emas (gram, cost basis per gram)\n• Saham (ticker, lot, harga beli, broker)\n• Tabungan (bank, currency, saldo)`,
+    parse(raw) {
+      const results = [];
+
+      // ── Helper: parse "Rp 54.86Jt" / "Rp 317.728" / "Rp 2.44M" ──
+      function parseRpAbbr(str) {
+        if (!str) return 0;
+        str = String(str).replace(/\s/g, '').replace('Rp', '');
+        const mulMap = { 'Jt': 1e6, 'M': 1e6, 'B': 1e9, 'Rb': 1e3, 'K': 1e3 };
+        for (const [sfx, mul] of Object.entries(mulMap)) {
+          const re = new RegExp(`^([\\d.,]+)${sfx}$`, 'i');
+          const m = str.match(re);
+          if (m) return Math.round(parseFloat(m[1].replace(',', '.')) * mul);
+        }
+        return parseIdrNum(str);
+      }
+
+      // ── FIX #1a: Ticker lookup table untuk IDX stocks populer ──
+      const IDX_TICKER_MAP = {
+        'chandra daya':        'CDIA',
+        'bangun kosambi':      'CBDK',
+        'bank central asia':   'BBCA',
+        'bank rakyat':         'BBRI',
+        'bank mandiri':        'BMRI',
+        'bank negara':         'BBNI',
+        'bank tabungan':       'BBTN',
+        'bank syariah':        'BRIS',
+        'telkom':              'TLKM',
+        'astra international': 'ASII',
+        'unilever':            'UNVR',
+        'indofood cbp':        'ICBP',
+        'indofood':            'INDF',
+        'kalbe farma':         'KLBF',
+        'united tractors':     'UNTR',
+        'merdeka copper':      'MDKA',
+        'bukalapak':           'BUKA',
+        'goto':                'GOTO',
+        'elang mahkota':       'EMTK',
+        'adaro energy':        'ADRO',
+        'adaro andalan':       'AADI',
+        'bukit asam':          'PTBA',
+        'indo tambangraya':    'ITMG',
+        'amman mineral':       'AMMN',
+        'aneka tambang':       'ANTM',
+        'vale indonesia':      'INCO',
+        'barito renewables':   'BREN',
+        'barito pacific':      'BRPT',
+        'bumi serpong':        'BSDE',
+        'ciputra':             'CTRA',
+        'pakuwon':             'PWON',
+        'summarecon':          'SMRA',
+        'jasa marga':          'JSMR',
+        'gudang garam':        'GGRM',
+        'hm sampoerna':        'HMSP',
+        'matahari department': 'LPPF',
+        'sumber alfaria':      'AMRT',
+      };
+
+      function guessTickerFromName(name) {
+        const nameLower = name.toLowerCase();
+        // 1. Coba window._POPULAR_STOCKS (reverse lookup, 8-char prefix)
+        const stocks = window._POPULAR_STOCKS || {};
+        for (const [t, n] of Object.entries(stocks)) {
+          if (n && nameLower.startsWith(n.toLowerCase().slice(0, 8))) return t;
+        }
+        // 2. Coba IDX_TICKER_MAP
+        for (const [key, ticker] of Object.entries(IDX_TICKER_MAP)) {
+          if (nameLower.includes(key)) return ticker;
+        }
+        // 3. Fallback: gabungkan 2 huruf pertama dari 2 kata pertama yang berarti
+        const words = name.split(/\s+/).filter(w => w.length > 2 && !/tbk|pt\.|cv\./i.test(w));
+        if (words.length >= 2) {
+          return (words[0].slice(0, 2) + words[1].slice(0, 2)).toUpperCase();
+        }
+        return words[0]?.slice(0, 4).toUpperCase() || 'UNKN';
+      }
+
+      // ── FIX #1b: Broker map diperluas (termasuk truncated PDF text) ──
+      const brokerMap = {
+        st:  'stockbit', sto: 'stockbit', stoc: 'stockbit', stock: 'stockbit',
+        bi:  'bibit',    bit: 'bibit',    bibi: 'bibit',
+        ip:  'indopremier', indo: 'indopremier',
+        pl:  'pluang',   plu: 'pluang',
+        bni: 'bni sekuritas',
+        bca: 'bca sekuritas',
+        mnd: 'mandiri sekuritas',
+        man: 'mandiri sekuritas',
+        ph:  'phillip sekuritas',
+      };
+
+      const lines = raw.replace(/\r\n/g, '\n').split('\n').map(l => l.trim()).filter(Boolean);
+      let section = null;
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        // Section detection
+        if (/CRYPTO\s+HOLDINGS/i.test(line))  { section = 'crypto';  continue; }
+        if (/GOLD\s+HOLDINGS/i.test(line))    { section = 'gold';    continue; }
+        if (/STOCK\s+HOLDINGS/i.test(line))   { section = 'stocks';  continue; }
+        if (/^SAVINGS$/i.test(line))          { section = 'savings'; continue; }
+        if (/PORTFOLIO\.SYS\s*—/i.test(line)) { section = null;      continue; }
+        if (/^Nama\s+Qty\s+Nilai/i.test(line)) continue;
+
+        if (section === 'crypto') {
+          // "Bitcoin (indodax) 0.05621301 BTC Rp 68.04Jt Rp 54.86Jt 2023-12-20"
+          const m = line.match(/^(.+?)\s+\((\w+)\)\s+([\d.]+)\s+([A-Z]+)\s+Rp\s*([\d.,A-Za-z]+)\s+Rp\s*([\d.,A-Za-z]+)\s+(\d{4}-\d{2}-\d{2})/i);
+          if (m) {
+            const coin = m[4].toUpperCase();
+            results.push({
+              type: 'crypto', coin,
+              name: COIN_NAMES[coin] || coin,
+              amount: parseFloat(m[3]),
+              costBasisIdr: parseRpAbbr(m[6]),
+              platform: m[2].toLowerCase(),
+              date: m[7],
+            });
+          }
+        }
+
+        else if (section === 'gold') {
+          // "Antam 25 gr 25g Rp 60.91Jt Rp 22.90Jt 2020-11-16"
+          const m = line.match(/^(.+?)\s+([\d.]+)g\s+Rp\s*([\d.,A-Za-z]+)\s+Rp\s*([\d.,A-Za-z]+)\s+(\d{4}-\d{2}-\d{2})/i);
+          if (m) {
+            const grams = parseFloat(m[2]);
+            const costTotal = parseRpAbbr(m[4]);
+            results.push({
+              type: 'gold',
+              name: m[1].trim(),
+              grams,
+              costBasisPerGram: grams > 0 ? Math.round(costTotal / grams) : 0,
+              date: m[5],
+            });
+          }
+        }
+
+        else if (section === 'stocks') {
+          // "Chandra Daya Investasi Tbk (st 2 lot Rp 156.000 Rp 357.000 2025-12-19"
+          // "(st" dan "(sto" keduanya = stockbit (truncated PDF text)
+          const m = line.match(/^(.+?)\s+\((\w+)\s+(\d+)\s+lot\s+Rp\s*([\d.,A-Za-z]+)\s+Rp\s*([\d.,A-Za-z]+)\s+(\d{4}-\d{2}-\d{2})/i);
+          if (m) {
+            const lots = parseInt(m[3]);
+            const costTotal = parseRpAbbr(m[5]);
+            const seedPrice = lots > 0 ? Math.round(costTotal / (lots * 100)) : 0;
+            const name = m[1].trim();
+            const ticker = guessTickerFromName(name);
+            const broker = brokerMap[m[2].toLowerCase()] || m[2].toLowerCase();
+            results.push({
+              type: 'stocks', ticker, name,
+              shares: lots, seedPrice,
+              market: 'IDX', broker,
+              date: m[6], annualYield: 0,
+            });
+          }
+        }
+
+        else if (section === 'savings') {
+          // "OCBC CAD 136.93 Rp 1.70Jt – 2025-07-28"
+          // "CNY 2026 IDR 6,250,000 Rp 6.25Jt – 2026-02-17"
+          const m = line.match(/^(.+?)\s+(IDR|USD|SGD|AUD|EUR|GBP|JPY|CAD|CNY|HKD|CHF|NZD)\s+([\d,]+(?:\.\d+)?)\s+Rp\s*([\d.,A-Za-z]+)\s+[–-]\s+(\d{4}-\d{2}-\d{2})/i);
+          if (m) {
+            const name     = m[1].trim();
+            const currency = m[2].toUpperCase();
+            const foreignAmt = parseIdrNum(m[3]);
+            const idr      = parseRpAbbr(m[4]);
+            const bank     = name.split(' ')[0].toLowerCase();
+            results.push({
+              type: 'savings', name, bank: bank || 'other',
+              currency, foreignAmt, idr,
+              annualYield: 0, note: '', date: m[5],
+            });
+          }
+        }
+      }
+
+      if (results.length === 0) {
+        throw new Error('Tidak ada data yang terbaca.\nPastikan PDF yang diupload adalah PDF export dari PORTFOLIO.SYS (bukan PDF lain).');
+      }
+      return results;
+    }
+  },
+
   generic: {
     label:'Format Universal (Bebas)', category:'auto',
     hint:`Format bebas, satu aset per baris\n\nCRYPTO:\n  BTC 0.05 Rp50000000 [platform] [tanggal]\n  ETH 1.5 50000000\n\nSAHAM IDX:\n  BBCA 2 lot 9200 [broker] [tanggal]\n  TLKM 5lot 3850\n\nSAHAM US:\n  AAPL 3 185 USD\n  TSLA 2 250 USD\n\nTABUNGAN:\n  BCA Rp45000000\n  OCBC SGD 800`,
@@ -782,6 +970,10 @@ function autoDetectSource(rawText) {
   if (/Date\(UTC\).*Pair.*Side.*Price/i.test(t) || /BTCUSDT.*BUY/i.test(t))
     return 'binance';
 
+  // PORTFOLIO.SYS PDF export (self-import)
+  if (/PORTFOLIO\.SYS/i.test(t) && /CRYPTO\s+HOLDINGS|GOLD\s+HOLDINGS|STOCK\s+HOLDINGS/i.test(t))
+    return 'portfolio-sys';
+
   // Bibit
   if (/bibit/i.test(t) && /lot/i.test(t))
     return 'bibit';
@@ -1039,6 +1231,9 @@ function impNext(){
         getDATA().savings.push({id:uid(),name:item.name,bank:item.bank,currency:item.currency,
           foreignAmt:item.foreignAmt,idr:item.idr,annualYield:item.annualYield||0,
           note:item._note||'',date:item.date});
+      } else if(item.type==='gold'){
+        getDATA().gold.push({id:uid(),name:item.name,grams:item.grams,
+          costBasisPerGram:item.costBasisPerGram,date:item.date});
       }
     }
     saveDataToCloud();
@@ -1102,6 +1297,11 @@ function impRenderPreview(body){
             qtyCell=`${r.shares} ${r.market==='IDX'?'lot':'shares'}`;
             costCell=`Rp ${(r.seedPrice||0).toLocaleString('id-ID')} / ${r.market==='IDX'?'lembar':'share'}`;
             platCell=r.broker||'–';
+          } else if(r.type==='gold'){
+            assetCell=`<strong>${r.name}</strong>`;
+            qtyCell=`${r.grams} g`;
+            costCell=`Rp ${Math.round((r.costBasisPerGram||0) * r.grams).toLocaleString('id-ID')}`;
+            platCell='antam';
           } else {
             assetCell=`<strong>${r.name}</strong>`;
             qtyCell=`${r.currency} ${(r.foreignAmt||0).toLocaleString('id-ID')}`;

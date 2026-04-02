@@ -293,8 +293,25 @@ export async function saveDailySnapshot() {
 }
 
 // ── Load User Plan ────────────────────────────────────────────────
+// ── Owner UIDs — always Pro ───────────────────────────────────────
+// Tambahkan Firebase UID kamu di sini. Cara cek UID:
+// Setelah login, buka console browser → ketik: firebase.getAuth(app).currentUser.uid
+// Atau cek di Firebase Console → Authentication → Users
+const OWNER_UIDS = new Set([
+  // Masukkan UID Google-mu di sini, contoh:
+  // 'abc123xyz...',
+]);
+
 export async function loadUserPlan() {
   if (!currentUser || !db) return;
+
+  // Owner selalu Pro
+  if (OWNER_UIDS.has(currentUser.uid)) {
+    setPlan('pro');
+    console.log('[PLANS] Owner UID → Pro granted automatically');
+    return;
+  }
+
   try {
     const planRef = firebase.doc(db, 'users', currentUser.uid, 'subscription', 'plan');
     const snap = await firebase.getDoc(planRef);

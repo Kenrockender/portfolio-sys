@@ -293,8 +293,8 @@ export function renderMLPanel() {
   <!-- ── HEADER ── -->
   <div class="ml-panel-header">
     <div>
-      <div class="ml-panel-tag">ML MODEL · QUANTITATIVE</div>
-      <div class="ml-panel-title">Portfolio Intelligence Dashboard</div>
+      <div class="ml-panel-tag">RISK INTELLIGENCE · QUANTITATIVE</div>
+      <div class="ml-panel-title">Portfolio Risk & Signals</div>
       <div class="ml-panel-sub">Skor risiko, sinyal teknikal, dan proyeksi berbasis data historis</div>
     </div>
     <div class="ml-panel-refresh">
@@ -320,12 +320,6 @@ export function renderMLPanel() {
       <div class="ml-gauge-zones" style="display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;">
         ${zoneLegend}
       </div>
-      <div class="ml-card-footer">
-        <button class="ml-action-btn" id="mlRiskAiBtn" onclick="window.runRiskAI()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-          AI Risk Analysis
-        </button>
-      </div>
     </div>
 
     <!-- Risk Breakdown Card -->
@@ -340,15 +334,6 @@ export function renderMLPanel() {
 
   </div>
 
-  <!-- ── AI RISK NARRATIVE (hidden until clicked) ── -->
-  <div class="ml-card" id="mlRiskAiCard" style="display:none;">
-    <div class="ml-card-label" style="display:flex;align-items:center;gap:8px;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-      AI RISK NARRATIVE
-    </div>
-    <div class="ml-ai-output" id="mlRiskAiOutput"></div>
-  </div>
-
   <!-- ── ROW 2: HEALTH METRICS ── -->
   <div class="ml-card">
     <div class="ml-card-label">PORTFOLIO HEALTH METRICS</div>
@@ -358,7 +343,7 @@ export function renderMLPanel() {
     ${dataWarning}
   </div>
 
-  <!-- ── ROW 3: TECHNICAL SIGNALS + PREDICTION ── -->
+  <!-- ── ROW 3: TECHNICAL SIGNALS + PROJECTION ── -->
   ${_signals ? `
   <div class="ml-grid-2">
 
@@ -446,30 +431,13 @@ export function renderMLPanel() {
         </div>
         <div class="ml-proj-band">Slope: ${_signals.trend30>0?'+':''}${_signals.trend30}% / 30 hari</div>
       </div>
-
-      <div class="ml-proj-divider"></div>
-
-      <button class="ml-action-btn" style="width:100%;margin-top:8px;" id="mlPredAiBtn" onclick="window.runPredictionAI()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-        AI Price Prediction
-      </button>
     </div>
 
   </div>
-
-  <!-- AI Prediction output (hidden until clicked) -->
-  <div class="ml-card" id="mlPredAiCard" style="display:none;">
-    <div class="ml-card-label" style="display:flex;align-items:center;gap:8px;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-      AI PRICE PREDICTION ANALYSIS
-    </div>
-    <div class="ml-ai-output" id="mlPredAiOutput"></div>
-  </div>
-
   ` : `
   <div class="ml-card">
     <div class="ml-info-note" style="text-align:center;padding:28px;font-size:11px;">
-      📈 <strong>Sinyal teknikal & proyeksi harga</strong> akan muncul setelah minimal 7 snapshot historis.<br>
+      📈 <strong>Sinyal teknikal & proyeksi</strong> akan muncul setelah minimal 7 snapshot historis.<br>
       Klik <strong>SYNC</strong> setiap hari untuk membangun data historis portofolio.
     </div>
   </div>

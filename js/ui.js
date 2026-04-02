@@ -140,18 +140,24 @@ function _updateThemePickerActive() {
 
 // ── Tab Navigation ────────────────────────────────────────────────
 export function setTab(tab) {
-  ['home', 'holdings', 'history', 'analytics', 'txlog', 'rebalance', 'ml'].forEach(id => {
+  // Redirect legacy ML tab → analytics
+  if (tab === 'ml') tab = 'analytics';
+
+  ['home', 'holdings', 'history', 'analytics', 'txlog', 'rebalance'].forEach(id => {
     document.getElementById('panel' + id.charAt(0).toUpperCase() + id.slice(1))?.classList.toggle('active', id === tab);
     document.getElementById('tab'   + id.charAt(0).toUpperCase() + id.slice(1))?.classList.toggle('active', id === tab);
     document.getElementById('mtab'  + id.charAt(0).toUpperCase() + id.slice(1))?.classList.toggle('active', id === tab);
   });
-  if (tab === 'analytics') renderAnalytics();
+  if (tab === 'analytics') {
+    renderAnalytics();
+    requestAnimationFrame(() => {
+      if (typeof window.renderMLPanel === 'function') window.renderMLPanel();
+    });
+  }
   if (tab === 'history')   renderHistoryPanel();
   if (tab === 'txlog')     renderTxLog();
   if (tab === 'rebalance') renderRebalance();
   if (tab === 'home') window.dispatchEvent(new CustomEvent('portfolio:update'));
-  if (tab === 'ml') { if (typeof window.renderMLPanel === 'function') window.renderMLPanel();
-}
 }
 
 // ── Tax Mode Toggle ───────────────────────────────────────────────
@@ -937,6 +943,9 @@ export function renderAnalytics() {
         <div class="yc-val">${toDisp(income.total)}</div>
       </div>`;
   }
+
+  // Render ML / Risk Intelligence panel (merged into analytics)
+  if (typeof window.renderMLPanel === 'function') window.renderMLPanel();
 }
 
 // ── Render All ────────────────────────────────────────────────────
