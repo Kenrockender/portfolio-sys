@@ -1,6 +1,5 @@
 /**
  * PWA Install Prompt Handler — PORTFOLIO.SYS
- * Terminal-style install banner, theme-aware via CSS variables
  */
 
 let deferredPrompt = null;
@@ -9,23 +8,17 @@ let installPromptShown = false;
 export function initPWAInstallPrompt() {
   const dismissed = localStorage.getItem('pwa-install-dismissed');
   const installed  = localStorage.getItem('pwa-installed');
-
   if (dismissed === 'true' || installed === 'true') return;
 
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-
     setTimeout(() => {
-      if (!installPromptShown) {
-        showInstallBanner();
-        installPromptShown = true;
-      }
+      if (!installPromptShown) { showInstallBanner(); installPromptShown = true; }
     }, 3000);
   });
 
   window.addEventListener('appinstalled', () => {
-    console.log('[PWA] Installed successfully');
     localStorage.setItem('pwa-installed', 'true');
     hideInstallBanner();
     deferredPrompt = null;
@@ -45,28 +38,24 @@ function showInstallBanner() {
     <div class="pwa-install-titlebar">
       <div class="pwa-install-titlebar-dot"></div>
       <div class="pwa-install-titlebar-label">
-        <span>PORTFOLIO.SYS</span> &mdash; install available
+        <em>PORTFOLIO.SYS</em> &mdash; install available
       </div>
     </div>
     <div class="pwa-install-content">
       <div class="pwa-install-icon">&gt;_</div>
       <div class="pwa-install-text">
         <strong>Install App</strong>
-        <p>Add to home screen for <span class="pwa-highlight">instant access</span> &amp; offline use</p>
+        <p>Tambah ke home screen untuk akses <span class="hi">instant</span> &amp; offline</p>
       </div>
       <div class="pwa-install-actions">
         <button id="pwa-install-btn" class="btn-install">+ Install</button>
-        <button id="pwa-dismiss-btn" class="btn-dismiss" aria-label="Dismiss">&times;</button>
+        <button id="pwa-dismiss-btn" class="btn-dismiss" aria-label="Tutup">&times;</button>
       </div>
     </div>
   `;
 
   document.body.appendChild(banner);
-
-  // Animate in
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => banner.classList.add('show'));
-  });
+  requestAnimationFrame(() => requestAnimationFrame(() => banner.classList.add('show')));
 
   document.getElementById('pwa-install-btn')?.addEventListener('click', handleInstallClick);
   document.getElementById('pwa-dismiss-btn')?.addEventListener('click', handleDismissClick);
@@ -82,18 +71,13 @@ function hideInstallBanner() {
 
 async function handleInstallClick() {
   if (!deferredPrompt) return;
-
   deferredPrompt.prompt();
   const { outcome } = await deferredPrompt.userChoice;
-
-  console.log(`[PWA] User response: ${outcome}`);
-
   if (outcome === 'accepted') {
     localStorage.setItem('pwa-installed', 'true');
   } else {
     localStorage.setItem('pwa-install-dismissed', 'true');
   }
-
   deferredPrompt = null;
   hideInstallBanner();
 }
@@ -104,10 +88,7 @@ function handleDismissClick() {
 }
 
 export function showInstallPrompt() {
-  if (deferredPrompt && !installPromptShown) {
-    showInstallBanner();
-    installPromptShown = true;
-  }
+  if (deferredPrompt && !installPromptShown) { showInstallBanner(); installPromptShown = true; }
 }
 
 export function resetInstallPrompt() {
