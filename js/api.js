@@ -12,7 +12,7 @@ import { CG_IDS, FX_PAIRS, RANGE_DAYS } from './config.js';
 // ── CoinGecko Price Fetch ────────────────────────────────────────
 export async function fetchCG() {
   const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,ripple&vs_currencies=idr,usd');
-  if (!r.ok) throw 0;
+  if (!r.ok) throw new Error(`CoinGecko error: HTTP ${r.status}`);
   const d = await r.json();
   const usdIdr = (d.bitcoin?.usd && d.bitcoin?.idr) ? Math.round(d.bitcoin.idr / d.bitcoin.usd) : null;
   return { btcIdr: d.bitcoin.idr, ethIdr: d.ethereum.idr, xrpIdr: d.ripple.idr, usdIdr };
@@ -77,7 +77,7 @@ export async function fetchYahoo(sym) {
   const r = await _proxyFetch(url);
   const d = await r.json();
   const p = d?.chart?.result?.[0]?.meta?.regularMarketPrice;
-  if (!p) throw 0;
+  if (!p) throw new Error(`Yahoo Finance: no price data for ${sym}`);
   return p;
 }
 
@@ -177,6 +177,7 @@ function _syncUiEnd(errorMsg = null) {
 
 // ── Sync All Prices ──────────────────────────────────────────────
 export async function syncAllPrices() {
+  if (S.isSyncing) return;
   _syncUiStart();
   S.isSyncing = true;
 
