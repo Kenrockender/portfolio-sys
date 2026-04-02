@@ -558,15 +558,44 @@ const IMPORT_RULES = {
 
         if (section === 'crypto') {
           // "Bitcoin (indodax) 0.05621301 BTC Rp 68.04Jt Rp 54.86Jt 2023-12-20"
+          // Platform bisa terpotong jadi "indoda" atau "indo" dari PDF
           const m = line.match(/^(.+?)\s+\((\w+)\)\s+([\d.]+)\s+([A-Z]+)\s+Rp\s*([\d.,A-Za-z]+)\s+Rp\s*([\d.,A-Za-z]+)\s+(\d{4}-\d{2}-\d{2})/i);
           if (m) {
             const coin = m[4].toUpperCase();
+            // Normalize truncated platform names
+            let platform = m[2].toLowerCase();
+            const platformMap = {
+              // Indodax variations (PDF might truncate)
+              'in': 'indodax', 'ind': 'indodax', 'indo': 'indodax', 'indod': 'indodax', 
+              'indoda': 'indodax', 'indodax': 'indodax', 'indodaz': 'indodax',
+              // Pintu
+              'pi': 'pintu', 'pin': 'pintu', 'pint': 'pintu', 'pintu': 'pintu',
+              // Tokocrypto
+              'to': 'tokocrypto', 'tok': 'tokocrypto', 'toko': 'tokocrypto', 
+              'tokoc': 'tokocrypto', 'tokocr': 'tokocrypto', 'tokocrypto': 'tokocrypto',
+              // Binance
+              'bi': 'binance', 'bin': 'binance', 'bina': 'binance', 
+              'binan': 'binance', 'binanc': 'binance', 'binance': 'binance',
+              // Floq
+              'fl': 'floq', 'flo': 'floq', 'floq': 'floq',
+              // Triv
+              'tr': 'triv', 'tri': 'triv', 'triv': 'triv',
+              // Pluang
+              'pl': 'pluang', 'plu': 'pluang', 'plua': 'pluang', 
+              'pluan': 'pluang', 'pluang': 'pluang',
+              // Bitget
+              'bit': 'bitget', 'bitg': 'bitget', 'bitge': 'bitget', 'bitget': 'bitget',
+              // Other
+              'ot': 'other', 'oth': 'other', 'othe': 'other', 'other': 'other',
+            };
+            platform = platformMap[platform] || platform;
+            
             results.push({
               type: 'crypto', coin,
               name: COIN_NAMES[coin] || coin,
               amount: parseFloat(m[3]),
               costBasisIdr: parseRpAbbr(m[6]),
-              platform: m[2].toLowerCase(),
+              platform: platform,
               date: m[7],
             });
           }

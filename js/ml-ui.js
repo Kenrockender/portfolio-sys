@@ -32,6 +32,7 @@ const T = {
   slope: { en: 'Slope', id: 'Slope' },
   days: { en: 'days', id: 'hari' },
   riskScore: { en: 'RISK SCORE', id: 'SKOR RISIKO' },
+  riskIntelligence: { en: 'RISK INTELLIGENCE', id: 'INTELIJEN RISIKO' },
   portfolioRiskSignals: { en: 'Portfolio Risk & Signals', id: 'Risiko & Sinyal Portfolio' },
   riskScoreSignalsProjections: { en: 'Risk score, technical signals, and data-based projections', id: 'Skor risiko, sinyal teknikal, dan proyeksi berbasis data historis' },
   refresh: { en: 'Refresh', id: 'Refresh' },
@@ -43,6 +44,7 @@ const T = {
     en: 'This model uses technical analysis and historical statistics. Projections are <strong>not investment advice</strong> and do not guarantee actual results. Markets can move beyond the model. Always do your own research (DYOR).', 
     id: 'Model ini menggunakan analisis teknikal dan statistik historis. Proyeksi <strong>bukan saran investasi</strong> dan tidak menjamin hasil aktual. Pasar dapat bergerak di luar model. Selalu lakukan riset mandiri (DYOR).' 
   },
+  riskIntelligenceQuantitative: { en: 'RISK INTELLIGENCE · QUANTITATIVE', id: 'INTELIJEN RISIKO · KUANTITATIF' },
 };
 
 const t = (key) => T[key]?.[S.lang] || T[key]?.en || key;
@@ -322,7 +324,7 @@ export function renderMLPanel() {
   <!-- ── HEADER ── -->
   <div class="ml-panel-header">
     <div>
-      <div class="ml-panel-tag">RISK INTELLIGENCE · QUANTITATIVE</div>
+      <div class="ml-panel-tag">${t('riskIntelligenceQuantitative')}</div>
       <div class="ml-panel-title">${t('portfolioRiskSignals')}</div>
       <div class="ml-panel-sub">${t('riskScoreSignalsProjections')}</div>
     </div>

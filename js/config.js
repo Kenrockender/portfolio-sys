@@ -656,6 +656,8 @@ export const I18N = {
     // ── Sync ─────────────────────────────────────────────────────
     auto_snapshot:      'Snapshot otomatis tersimpan tiap Sync',
     snapshot_hint:      'Sync harga setiap hari untuk membangun data historis.\nSetiap klik Sync → snapshot otomatis tersimpan.',
+    // ── Risk Intelligence ────────────────────────────────────────
+    risk_intelligence:  'Intelijen Risiko',
     // ── Rebalancing Calculator ────────────────────────────────────
     rebal_title:        'Rebalancing Calculator',
     rebal_subtitle:     'Atur target % → lihat apa yang perlu dibeli/dijual',
@@ -838,6 +840,8 @@ export const I18N = {
     // ── Sync ─────────────────────────────────────────────────────
     auto_snapshot:      'Snapshot saved automatically on every Sync',
     snapshot_hint:      'Sync prices daily to build historical data.\nEvery Sync click → snapshot auto-saved.',
+    // ── Risk Intelligence ────────────────────────────────────────
+    risk_intelligence:  'Risk Intelligence',
     // ── Rebalancing Calculator ────────────────────────────────────
     rebal_title:        'Rebalancing Calculator',
     rebal_subtitle:     'Set target % → see what to buy/sell',
