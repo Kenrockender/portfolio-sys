@@ -8,8 +8,6 @@ import {
   computeRiskScore,
   computeTechnicalSignals,
   computeHealthMetrics,
-  generateRiskNarrative,
-  generatePricePrediction,
 } from './ml.js';
 import { S } from './state.js';
 import { toDisp } from './storage.js';
@@ -18,8 +16,6 @@ import { toDisp } from './storage.js';
 let _riskResult    = null;
 let _signals       = null;
 let _healthMetrics = null;
-let _riskLoading   = false;
-let _predLoading   = false;
 
 // ── Grade color map (MUST match ml.js 5-tier system) ─────────────
 const GRADE_COLORS = {
@@ -38,21 +34,6 @@ function scoreColor(s) {
   if (s < 60) return '#fbbf24';
   if (s < 80) return '#fb923c';
   return '#fb7185';
-}
-
-// ── Mini Markdown Renderer ────────────────────────────────────────
-function md(text) {
-  return text
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g,'<em>$1</em>')
-    .replace(/^### (.+)$/gm,'<div class="ml-h3">$1</div>')
-    .replace(/^## (.+)$/gm,'<div class="ml-h2">$1</div>')
-    .replace(/^# (.+)$/gm,'<div class="ml-h1">$1</div>')
-    .replace(/^[-•] (.+)$/gm,'<div class="ml-li">$1</div>')
-    .replace(/^(\d+)\. (.+)$/gm,'<div class="ml-li ml-num"><span class="ml-num-badge">$1</span>$2</div>')
-    .replace(/\n{2,}/g,'</p><p class="ml-p">')
-    .replace(/\n/g,'<br>');
 }
 
 // ── Gauge SVG — SUPER CLEAN: Tanpa jarum + tanpa dot kuning sama sekali ──────────────────────
@@ -509,74 +490,6 @@ export function renderMLPanel() {
   </div>
   `;
 }
-
-// ── AI Handlers ───────────────────────────────────────────────────
-
-window.runRiskAI = async function () {
-  if (_riskLoading) return;
-  _riskLoading = true;
-
-  const card = document.getElementById('mlRiskAiCard');
-  const out  = document.getElementById('mlRiskAiOutput');
-  const btn  = document.getElementById('mlRiskAiBtn');
-  if (!card || !out || !btn) { _riskLoading = false; return; }
-
-  card.style.display = '';
-  btn.disabled = true;
-  btn.innerHTML = '<span style="animation:ml-spin .6s linear infinite;display:inline-block">↻</span> Analyzing…';
-  out.innerHTML = `<div class="ml-skeleton-wrap">
-    <div class="ml-skeleton w80"></div><div class="ml-skeleton wfull"></div>
-    <div class="ml-skeleton w60"></div><div class="ml-skeleton wfull"></div>
-    <div class="ml-skeleton w70"></div>
-  </div>`;
-
-  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-  try {
-    const narrative = await generateRiskNarrative(_riskResult);
-    out.innerHTML = `<div class="ml-ai-content">${md(narrative)}</div>`;
-  } catch (e) {
-    console.error('[ML-UI] Risk AI error:', e);
-    out.innerHTML = renderError(e, 'AI Risk Analysis');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Retry AI Analysis`;
-    _riskLoading = false;
-  }
-};
-
-window.runPredictionAI = async function () {
-  if (_predLoading || !_signals) return;
-  _predLoading = true;
-
-  const card = document.getElementById('mlPredAiCard');
-  const out  = document.getElementById('mlPredAiOutput');
-  const btn  = document.getElementById('mlPredAiBtn');
-  if (!card || !out || !btn) { _predLoading = false; return; }
-
-  card.style.display = '';
-  btn.disabled = true;
-  btn.innerHTML = '<span style="animation:ml-spin .6s linear infinite;display:inline-block">↻</span> Predicting…';
-  out.innerHTML = `<div class="ml-skeleton-wrap">
-    <div class="ml-skeleton w80"></div><div class="ml-skeleton wfull"></div>
-    <div class="ml-skeleton w60"></div><div class="ml-skeleton wfull"></div>
-    <div class="ml-skeleton w70"></div>
-  </div>`;
-
-  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-  try {
-    const prediction = await generatePricePrediction(_signals);
-    out.innerHTML = `<div class="ml-ai-content">${md(prediction)}</div>`;
-  } catch (e) {
-    console.error('[ML-UI] Prediction AI error:', e);
-    out.innerHTML = renderError(e, 'AI Price Prediction');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Retry AI Prediction`;
-    _predLoading = false;
-  }
-};
 
 window.refreshMLAnalysis = function () {
   renderMLPanel();
