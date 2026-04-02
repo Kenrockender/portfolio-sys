@@ -32,7 +32,7 @@ async function callClaude(prompt, maxTokens = 1200) {
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': CLAUDE_API_KEY,
-      'anthropic-version': '2023-06-01',
+      'anthropic-version': '2023-06-01', // Required stable version per Anthropic API docs
     },
     body: JSON.stringify({
       model: CLAUDE_MODEL,

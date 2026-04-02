@@ -15,7 +15,7 @@ export async function fetchCG() {
   if (!r.ok) throw new Error(`CoinGecko error: HTTP ${r.status}`);
   const d = await r.json();
   const usdIdr = (d.bitcoin?.usd && d.bitcoin?.idr) ? Math.round(d.bitcoin.idr / d.bitcoin.usd) : null;
-  return { btcIdr: d.bitcoin.idr, ethIdr: d.ethereum.idr, xrpIdr: d.ripple.idr, usdIdr };
+  return { btcIdr: d.bitcoin?.idr, ethIdr: d.ethereum?.idr, xrpIdr: d.ripple?.idr, usdIdr };
 }
 
 // ── [Fix 1] Fetch Altcoin Prices (SOL, ADA, BNB, dll) ────────────
@@ -282,6 +282,31 @@ export async function syncAllPrices() {
 
       console.log('[API] Sync complete');
 
+      // Save last rates to cloud
+      DATA.lastRates = {
+        usdIdr: S.usdIdr,
+        fxRates: { ...S.fxRates },
+        goldGramIdr: S.goldGramIdr,
+        btcIdr: S.btcIdr,
+        ethIdr: S.ethIdr,
+        xrpIdr: S.xrpIdr,
+        timestamp: Date.now()
+      };
+
+      _syncUiEnd();
+
+      window.dispatchEvent(new CustomEvent('portfolio:update'));
+
+      // Update app badge with total net worth (in Jt)
+      try {
+        if ('setAppBadge' in navigator) {
+          const total = Object.values(window.__portfolioTotals || {}).reduce((s, v) => s + (v || 0), 0);
+          if (total > 0) navigator.setAppBadge(Math.round(total / 1_000_000));
+        }
+      } catch (_) {}
+
+      await saveDailySnapshot();
+
     } catch (e) {
       console.error('Sync error:', e);
       _syncUiEnd('sync error');
@@ -295,31 +320,6 @@ export async function syncAllPrices() {
   });
 
   return _syncAllPricesPromise;
-
-  // Save last rates to cloud
-  DATA.lastRates = {
-    usdIdr: S.usdIdr,
-    fxRates: { ...S.fxRates },
-    goldGramIdr: S.goldGramIdr,
-    btcIdr: S.btcIdr,
-    ethIdr: S.ethIdr,
-    xrpIdr: S.xrpIdr,
-    timestamp: Date.now()
-  };
-
-  _syncUiEnd();
-
-  window.dispatchEvent(new CustomEvent('portfolio:update'));
-
-  // Update app badge with total net worth (in Jt)
-  try {
-    if ('setAppBadge' in navigator) {
-      const total = Object.values(window.__portfolioTotals || {}).reduce((s, v) => s + (v || 0), 0);
-      if (total > 0) navigator.setAppBadge(Math.round(total / 1_000_000));
-    }
-  } catch (_) {}
-
-  await saveDailySnapshot();
 }
 
 // ── Sync Stocks Only ──────────────────────────────────────────────
