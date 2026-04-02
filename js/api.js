@@ -100,40 +100,20 @@ export async function fetchLogamMulia() {
 
   if (!html) throw new Error('[LM] Semua proxy gagal');
 
-  // ── Strategy 1: parse <tr> rows, cari baris "1 gr" di kolom pertama ──
-  // Handles: <tr><td>1 gr</td><td>2.922.000</td><td>2.929.305</td></tr>
-  const rowRe = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
+  // Parse <tr> rows — cari baris yang kolom pertama persis "1 gr"
+  // HTML LM: <tr><td>1 gr</td><td>2,902,000</td><td>2,909,255</td></tr>
+  // Angka memakai koma sebagai thousand separator → _parseIdrHtml handles it
+  const rowRe = /<tr[\s\S]*?>([\s\S]*?)<\/tr>/gi;
   for (const rowMatch of html.matchAll(rowRe)) {
     const cells = [...rowMatch[1].matchAll(/<td[^>]*>([\s\S]*?)<\/td>/gi)]
       .map(c => c[1].replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim());
+
     if (cells.length >= 2 && /^1\s*gr$/i.test(cells[0])) {
       const price = _parseIdrHtml(cells[1]);
-      if (price >= 1_500_000 && price <= 5_000_000) {
-        console.log(`[LM] Harga emas (table row 1gr): Rp ${price.toLocaleString('id-ID')}/gr`);
+      if (price >= 1_500_000 && price <= 6_000_000) {
+        console.log(`[LM] Harga emas Antam 1gr: Rp ${price.toLocaleString('id-ID')}/gr`);
         return price;
       }
-    }
-  }
-
-  // ── Strategy 2: cari pola "1 gr" diikuti harga di teks dekatnya (radius 120 char) ──
-  // Fallback jika tabel pakai class/structure yang berbeda
-  const blockRe = /1\s*gr[\s\S]{0,120}?([\d]{1,2}\.[\d]{3}\.[\d]{3})/;
-  const blockMatch = html.match(blockRe);
-  if (blockMatch) {
-    const price = _parseIdrHtml(blockMatch[1]);
-    if (price >= 1_500_000 && price <= 5_000_000) {
-      console.log(`[LM] Harga emas (block match): Rp ${price.toLocaleString('id-ID')}/gr`);
-      return price;
-    }
-  }
-
-  // ── Strategy 3: JSON-LD / structured data ──
-  const scriptMatch = html.match(/"price"\s*:\s*"?([\d.,]+)"?/i);
-  if (scriptMatch) {
-    const price = _parseIdrHtml(scriptMatch[1]);
-    if (price >= 1_500_000 && price <= 5_000_000) {
-      console.log(`[LM] Harga emas (JSON-LD): Rp ${price.toLocaleString('id-ID')}/gr`);
-      return price;
     }
   }
 
@@ -142,9 +122,9 @@ export async function fetchLogamMulia() {
 /** Parse angka IDR dari HTML: "1.687.000" → 1687000 */
 function _parseIdrHtml(str) {
   if (!str) return 0;
-  // Hilangkan semua titik (separator ribuan IDR), ganti koma desimal jika ada
-  const cleaned = String(str).replace(/\./g, '').replace(',', '.');
-  return Math.round(parseFloat(cleaned) || 0);
+  // LM HTML pakai koma sebagai thousand separator (bukan titik)
+  // e.g. "2,902,000" → hapus semua koma → "2902000"
+  return Math.round(parseFloat(String(str).trim().replace(/,/g, '')) || 0);
 }
 
 // ── Sync UI Helpers (null-safe — DOM mungkin tidak ada di test env) ─
