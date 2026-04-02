@@ -13,7 +13,6 @@
  *
  * FITUR YANG DIKUNCI (free user tidak bisa akses):
  *   - export_pdf  : Export PDF Laporan
- *   - ai          : AI Insights (Gemini)
  *   - rebalance   : Rebalancing Calculator
  */
 
@@ -33,7 +32,6 @@ let _plan = 'free';
 // ── PRO FEATURES ──────────────────────────────────────────────────
 export const PRO_FEATURES = {
   export_pdf: { label: 'Export PDF Laporan',     icon: _SVG.pdf      },
-  ai:         { label: 'AI Insights (Gemini)',   icon: _SVG.ai       },
   rebalance:  { label: 'Rebalancing Calculator', icon: _SVG.rebalance},
 };
 
@@ -91,7 +89,8 @@ function _updatePlanUI() {
   if (badge) {
     if (_plan === 'pro') {
       badge.innerHTML = `${_SVG.bolt}PRO`;
-      badge.style.cssText = 'font-size:9px;padding:3px 8px;border-radius:5px;font-weight:800;letter-spacing:.1em;background:rgba(139,92,246,.2);color:#a78bfa;border:1px solid rgba(139,92,246,.4);display:inline-flex;align-items:center;';
+      badge.style.cssText = 'font-size:9px;padding:3px 8px;border-radius:5px;font-weight:800;letter-spacing:.1em;background:rgba(139,92,246,.2);color:#a78bfa;border:1px solid rgba(139,92,246,.4);display:inline-flex;align-items:center;cursor:default;';
+      badge.onclick = null;
     } else {
       badge.textContent   = 'FREE';
       badge.style.cssText = 'font-size:9px;padding:3px 8px;border-radius:5px;font-weight:800;letter-spacing:.1em;background:rgba(100,116,139,.12);color:#94a3b8;border:1px solid rgba(100,116,139,.2);cursor:pointer;';
@@ -116,17 +115,6 @@ function _updatePlanUI() {
     const el = document.getElementById(id);
     if (el) el.style.opacity = _plan === 'pro' ? '1' : '0.5';
   });
-
-  // Grey-out AI button
-  const aiBtn = document.getElementById('aiBtn');
-  if (aiBtn) {
-    if (_plan !== 'pro') {
-      aiBtn.style.opacity = '0.5';
-      aiBtn.title = 'Fitur Pro — Upgrade untuk unlock';
-    } else {
-      aiBtn.style.opacity = '1';
-    }
-  }
 }
 
 // ── Expose globally ───────────────────────────────────────────────

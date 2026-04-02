@@ -2602,8 +2602,40 @@ html[data-theme="light"] .stk-sub-row:hover { background: rgba(0,0,0,.03); }
 }
 .ml-disclaimer strong { color: var(--warn); }
 
+/* ── How It Works Card ── */
+.ml-how-card { cursor: default; margin-bottom: 14px; }
+.ml-how-summary {
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; list-style: none; gap: 12px; padding: 0;
+}
+.ml-how-summary::-webkit-details-marker { display: none; }
+.ml-how-summary::marker { display: none; }
+.ml-how-chevron { color: var(--muted); transition: transform .25s ease; flex-shrink: 0; }
+.ml-how-card[open] .ml-how-chevron { transform: rotate(180deg); }
+.ml-how-body { margin-top: 16px; }
+.ml-how-section { padding: 14px 0; border-bottom: 1px solid var(--border); }
+.ml-how-section:first-child { padding-top: 4px; }
+.ml-how-section:last-child { border-bottom: none; padding-bottom: 0; }
+.ml-how-section-title { font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.ml-how-section-desc { font-size: 10px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+.ml-how-section-desc:last-child { margin-bottom: 0; }
+.ml-how-factors { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+@media (max-width: 600px) { .ml-how-factors { grid-template-columns: 1fr; } }
+.ml-how-factor {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 6px; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 6px; padding: 6px 10px;
+}
+.ml-how-factor-name { font-size: 10px; font-weight: 600; color: var(--text); }
+.ml-how-factor-w {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  font-weight: 700; color: var(--crypto); white-space: nowrap; flex-shrink: 0;
+}
+.ml-how-factor-desc { font-size: 9px; color: var(--muted); text-align: right; line-height: 1.3; flex-shrink: 0; }
+
 /* ── Light theme overrides ── */
 html[data-theme="light"] .ml-card { background: #ffffff; }
 html[data-theme="light"] .ml-health-chip { background: var(--bg3); }
 html[data-theme="light"] .ml-tech-item { background: var(--bg3); }
 html[data-theme="light"] .ml-skeleton { background: var(--bg4); }
+html[data-theme="light"] .ml-how-factor { background: var(--bg3); }

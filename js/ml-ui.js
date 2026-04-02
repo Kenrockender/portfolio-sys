@@ -8,8 +8,6 @@ import {
   computeRiskScore,
   computeTechnicalSignals,
   computeHealthMetrics,
-  generateRiskNarrative,
-  generatePricePrediction,
 } from './ml.js';
 import { S } from './state.js';
 import { toDisp } from './storage.js';
@@ -18,8 +16,6 @@ import { toDisp } from './storage.js';
 let _riskResult    = null;
 let _signals       = null;
 let _healthMetrics = null;
-let _riskLoading   = false;
-let _predLoading   = false;
 
 // ── Grade color map (MUST match ml.js 5-tier system) ─────────────
 const GRADE_COLORS = {
@@ -38,21 +34,6 @@ function scoreColor(s) {
   if (s < 60) return '#fbbf24';
   if (s < 80) return '#fb923c';
   return '#fb7185';
-}
-
-// ── Mini Markdown Renderer ────────────────────────────────────────
-function md(text) {
-  return text
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g,'<em>$1</em>')
-    .replace(/^### (.+)$/gm,'<div class="ml-h3">$1</div>')
-    .replace(/^## (.+)$/gm,'<div class="ml-h2">$1</div>')
-    .replace(/^# (.+)$/gm,'<div class="ml-h1">$1</div>')
-    .replace(/^[-•] (.+)$/gm,'<div class="ml-li">$1</div>')
-    .replace(/^(\d+)\. (.+)$/gm,'<div class="ml-li ml-num"><span class="ml-num-badge">$1</span>$2</div>')
-    .replace(/\n{2,}/g,'</p><p class="ml-p">')
-    .replace(/\n/g,'<br>');
 }
 
 // ── Gauge SVG — SUPER CLEAN: Tanpa jarum + tanpa dot kuning sama sekali ──────────────────────
@@ -305,6 +286,65 @@ export function renderMLPanel() {
     </div>
   </div>
 
+  <!-- ── HOW IT WORKS ── -->
+  <details class="ml-card ml-how-card">
+    <summary class="ml-how-summary">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="color:var(--crypto);flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span class="ml-card-label" style="margin-bottom:0;">CARA KERJA SISTEM ANALISIS</span>
+      </div>
+      <svg class="ml-how-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="12" height="12"><polyline points="6 9 12 15 18 9"/></svg>
+    </summary>
+    <div class="ml-how-body">
+
+      <!-- 1. Risk Score -->
+      <div class="ml-how-section">
+        <div class="ml-how-section-title">🎯 Skor Risiko (0–100)</div>
+        <div class="ml-how-section-desc">Dihitung secara deterministik dari 7 faktor portofolio. Setiap faktor diberi sub-skor 0–100 lalu digabung berdasarkan bobot. Semakin tinggi skor = semakin berisiko.</div>
+        <div class="ml-how-factors">
+          <div class="ml-how-factor"><span class="ml-how-factor-name">Konsentrasi Aset</span><span class="ml-how-factor-w">20%</span></div>
+          <div class="ml-how-factor"><span class="ml-how-factor-name">Eksposur Kripto</span><span class="ml-how-factor-w">20%</span></div>
+          <div class="ml-how-factor"><span class="ml-how-factor-name">Volatilitas Historis</span><span class="ml-how-factor-w">20%</span></div>
+          <div class="ml-how-factor"><span class="ml-how-factor-name">Diversifikasi Kelas Aset</span><span class="ml-how-factor-w">15%</span></div>
+          <div class="ml-how-factor"><span class="ml-how-factor-name">Risiko Drawdown</span><span class="ml-how-factor-w">10%</span></div>
+          <div class="ml-how-factor"><span class="ml-how-factor-name">Risiko Mata Uang</span><span class="ml-how-factor-w">10%</span></div>
+          <div class="ml-how-factor"><span class="ml-how-factor-name">Risiko Platform/Custody</span><span class="ml-how-factor-w">5%</span></div>
+        </div>
+      </div>
+
+      <!-- 2. Technical Signals -->
+      <div class="ml-how-section">
+        <div class="ml-how-section-title">📈 Sinyal Teknikal</div>
+        <div class="ml-how-section-desc">Dihitung dari snapshot historis nilai portofolio (minimal 7 hari). Setiap sinyal memberikan suara bullish atau bearish; mayoritas menentukan arah keseluruhan.</div>
+        <div class="ml-how-factors">
+          <div class="ml-how-factor"><span class="ml-how-factor-name">SMA 7 / 14 / 30 Hari</span><span class="ml-how-factor-desc">Moving average tren jangka pendek–panjang</span></div>
+          <div class="ml-how-factor"><span class="ml-how-factor-name">RSI (14)</span><span class="ml-how-factor-desc">Momentum — &gt;70 overbought, &lt;30 oversold</span></div>
+          <div class="ml-how-factor"><span class="ml-how-factor-name">Support &amp; Resistance</span><span class="ml-how-factor-desc">Low / high 14 hari terakhir</span></div>
+          <div class="ml-how-factor"><span class="ml-how-factor-name">Proyeksi Linear</span><span class="ml-how-factor-desc">Regresi linear dari 14 titik terakhir</span></div>
+        </div>
+      </div>
+
+      <!-- 3. Health Metrics -->
+      <div class="ml-how-section">
+        <div class="ml-how-section-title">💊 Health Metrics</div>
+        <div class="ml-how-section-desc">Metrik performa portofolio berbasis statistik dari data historis harian.</div>
+        <div class="ml-how-factors">
+          <div class="ml-how-factor"><span class="ml-how-factor-name">Sharpe Ratio</span><span class="ml-how-factor-desc">Return / risiko (Rf = BI Rate 6%/tahun)</span></div>
+          <div class="ml-how-factor"><span class="ml-how-factor-name">Max Drawdown</span><span class="ml-how-factor-desc">Penurunan terbesar dari puncak historis</span></div>
+          <div class="ml-how-factor"><span class="ml-how-factor-name">Calmar Ratio</span><span class="ml-how-factor-desc">Total return ÷ max drawdown</span></div>
+          <div class="ml-how-factor"><span class="ml-how-factor-name">Win Rate</span><span class="ml-how-factor-desc">% hari nilai portofolio naik</span></div>
+        </div>
+      </div>
+
+      <!-- 4. AI Analysis -->
+      <div class="ml-how-section">
+        <div class="ml-how-section-title">🤖 Analisis AI (Claude)</div>
+        <div class="ml-how-section-desc">Data kuantitatif dikirim ke <strong>Claude AI</strong> (Anthropic) untuk menghasilkan narasi risiko dan proyeksi harga dalam bahasa Indonesia. Hasilnya bersifat interpretatif — bukan sinyal trading. Membutuhkan API key Claude dari <span style="color:var(--crypto);">console.anthropic.com</span>.</div>
+      </div>
+
+    </div>
+  </details>
+
   <!-- ── ROW 1: RISK GAUGE + BREAKDOWN ── -->
   <div class="ml-grid-2">
 
@@ -450,74 +490,6 @@ export function renderMLPanel() {
   </div>
   `;
 }
-
-// ── AI Handlers ───────────────────────────────────────────────────
-
-window.runRiskAI = async function () {
-  if (_riskLoading) return;
-  _riskLoading = true;
-
-  const card = document.getElementById('mlRiskAiCard');
-  const out  = document.getElementById('mlRiskAiOutput');
-  const btn  = document.getElementById('mlRiskAiBtn');
-  if (!card || !out || !btn) { _riskLoading = false; return; }
-
-  card.style.display = '';
-  btn.disabled = true;
-  btn.innerHTML = '<span style="animation:ml-spin .6s linear infinite;display:inline-block">↻</span> Analyzing…';
-  out.innerHTML = `<div class="ml-skeleton-wrap">
-    <div class="ml-skeleton w80"></div><div class="ml-skeleton wfull"></div>
-    <div class="ml-skeleton w60"></div><div class="ml-skeleton wfull"></div>
-    <div class="ml-skeleton w70"></div>
-  </div>`;
-
-  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-  try {
-    const narrative = await generateRiskNarrative(_riskResult);
-    out.innerHTML = `<div class="ml-ai-content">${md(narrative)}</div>`;
-  } catch (e) {
-    console.error('[ML-UI] Risk AI error:', e);
-    out.innerHTML = renderError(e, 'AI Risk Analysis');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Retry AI Analysis`;
-    _riskLoading = false;
-  }
-};
-
-window.runPredictionAI = async function () {
-  if (_predLoading || !_signals) return;
-  _predLoading = true;
-
-  const card = document.getElementById('mlPredAiCard');
-  const out  = document.getElementById('mlPredAiOutput');
-  const btn  = document.getElementById('mlPredAiBtn');
-  if (!card || !out || !btn) { _predLoading = false; return; }
-
-  card.style.display = '';
-  btn.disabled = true;
-  btn.innerHTML = '<span style="animation:ml-spin .6s linear infinite;display:inline-block">↻</span> Predicting…';
-  out.innerHTML = `<div class="ml-skeleton-wrap">
-    <div class="ml-skeleton w80"></div><div class="ml-skeleton wfull"></div>
-    <div class="ml-skeleton w60"></div><div class="ml-skeleton wfull"></div>
-    <div class="ml-skeleton w70"></div>
-  </div>`;
-
-  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-  try {
-    const prediction = await generatePricePrediction(_signals);
-    out.innerHTML = `<div class="ml-ai-content">${md(prediction)}</div>`;
-  } catch (e) {
-    console.error('[ML-UI] Prediction AI error:', e);
-    out.innerHTML = renderError(e, 'AI Price Prediction');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Retry AI Prediction`;
-    _predLoading = false;
-  }
-};
 
 window.refreshMLAnalysis = function () {
   renderMLPanel();

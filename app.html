@@ -238,6 +238,9 @@
       <span class="btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span> HARGA
     </button>
     <div class="last-sync" id="lastSync" data-i18n="not_synced">not synced</div>
+    <button class="sync-btn" onclick="clearDemoData()" title="Hapus semua data demo" style="border-color:rgba(251,113,133,.4);color:#fb7185;">
+      <span class="btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span> RESET
+    </button>
     <button class="logout-btn" id="logoutBtn" onclick="window._signOut()" title="Logout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg></button>
   </div>
 </header>
@@ -283,6 +286,9 @@
       </button>
       <button class="mobile-action-btn" onclick="openImport(); toggleMobileMenu()">
         <span class="btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span> Import Data
+      </button>
+      <button class="mobile-action-btn" onclick="clearDemoData(); toggleMobileMenu()" style="border-color:rgba(251,113,133,.3);color:var(--down);">
+        <span class="btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span> Hapus Demo Data
       </button>
       <button class="mobile-action-btn" onclick="window._signOut && window._signOut()" style="border-color:rgba(251,113,133,.3);color:var(--down);">
         <span class="btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg></span> Logout
@@ -472,25 +478,8 @@
   <div class="yield-row" id="yieldRow"></div>
 </div>
 
-<!-- ── AI INSIGHTS ── -->
-<div class="sec-head"><span>AI Analytics</span><div class="line"></div></div>
-<div class="card c-ai" style="margin-bottom:14px;">
-  <div class="card-head">
-    <div class="card-title"><div class="class-dot"></div><div class="card-title-text" data-i18n="ai_advisor">Gemini Portfolio Advisor</div></div>
-    <div class="card-head-right">
-      <button class="add-btn" id="aiBtn" onclick="if(requiresPro('ai'))generateAIInsights()" style="border-color:var(--crypto);color:var(--crypto);display:inline-flex;align-items:center;gap:5px;" data-i18n="generate_insights"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="display:inline-block;vertical-align:middle"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Generate Insights</button>
-    </div>
-  </div>
-  <div class="ai-content" id="aiContent">
-    <div class="ai-placeholder" data-i18n="ai_placeholder">Klik "Generate Insights" untuk mendapatkan analisis portofolio Anda menggunakan Gemini API.</div>
-  </div>
-</div>
 <!-- ── ML INTELLIGENCE (merged into Analytics) ── -->
 <div class="sec-head" style="margin-top:8px;"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="display:inline-block;vertical-align:middle"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg> Portfolio Intelligence</span><div class="line"></div></div>
-<div id="mlPanel" style="padding-bottom:8px;"></div>
-
-<!-- ── RISK INTELLIGENCE (merged from ML tab) ── -->
-<div class="sec-head"><span>Risk Intelligence</span><div class="line"></div></div>
 <div id="mlPanel" style="padding-bottom:8px;"></div>
 
 </div><!-- /panelAnalytics -->
@@ -1028,7 +1017,6 @@
       <div style="font-size:9px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px;">Yang kamu dapatkan dengan Pro:</div>
       <div style="display:flex;flex-direction:column;gap:7px;">
         <div style="display:flex;align-items:center;gap:8px;font-size:11px;"><span style="color:var(--up);">✓</span> Export PDF Laporan</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:11px;"><span style="color:var(--up);">✓</span> AI Insights (Gemini)</div>
         <div style="display:flex;align-items:center;gap:8px;font-size:11px;"><span style="color:var(--up);">✓</span> Rebalancing Calculator</div>
       </div>
     </div>
@@ -1049,6 +1037,22 @@
   </div>
 </div>
 
+<!-- ══ CLEAR DEMO DATA CONFIRM ══ -->
+<div class="confirm-overlay" id="clearDataOverlay" style="display:none;">
+  <div class="confirm-box">
+    <div class="confirm-icon" style="color:var(--down);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></div>
+    <div class="confirm-title">Hapus Semua Data?</div>
+    <div class="confirm-msg">
+      Semua data aset, histori, dan transaksi akan <strong>dihapus permanen</strong> dari cloud.<br><br>
+      Tindakan ini <span style="color:var(--down);font-weight:700;">tidak dapat dibatalkan</span>.
+    </div>
+    <div class="confirm-actions">
+      <button class="btn-cancel" style="flex:1" onclick="closeClearDataModal()">Batal</button>
+      <button class="btn-confirm-del" id="clearDataConfirmBtn" onclick="executeClearData()">Hapus Semua</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   // Import main app module which initializes everything
   import './js/app.js';
@@ -1057,7 +1061,40 @@
   window.showUpgradeModal  = showUpgradeModal;
   window.closeUpgradeModal = closeUpgradeModal;
   window.requiresPro       = requiresPro;
-  import { analyzePortfolio } from './js/gemini.js';
+
+  // ── Clear Demo Data ───────────────────────────────────────────────
+  window.clearDemoData = function() {
+    const overlay = document.getElementById('clearDataOverlay');
+    if (overlay) overlay.style.display = 'flex';
+  };
+  window.closeClearDataModal = function() {
+    const overlay = document.getElementById('clearDataOverlay');
+    if (overlay) overlay.style.display = 'none';
+  };
+  window.executeClearData = async function() {
+    const btn = document.getElementById('clearDataConfirmBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Menghapus…'; }
+    try {
+      const D = window._getDATA ? window._getDATA() : null;
+      if (D) {
+        D.crypto  = [];
+        D.gold    = [];
+        D.stocks  = [];
+        D.savings = [];
+        D.history = [];
+        if (D.txLog) D.txLog = [];
+      }
+      window.dispatchEvent(new CustomEvent('portfolio:update'));
+      if (typeof window._saveCloud === 'function') await window._saveCloud();
+      window.closeClearDataModal();
+    } catch (e) {
+      console.error('[CLEAR] Failed to clear data:', e);
+      window.closeClearDataModal();
+      alert('Gagal menghapus data. Silakan coba lagi.');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Hapus Semua'; }
+    }
+  };
   window.toggleMobileMenu = function() {
     const drawer = document.getElementById('mobileDrawer');
     const overlay = document.getElementById('mobileDrawerOverlay');
@@ -1141,39 +1178,6 @@
   window.setHistoryRange = function(r) {
     if (typeof window._setHistoryRange === 'function') {
       window._setHistoryRange(r);
-    }
-  };
-
-  // Markdown renderer for AI content panel
-  function _renderAiMarkdown(text) {
-    return text
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/^### (.+)$/gm, '<strong style="font-size:13px">$1</strong>')
-      .replace(/^## (.+)$/gm,  '<strong style="font-size:14px">$1</strong>')
-      .replace(/^# (.+)$/gm,   '<strong style="font-size:15px">$1</strong>')
-      .replace(/^[-•] (.+)$/gm, '• $1')
-      .replace(/\n/g, '<br>');
-  }
-
-  // AI Insights — calls real Gemini analyzePortfolio
-  window.generateAIInsights = async function() {
-    const btn = document.getElementById('aiBtn');
-    const content = document.getElementById('aiContent');
-    btn.disabled = true;
-    btn.innerHTML = '↻ Analyzing...';
-    content.innerHTML = '<div class="ai-loading"><div class="ai-skeleton w-3-4"></div><div class="ai-skeleton w-full"></div><div class="ai-skeleton w-5-6"></div></div>';
-
-    try {
-      const analysis = await analyzePortfolio();
-      content.style.cssText = 'font-size:12px;line-height:1.7;color:var(--text);white-space:pre-wrap;';
-      content.innerHTML = _renderAiMarkdown(analysis);
-    } catch (e) {
-      content.innerHTML = `<div style="color:var(--down);font-size:11px;">Error: ${e.message}. Check Gemini API key in gemini.js.</div>`;
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="display:inline-block;vertical-align:middle"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Generate Insights';
     }
   };
 
