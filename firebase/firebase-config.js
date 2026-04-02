@@ -168,6 +168,14 @@ export function initCloud() {
       const nameEl = document.getElementById('userDisplayName');
       if (nameEl) nameEl.textContent = user.displayName || user.email || '';
 
+      // Populate account info panel (for UID copy / pro plan setup)
+      const uidEl   = document.getElementById('accountInfoUID');
+      const nameEl2 = document.getElementById('accountInfoName');
+      const emailEl = document.getElementById('accountInfoEmail');
+      if (uidEl)   uidEl.textContent   = user.uid;
+      if (nameEl2) nameEl2.textContent = user.displayName || '';
+      if (emailEl) emailEl.textContent = user.email || '';
+
       // Load data dari cloud
       await loadDataFromCloud();
 
@@ -294,12 +302,24 @@ export async function saveDailySnapshot() {
 
 // ── Load User Plan ────────────────────────────────────────────────
 // ── Owner UIDs — always Pro ───────────────────────────────────────
-// Tambahkan Firebase UID kamu di sini. Cara cek UID:
-// Setelah login, buka console browser → ketik: firebase.getAuth(app).currentUser.uid
-// Atau cek di Firebase Console → Authentication → Users
+//
+// Cara menambahkan dirimu ke Pro plan:
+//
+// OPSI 1 — Permanen via kode (OWNER_UIDS):
+//   1. Login ke app, lalu buka browser DevTools → Console
+//   2. Ketik: _getMyUID()   → salin UID yang muncul
+//   3. Tempel UID-mu di dalam Set di bawah ini, lalu deploy ulang
+//
+// OPSI 2 — Via Firestore (tanpa deploy ulang):
+//   1. Login ke app, buka browser DevTools → Console
+//   2. Ketik: _getMyUID()   → salin UID yang muncul
+//   3. Ketik: await _setUserPro('UID_KAMU')
+//   4. Refresh halaman — plan kamu akan berubah ke Pro
+//
+// UID juga ditampilkan di pojok kanan atas app (tombol akun ⊙).
+//
 const OWNER_UIDS = new Set([
-  // Masukkan UID Google-mu di sini, contoh:
-  // 'abc123xyz...',
+  // Contoh: 'abc123xyz456def789...',
 ]);
 
 export async function loadUserPlan() {
@@ -356,5 +376,16 @@ export async function setUserPro(uid, type = 'lifetime', note = '') {
 
 // Expose setUserPro untuk admin console
 window._setUserPro = setUserPro;
+
+// Helper: tampilkan UID user yang sedang login di console
+window._getMyUID = function () {
+  if (!currentUser) {
+    console.warn('[PLANS] Belum login. Silakan login terlebih dahulu.');
+    return null;
+  }
+  console.log('%c[PLANS] Your Firebase UID:', 'color:#a78bfa;font-weight:bold', currentUser.uid);
+  console.log('%cSalin UID di atas lalu:\n  Opsi 1 — Tambahkan ke OWNER_UIDS di firebase-config.js\n  Opsi 2 — Jalankan: await _setUserPro(\'UID_KAMU\')', 'color:#94a3b8');
+  return currentUser.uid;
+};
 
 console.log('[FIREBASE] firebase-config loaded — Google Auth ready');
