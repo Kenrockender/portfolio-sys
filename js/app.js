@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   applyTheme();
 
   // Apply language
-  const savedLang = localStorage.getItem('portfolio-lang') || 'en';
+  const savedLang = localStorage.getItem('portfolio-lang') || 'id';
   S.lang = savedLang;
   document.getElementById('btnLangID')?.classList.toggle('active', savedLang === 'id');
   document.getElementById('btnLangEN')?.classList.toggle('active', savedLang === 'en');

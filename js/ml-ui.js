@@ -555,4 +555,13 @@ window.refreshMLAnalysis = function () {
 // Expose
 window.renderMLPanel = renderMLPanel;
 
+// Re-render ML panel when language or currency changes
+window.addEventListener('portfolio:update', () => {
+  // Re-render ML panel to update translations and currency formatting
+  const mlPanel = document.getElementById('mlPanel');
+  if (mlPanel && mlPanel.innerHTML) {
+    renderMLPanel();
+  }
+});
+
 console.log('[ML-UI] ML UI module loaded');
