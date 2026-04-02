@@ -20,11 +20,12 @@ import { toDisp } from './storage.js';
 // ─────────────────────────────────────────
 const CLAUDE_URL   = 'https://api.anthropic.com/v1/messages';
 const CLAUDE_MODEL = 'claude-sonnet-4-20250514';
-// Set CLAUDE_API_KEY before using AI Risk / Prediction features.
-// Never commit a real key — load from a secure backend proxy or environment variable.
-const CLAUDE_API_KEY = typeof window !== 'undefined' ? (window.CLAUDE_API_KEY || '') : '';
+function getClaudeApiKey() {
+  return typeof window !== 'undefined' ? (window.CLAUDE_API_KEY || '') : '';
+}
 
 async function callClaude(prompt, maxTokens = 1200) {
+  const CLAUDE_API_KEY = getClaudeApiKey();
   if (!CLAUDE_API_KEY) throw new Error('Claude API key not configured');
   const res = await fetch(CLAUDE_URL, {
     method: 'POST',
