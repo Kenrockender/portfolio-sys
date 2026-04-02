@@ -16,8 +16,9 @@ import { totals, computeMetrics, savingsIdr, stockMul, cryptoPrice, stockPrice }
 import { toDisp } from './storage.js';
 
 // ─────────────────────────────────────────
-//  CLAUDE API CONFIG
+//  CLAUDE API CONFIG — DISABLED per user request
 // ─────────────────────────────────────────
+/*
 const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
 const CLAUDE_MODEL = 'claude-sonnet-4-20250514';
 
@@ -35,6 +36,12 @@ async function callClaude(prompt, maxTokens = 1200) {
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const d = await res.json();
   return d.content?.map(b => b.text || '').join('') || '';
+}
+*/
+
+// REPLACEMENT: Stub function since Claude features are disabled
+async function callClaude(prompt, maxTokens = 1200) {
+  throw new Error('Claude API has been disabled. This feature is no longer available.');
 }
 
 // ─────────────────────────────────────────

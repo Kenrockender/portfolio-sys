@@ -14,6 +14,39 @@ import {
 import { S } from './state.js';
 import { toDisp } from './storage.js';
 
+// ── Translations ──────────────────────────────────────────────────
+const T = {
+  technicalSignals: { en: 'TECHNICAL SIGNALS', id: 'SINYAL TEKNIKAL' },
+  sma7Days: { en: 'SMA 7 Days', id: 'SMA 7 Hari' },
+  sma14Days: { en: 'SMA 14 Days', id: 'SMA 14 Hari' },
+  trend7Days: { en: '7-Day Trend', id: 'Tren 7 Hari' },
+  trend30Days: { en: '30-Day Trend', id: 'Tren 30 Hari' },
+  confidence: { en: 'Confidence', id: 'Confidence' },
+  support14d: { en: 'Support (14d)', id: 'Support (14d)' },
+  resistance14d: { en: 'Resistance (14d)', id: 'Resistance (14d)' },
+  bear: { en: 'Bear', id: 'Bear' },
+  bull: { en: 'Bull', id: 'Bull' },
+  projection7d: { en: '7-Day Projection', id: 'Proyeksi 7 Hari' },
+  projection30d: { en: '30-Day Projection', id: 'Proyeksi 30 Hari' },
+  dailyVolatility: { en: 'daily volatility', id: 'volatilitas per hari' },
+  slope: { en: 'Slope', id: 'Slope' },
+  days: { en: 'days', id: 'hari' },
+  riskScore: { en: 'RISK SCORE', id: 'SKOR RISIKO' },
+  portfolioRiskSignals: { en: 'Portfolio Risk & Signals', id: 'Risiko & Sinyal Portfolio' },
+  riskScoreSignalsProjections: { en: 'Risk score, technical signals, and data-based projections', id: 'Skor risiko, sinyal teknikal, dan proyeksi berbasis data historis' },
+  refresh: { en: 'Refresh', id: 'Refresh' },
+  linearProjectionDataBased: { en: 'LINEAR PROJECTION (DATA-BASED)', id: 'PROYEKSI LINEAR (DATA-BASED)' },
+  basedOnLinearRegression: { en: 'Based on historical linear regression — not market prediction', id: 'Berdasarkan regresi linear historis — bukan prediksi pasar' },
+  techSignalsProjectionNote: { en: 'Technical signals & projections will appear after at least 7 historical snapshots', id: 'Sinyal teknikal & proyeksi akan muncul setelah minimal 7 snapshot historis' },
+  syncDailyNote: { en: 'Click <strong>SYNC</strong> daily to build portfolio historical data.', id: 'Klik <strong>SYNC</strong> setiap hari untuk membangun data historis portofolio.' },
+  disclaimer: { 
+    en: 'This model uses technical analysis and historical statistics. Projections are <strong>not investment advice</strong> and do not guarantee actual results. Markets can move beyond the model. Always do your own research (DYOR).', 
+    id: 'Model ini menggunakan analisis teknikal dan statistik historis. Proyeksi <strong>bukan saran investasi</strong> dan tidak menjamin hasil aktual. Pasar dapat bergerak di luar model. Selalu lakukan riset mandiri (DYOR).' 
+  },
+};
+
+const t = (key) => T[key]?.[S.lang] || T[key]?.en || key;
+
 // ── State ─────────────────────────────────────────────────────────
 let _riskResult    = null;
 let _signals       = null;
@@ -178,14 +211,11 @@ function signalBadge(sig) {
 // ── Setup API card ────────────────────────────────────────────────
 function apiSetupCard(title) {
   return `<div style="padding:20px;background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.15);border-radius:10px;text-align:center;">
-    <div style="font-size:28px;margin-bottom:8px;">🔑</div>
-    <div style="color:var(--warn);font-weight:700;font-size:12px;margin-bottom:6px;">API Key Belum Dikonfigurasi</div>
+    <div style="font-size:28px;margin-bottom:8px;">⚠️</div>
+    <div style="color:var(--warn);font-weight:700;font-size:12px;margin-bottom:6px;">Fitur Tidak Tersedia</div>
     <div style="color:var(--muted);font-size:10px;line-height:1.6;max-width:340px;margin:0 auto;">
-      Fitur <strong>${title}</strong> membutuhkan Claude API key dari Anthropic.<br><br>
-      <strong>Cara setup:</strong><br>
-      1. Dapatkan API key di <span style="color:var(--crypto);">console.anthropic.com</span><br>
-      2. Tambahkan header <code style="background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px;">x-api-key</code> di fungsi <code>callClaude()</code> pada <code>ml.js</code><br>
-      3. Tambahkan header <code style="background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px;">anthropic-version: 2023-06-01</code>
+      Fitur <strong>${title}</strong> telah dinonaktifkan.<br>
+      Claude API tidak lagi digunakan dalam aplikasi ini.
     </div>
   </div>`;
 }
@@ -201,9 +231,8 @@ function renderError(e, title) {
   if (msg.includes('401') || msg.includes('403')) {
     return `<div style="padding:16px;background:rgba(251,113,133,.08);border:1px solid rgba(251,113,133,.2);border-radius:8px;">
       <div style="color:var(--down);font-size:11px;">
-        <strong>⚠ API Key Invalid</strong><br>
-        <span style="color:var(--muted)">Response: ${msg}</span><br><br>
-        Pastikan API key Claude valid dan memiliki akses ke model <code>claude-sonnet-4-20250514</code>.
+        <strong>⚠ Fitur Tidak Tersedia</strong><br>
+        <span style="color:var(--muted)">Claude API telah dinonaktifkan.</span>
       </div>
     </div>`;
   }
@@ -294,13 +323,13 @@ export function renderMLPanel() {
   <div class="ml-panel-header">
     <div>
       <div class="ml-panel-tag">RISK INTELLIGENCE · QUANTITATIVE</div>
-      <div class="ml-panel-title">Portfolio Risk & Signals</div>
-      <div class="ml-panel-sub">Skor risiko, sinyal teknikal, dan proyeksi berbasis data historis</div>
+      <div class="ml-panel-title">${t('portfolioRiskSignals')}</div>
+      <div class="ml-panel-sub">${t('riskScoreSignalsProjections')}</div>
     </div>
     <div class="ml-panel-refresh">
       <button class="ml-refresh-btn" onclick="window.refreshMLAnalysis()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" width="12" height="12"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
-        Refresh
+        ${t('refresh')}
       </button>
     </div>
   </div>
@@ -310,7 +339,7 @@ export function renderMLPanel() {
 
     <!-- Risk Gauge Card -->
     <div class="ml-card ml-card-glow" style="--glow:${color}20;--glow-border:${color}40">
-      <div class="ml-card-label">RISK SCORE</div>
+      <div class="ml-card-label">${t('riskScore')}</div>
       <div class="ml-gauge-wrap">
         ${buildGauge(total, color)}
       </div>
@@ -350,26 +379,26 @@ export function renderMLPanel() {
     <!-- Technical signals -->
     <div class="ml-card">
       <div class="ml-card-label" style="display:flex;align-items:center;justify-content:space-between;">
-        SINYAL TEKNIKAL
+        ${t('technicalSignals')}
         ${signalBadge(_signals.signal)}
       </div>
       <div class="ml-tech-grid">
         <div class="ml-tech-item">
-          <div class="ml-tech-label">SMA 7 Hari</div>
+          <div class="ml-tech-label">${t('sma7Days')}</div>
           <div class="ml-tech-val" style="color:${_signals.sma7>_signals.sma14?'var(--up)':'var(--down)'}">${toDisp(_signals.sma7)}</div>
         </div>
         <div class="ml-tech-item">
-          <div class="ml-tech-label">SMA 14 Hari</div>
+          <div class="ml-tech-label">${t('sma14Days')}</div>
           <div class="ml-tech-val">${toDisp(_signals.sma14)}</div>
         </div>
         <div class="ml-tech-item">
-          <div class="ml-tech-label">Tren 7 Hari</div>
+          <div class="ml-tech-label">${t('trend7Days')}</div>
           <div class="ml-tech-val" style="color:${_signals.trend7>=0?'var(--up)':'var(--down)'}">
             ${_signals.trend7>=0?'+':''}${_signals.trend7}%
           </div>
         </div>
         <div class="ml-tech-item">
-          <div class="ml-tech-label">Tren 30 Hari</div>
+          <div class="ml-tech-label">${t('trend30Days')}</div>
           <div class="ml-tech-val" style="color:${_signals.trend30>=0?'var(--up)':'var(--down)'}">
             ${_signals.trend30>=0?'+':''}${_signals.trend30}%
           </div>
@@ -382,54 +411,54 @@ export function renderMLPanel() {
           </div>
         </div>
         <div class="ml-tech-item">
-          <div class="ml-tech-label">Confidence</div>
+          <div class="ml-tech-label">${t('confidence')}</div>
           <div class="ml-tech-val" style="color:var(--crypto)">${_signals.confidence}%</div>
         </div>
         <div class="ml-tech-item">
-          <div class="ml-tech-label">Support (14d)</div>
+          <div class="ml-tech-label">${t('support14d')}</div>
           <div class="ml-tech-val">${toDisp(_signals.support)}</div>
         </div>
         <div class="ml-tech-item">
-          <div class="ml-tech-label">Resistance (14d)</div>
+          <div class="ml-tech-label">${t('resistance14d')}</div>
           <div class="ml-tech-val">${toDisp(_signals.resistance)}</div>
         </div>
       </div>
       <div class="ml-signal-bar-wrap">
-        <span style="font-size:9px;color:var(--muted)">Bear ${bearCount}</span>
+        <span style="font-size:9px;color:var(--muted)">${t('bear')} ${bearCount}</span>
         <div class="ml-signal-bar-track">
           <div class="ml-signal-bar-fill" style="width:${sigBarW}%;background:${sigColor}"></div>
         </div>
-        <span style="font-size:9px;color:var(--muted)">Bull ${bullCount}</span>
+        <span style="font-size:9px;color:var(--muted)">${t('bull')} ${bullCount}</span>
       </div>
     </div>
 
     <!-- Projections -->
     <div class="ml-card">
-      <div class="ml-card-label">PROYEKSI LINEAR (DATA-BASED)</div>
-      <div class="ml-proj-warn">⚠ Berdasarkan regresi linear historis — bukan prediksi pasar</div>
+      <div class="ml-card-label">${t('linearProjectionDataBased')}</div>
+      <div class="ml-proj-warn">⚠ ${t('basedOnLinearRegression')}</div>
 
       <div class="ml-proj-item">
-        <div class="ml-proj-label">Proyeksi 7 Hari</div>
+        <div class="ml-proj-label">${t('projection7d')}</div>
         <div class="ml-proj-val-wrap">
           <div class="ml-proj-val" style="color:${_signals.projected7d>=_signals.currentVal?'var(--up)':'var(--down)'}">${toDisp(_signals.projected7d)}</div>
           <span class="ml-proj-delta" style="color:${_signals.projected7d>=_signals.currentVal?'var(--up)':'var(--down)'}">
             ${_signals.projected7d>=_signals.currentVal?'+':''}${(((_signals.projected7d-_signals.currentVal)/Math.max(_signals.currentVal,1))*100).toFixed(1)}%
           </span>
         </div>
-        <div class="ml-proj-band">±${_signals.bandPct}% per hari volatilitas</div>
+        <div class="ml-proj-band">±${_signals.bandPct}% ${t('dailyVolatility')}</div>
       </div>
 
       <div class="ml-proj-divider"></div>
 
       <div class="ml-proj-item">
-        <div class="ml-proj-label">Proyeksi 30 Hari</div>
+        <div class="ml-proj-label">${t('projection30d')}</div>
         <div class="ml-proj-val-wrap">
           <div class="ml-proj-val" style="color:${_signals.projected30d>=_signals.currentVal?'var(--up)':'var(--down)'}">${toDisp(_signals.projected30d)}</div>
           <span class="ml-proj-delta" style="color:${_signals.projected30d>=_signals.currentVal?'var(--up)':'var(--down)'}">
             ${_signals.projected30d>=_signals.currentVal?'+':''}${(((_signals.projected30d-_signals.currentVal)/Math.max(_signals.currentVal,1))*100).toFixed(1)}%
           </span>
         </div>
-        <div class="ml-proj-band">Slope: ${_signals.trend30>0?'+':''}${_signals.trend30}% / 30 hari</div>
+        <div class="ml-proj-band">${t('slope')}: ${_signals.trend30>0?'+':''}${_signals.trend30}% / 30 ${t('days')}</div>
       </div>
     </div>
 
@@ -437,8 +466,8 @@ export function renderMLPanel() {
   ` : `
   <div class="ml-card">
     <div class="ml-info-note" style="text-align:center;padding:28px;font-size:11px;">
-      📈 <strong>Sinyal teknikal & proyeksi</strong> akan muncul setelah minimal 7 snapshot historis.<br>
-      Klik <strong>SYNC</strong> setiap hari untuk membangun data historis portofolio.
+      📈 <strong>${t('techSignalsProjectionNote')}</strong>.<br>
+      ${t('syncDailyNote')}
     </div>
   </div>
   `}
@@ -446,7 +475,7 @@ export function renderMLPanel() {
   <!-- Disclaimer -->
   <div class="ml-disclaimer">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="13" height="13" style="flex-shrink:0;color:#fbbf24;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-    <span>Model ini menggunakan analisis teknikal dan statistik historis. Proyeksi <strong>bukan saran investasi</strong> dan tidak menjamin hasil aktual. Pasar dapat bergerak di luar model. Selalu lakukan riset mandiri (DYOR).</span>
+    <span>${t('disclaimer')}</span>
   </div>
   `;
 }

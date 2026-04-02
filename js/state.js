@@ -249,6 +249,23 @@ export function setFxRate(ccy, rate) {
   S.fxRates[ccy] = rate;
 }
 
+// ── Delete All Demo Data ─────────────────────────────────────────
+export function deleteDemoData() {
+  // Clear all portfolio arrays
+  DATA.crypto = [];
+  DATA.gold = [];
+  DATA.stocks = [];
+  DATA.savings = [];
+  DATA.history = [];
+  DATA.txLog = [];
+  
+  // Clear history data
+  S.historyData = [];
+  S.historyLoaded = true;
+  
+  console.log('[STATE] Demo data deleted - all arrays cleared');
+}
+
 export function setFxStatus(ccy, status) {
   S.fxStatus[ccy] = status;
 }
