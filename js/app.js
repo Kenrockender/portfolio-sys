@@ -10,7 +10,7 @@ import { S, DATA, t, setHistoryData, uid, setDATA} from './state.js';
 import { I18N, PLAT_COLORS, FX_PAIRS, POPULAR_STOCKS, AC_ACCENT, RANGE_DAYS } from './config.js';
 import { toDisp, dispPrice, formatChartY, totals, computeMetrics, assetMetrics, computePortfolioAnalytics, filterAssets } from './storage.js';
 import { syncAllPrices, syncStocksOnly, fetchAssetPriceHistory } from './api.js';
-import { initCloud, saveDataToCloud, loadDataFromCloud, saveDailySnapshot } from '../firebase/firebase-config.js';
+import { initCloud, saveDataToCloud, loadDataFromCloud, saveDailySnapshot, isAuthInProgress } from '../firebase/firebase-config.js';
 import {
   renderAll, renderAnalytics, setTab, setCurrency, setHistoryRange,
   setBenchTab, setBenchRange, setLang, toggleTheme, applyTheme, setTheme,
@@ -198,24 +198,17 @@ function _acDrawChart(pts, accent, isSynthetic) {
         data: values,
         borderColor: lineCol,
         borderWidth: 2,
-        backgroundColor: grad,
-        pointBackgroundColor: lineCol,
-        pointBorderColor: S.theme === 'dark' ? '#07070f' : '#fff',
-        pointBorderWidth: 2,
-        pointRadius: values.length > 30 ? 0 : 4,
-        pointHoverRadius: values.length > 30 ? 0 : 4,
+        pointRadius: 0,
         tension: 0.4,
-        fill: true
+        fill: true,
+        backgroundColor: grad,
       }]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
+      responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: false },
         tooltip: {
-          callbacks: { label: c => `  ${toDisp(c.raw)}` },
           backgroundColor: tooltipBg(), borderColor: tooltipBorder(), borderWidth: 1,
           titleColor: tooltipTitle(), bodyColor: tooltipBody(),
           titleFont: { family: 'JetBrains Mono', size: 11 },
@@ -269,6 +262,64 @@ function _acSyntheticPts(item, type, m) {
   });
 }
 
+// ── Import Modal Functions ─────────────────────────────────────────
+// [Fix 2] openImport — only ever called by the IMPORT button click.
+// Guards against being triggered during the auth flow (isAuthInProgress).
+function openImport() {
+  // [Fix 1] Never auto-open during auth/data-load flow
+  if (isAuthInProgress) {
+    console.log('[IMPORT] Suppressed: auth in progress');
+    return;
+  }
+  const overlay = document.getElementById('imp-overlay');
+  if (!overlay) return;
+  overlay.style.display = 'flex';
+  // Allow pointer events while modal is open
+  overlay.style.pointerEvents = 'auto';
+  // Trigger CSS transition if the overlay uses opacity-based animation
+  requestAnimationFrame(() => overlay.classList.add('open'));
+}
+
+// [Fix 2] closeImport — called by the X button and any cancel/backdrop click.
+// Fully resets the modal so re-opening it is always a clean slate.
+function closeImport() {
+  const overlay = document.getElementById('imp-overlay');
+  if (!overlay) return;
+
+  // Remove open class (triggers CSS fade-out if defined)
+  overlay.classList.remove('open');
+
+  // [Fix 3] Immediately kill pointer-events so the fading overlay
+  // cannot intercept clicks on the dashboard behind it.
+  overlay.style.pointerEvents = 'none';
+
+  // Wait for the CSS transition (match your transition duration; default 300ms)
+  const TRANSITION_MS = 300;
+  setTimeout(() => {
+    overlay.style.display = 'none';
+
+    // ── Reset all modal state so re-open is a clean slate ──
+    // Clear any file input(s) inside the modal
+    overlay.querySelectorAll('input[type="file"]').forEach(inp => { inp.value = ''; });
+
+    // Clear any preview / result areas
+    const preview = overlay.querySelector('#imp-preview, .imp-preview, [data-imp-preview]');
+    if (preview) preview.innerHTML = '';
+
+    const result = overlay.querySelector('#imp-result, .imp-result, [data-imp-result]');
+    if (result) result.innerHTML = '';
+
+    // Reset any status / error messages
+    const status = overlay.querySelector('#imp-status, .imp-status, [data-imp-status]');
+    if (status) { status.textContent = ''; status.className = status.className.replace(/\berr\b/, ''); }
+
+    // Re-enable any submit buttons that may have been disabled during processing
+    overlay.querySelectorAll('button[type="submit"], .imp-submit-btn').forEach(btn => {
+      btn.disabled = false;
+    });
+  }, TRANSITION_MS);
+}
+
 // ── Global Render All Function ────────────────────────────────────
 window._renderAll = function() {
   const T = totals();
@@ -301,6 +352,8 @@ window.App = {
   del, confirmDel, cancelDel,
   handleSearch, handleFilter, clearFilters,
   openAssetChart, closeAssetChart, acSetRange, acEdit, acDel,
+  // [Fix 2] Import modal — registered here so HTML onclick="closeImport()" works
+  openImport, closeImport,
   cryptoSlide, stkSlide, savSlide,
   cryptoAccumRange, stkAccumRange, savAccumRange,
   setStkPieTab, setSavPieTab,
@@ -369,6 +422,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error('[APP] renderAll crashed:', e);
     const _cs1 = document.getElementById('cloudStatusText') || document.getElementById('cloudStatus'); if(_cs1) _cs1.textContent = 'renderAll crash: ' + e.message;
     document.getElementById('cloudStatus').classList.add('err');
+  }
+
+  // [Fix 2] Wire the X / close button inside the import overlay to closeImport().
+  // This is a safety net in case the HTML uses onclick="closeImport()" — which now
+  // works because closeImport is on window via Object.assign above.
+  // If your X button uses a different selector, adjust here.
+  document.querySelectorAll('[data-close-import], #imp-close, .imp-close-btn').forEach(btn => {
+    btn.addEventListener('click', closeImport);
+  });
+
+  // [Fix 2] Also close on backdrop click (clicking outside the modal box)
+  const impOverlay = document.getElementById('imp-overlay');
+  if (impOverlay) {
+    impOverlay.addEventListener('click', (e) => {
+      // Only close if the click landed directly on the overlay (backdrop),
+      // not on a child element inside the modal box.
+      if (e.target === impOverlay) closeImport();
+    });
   }
 });
 

@@ -25,6 +25,10 @@ export let currentUser = null;
 export let db          = null;
 export let isCanvasEnv = false;
 
+// [Fix 1] Flag that prevents openImport() from firing automatically
+// during the auth → load-data flow. Checked by openImport() in ui.js.
+export let isAuthInProgress = false;
+
 let app  = null;
 let auth = null;
 
@@ -57,6 +61,8 @@ function showLoginOverlay() {
   if (!el) return;
   el.style.opacity = '0';
   el.style.display = 'flex';
+  // [Fix 3] Re-enable pointer-events when the login overlay comes back
+  el.style.pointerEvents = 'auto';
   // Reset login button jika sebelumnya disabled
   const btn = document.getElementById('loginBtn');
   if (btn) {
@@ -74,6 +80,9 @@ function showLoginOverlay() {
 function hideLoginOverlay() {
   const el = document.getElementById('loginOverlay');
   if (!el) return;
+  // [Fix 3] Kill pointer-events IMMEDIATELY so the fading overlay
+  // doesn't swallow clicks on the dashboard behind it.
+  el.style.pointerEvents = 'none';
   el.style.opacity = '0';
   el.style.transition = 'opacity 0.4s ease';
   setTimeout(() => { el.style.display = 'none'; }, 400);
@@ -160,6 +169,12 @@ export function initCloud() {
       // ── User sudah login ──────────────────────────────────────
       currentUser = user;
 
+      // [Fix 1] Raise the flag BEFORE touching the UI or loading data.
+      // This prevents openImport() from being called automatically by
+      // any render/update triggered during the auth→load flow.
+      // The flag is cleared after all async work is done below.
+      isAuthInProgress = true;
+
       // Update UI
       hideLoginOverlay();
       setCloudStatus('LOADING...');
@@ -176,9 +191,14 @@ export function initCloud() {
 
       setCloudStatus('SYNCED');
 
+      // [Fix 1] Auth flow is fully done — lift the flag so the user can
+      // now open the import modal manually via the IMPORT button.
+      isAuthInProgress = false;
+
     } else {
       // ── User belum / sudah logout ────────────────────────────
       currentUser = null;
+      isAuthInProgress = false; // [Fix 1] Ensure flag is reset on logout too
       showLoginOverlay();
       setCloudStatus('OFFLINE');
     }
