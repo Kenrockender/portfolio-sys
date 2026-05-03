@@ -434,7 +434,7 @@ export const BANK_OPTS = `
   <option value="mandiri">Mandiri</option>
   <option value="ocbc">OCBC</option>
   <option value="krom">Krom</option>
-  <option value="cash">Superbank</option>
+  <option value="superbank">Superbank</option>
   <option value="cash">Cash</option>
   <option value="other">Lainnya</option>
 `;
