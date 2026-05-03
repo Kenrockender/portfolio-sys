@@ -441,6 +441,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (e.target === impOverlay) closeImport();
     });
   }
+
+  const impOverlay = document.getElementById('imp-overlay');
+  if (impOverlay) impOverlay.style.display = 'none';
+  
 });
 
 // Init Cloud - wait for Firebase SDK to be ready
