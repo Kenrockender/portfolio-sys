@@ -826,8 +826,12 @@ html[data-theme="light"] .price-bar::after {
 /* ────────────────────────────────────────────────────────────────────
    13. UPGRADE MODAL — PRO UPSELL
 ──────────────────────────────────────────────────────────────────── */
-.upgrade-overlay,
-.imp-overlay {
+/* .imp-overlay intentionally removed from this rule —
+   its display:none / display:flex toggling is handled by
+   styles.css (.imp-overlay base + .imp-overlay.open).
+   Merging it here was forcing display:flex at all times,
+   making the import modal appear immediately on login. */
+.upgrade-overlay {
   position: fixed;
   inset: 0;
   display: flex;

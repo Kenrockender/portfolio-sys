@@ -1641,6 +1641,15 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity:1; }
   display: flex; align-items: center; justify-content: center;
   padding: 20px;
   transition: opacity 0.4s ease;
+  /* pointer-events toggled by JS in firebase-config.js:
+     set to 'none' immediately on hide so the fading overlay
+     can't block clicks on the dashboard behind it. */
+  pointer-events: auto;
+}
+/* CSS safety net for the fade-out window */
+.login-overlay[style*="opacity: 0"],
+.login-overlay[style*="opacity:0"] {
+  pointer-events: none !important;
 }
 
 .login-box {
