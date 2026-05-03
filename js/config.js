@@ -12,7 +12,7 @@ export const PLAT_COLORS = {
   binance: '#fde047', bitget: '#67e8f9', stockbit: '#4ade80', bibit: '#86efac',
   indopremier: '#a5b4fc', manual: '#94a3b8', other: '#64748b',
   bca: '#60a5fa', bri: '#fca5a5', bni: '#fdba74', mandiri: '#fde047',
-  ocbc: '#fca5a5', krom: '#c4b5fd', cash: '#4ade80', physical: '#fcd34d'
+  ocbc: '#fca5a5', krom: '#c4b5fd', cash: '#4ade80', physical: '#fcd34d', superbank: '#22c55e'
 };
 
 // ── FX Pairs for Yahoo Finance ───────────────────────────────────
@@ -434,6 +434,7 @@ export const BANK_OPTS = `
   <option value="mandiri">Mandiri</option>
   <option value="ocbc">OCBC</option>
   <option value="krom">Krom</option>
+  <option value="cash">Superbank</option>
   <option value="cash">Cash</option>
   <option value="other">Lainnya</option>
 `;
