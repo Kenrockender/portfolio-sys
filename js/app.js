@@ -442,8 +442,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  const impOverlay = document.getElementById('imp-overlay');
-  if (impOverlay) impOverlay.style.display = 'none';
+  document.getElementById('imp-overlay')?.style.setProperty('display', 'none');
   
 });
 
