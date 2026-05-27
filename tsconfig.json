@@ -30,6 +30,7 @@
   "exclude": [
     "node_modules",
     "dist",
-    "firebase/firebase-config.js"
+    "firebase/firebase-config.js",
+    "js/parsers/portfolio-sys-parser-fix.js"
   ]
 }

@@ -30,7 +30,7 @@ window.closeGeminiChat = function () {
 window.sendGeminiMessage = async function () {
   const input = document.getElementById('geminiInput');
   const msg   = input.value.trim();
-  if (!msg) return;
+  if (!msg) {return;}
 
   input.value = '';
   appendGeminiMsg('user', msg);
@@ -55,7 +55,7 @@ window.sendGeminiMessage = async function () {
       { role: 'model', parts: [{ text: reply }] }
     );
     // Batasi history 10 pesan terakhir agar tidak over-token
-    if (_geminiHistory.length > 20) _geminiHistory = _geminiHistory.slice(-20);
+    if (_geminiHistory.length > 20) {_geminiHistory = _geminiHistory.slice(-20);}
 
   } catch (e) {
     document.getElementById(loadId)?.remove();

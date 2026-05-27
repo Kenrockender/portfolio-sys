@@ -26,33 +26,33 @@
  * NOTE: dividendsReceived TIDAK ada di sini — sudah dihapus sesuai spec.
  */
 
-import { parseIdrNum, parseDate, parseUsdNum } from "./parser-utils.js";
+import { parseIdrNum, parseDate, parseUsdNum } from './parser-utils.js';
 
 // ── IDX Ticker → Nama Perusahaan ─────────────────────────────────
 const IDX_NAMES = {
-  BBCA: "Bank Central Asia Tbk",    BBRI: "Bank Rakyat Indonesia Tbk",
-  BMRI: "Bank Mandiri Tbk",         TLKM: "Telkom Indonesia Tbk",
-  ASII: "Astra International Tbk",  UNVR: "Unilever Indonesia Tbk",
-  INDF: "Indofood Sukses Makmur",   GGRM: "Gudang Garam Tbk",
-  HMSP: "HM Sampoerna Tbk",         EXCL: "XL Axiata Tbk",
-  SIDO: "Industri Jamu Sido Muncul", BUKA: "Bukalapak.com Tbk",
-  GOTO: "GoTo Gojek Tokopedia Tbk", EMTK: "Elang Mahkota Teknologi Tbk",
+  BBCA: 'Bank Central Asia Tbk',    BBRI: 'Bank Rakyat Indonesia Tbk',
+  BMRI: 'Bank Mandiri Tbk',         TLKM: 'Telkom Indonesia Tbk',
+  ASII: 'Astra International Tbk',  UNVR: 'Unilever Indonesia Tbk',
+  INDF: 'Indofood Sukses Makmur',   GGRM: 'Gudang Garam Tbk',
+  HMSP: 'HM Sampoerna Tbk',         EXCL: 'XL Axiata Tbk',
+  SIDO: 'Industri Jamu Sido Muncul', BUKA: 'Bukalapak.com Tbk',
+  GOTO: 'GoTo Gojek Tokopedia Tbk', EMTK: 'Elang Mahkota Teknologi Tbk',
 };
 
 // ── US Ticker → Nama Perusahaan ──────────────────────────────────
 const US_NAMES = {
-  AAPL: "Apple Inc.",          MSFT: "Microsoft Corp.",
-  NVDA: "NVIDIA Corp.",        GOOGL: "Alphabet Inc.",
-  AMZN: "Amazon.com Inc.",     META: "Meta Platforms Inc.",
-  TSLA: "Tesla Inc.",          AVGO: "Broadcom Inc.",
-  BRK:  "Berkshire Hathaway",  JPM:  "JPMorgan Chase & Co.",
-  V:    "Visa Inc.",           UNH:  "UnitedHealth Group",
-  XOM:  "Exxon Mobil Corp.",   LLY:  "Eli Lilly and Co.",
-  MA:   "Mastercard Inc.",     HD:   "The Home Depot Inc.",
-  CVX:  "Chevron Corp.",       MRK:  "Merck & Co. Inc.",
-  ABBV: "AbbVie Inc.",         PEP:  "PepsiCo Inc.",
-  SPY:  "SPDR S&P 500 ETF",    QQQ:  "Invesco QQQ Trust",
-  VTI:  "Vanguard Total Market ETF",
+  AAPL: 'Apple Inc.',          MSFT: 'Microsoft Corp.',
+  NVDA: 'NVIDIA Corp.',        GOOGL: 'Alphabet Inc.',
+  AMZN: 'Amazon.com Inc.',     META: 'Meta Platforms Inc.',
+  TSLA: 'Tesla Inc.',          AVGO: 'Broadcom Inc.',
+  BRK:  'Berkshire Hathaway',  JPM:  'JPMorgan Chase & Co.',
+  V:    'Visa Inc.',           UNH:  'UnitedHealth Group',
+  XOM:  'Exxon Mobil Corp.',   LLY:  'Eli Lilly and Co.',
+  MA:   'Mastercard Inc.',     HD:   'The Home Depot Inc.',
+  CVX:  'Chevron Corp.',       MRK:  'Merck & Co. Inc.',
+  ABBV: 'AbbVie Inc.',         PEP:  'PepsiCo Inc.',
+  SPY:  'SPDR S&P 500 ETF',    QQQ:  'Invesco QQQ Trust',
+  VTI:  'Vanguard Total Market ETF',
 };
 
 /**
@@ -63,7 +63,7 @@ const US_NAMES = {
  */
 function resolveName(ticker, market) {
   const t = ticker.toUpperCase();
-  return market === "US"
+  return market === 'US'
     ? (US_NAMES[t]  ?? ticker)
     : (IDX_NAMES[t] ?? ticker);
 }
@@ -103,13 +103,13 @@ function parseBibit(raw) {
 
       if (shares > 0 && price > 0) {
         results.push({
-          type:        "stocks",
+          type:        'stocks',
           ticker,
-          name:        resolveName(ticker, "IDX"),
+          name:        resolveName(ticker, 'IDX'),
           shares,
           seedPrice:   price,
-          market:      "IDX",
-          broker:      "bibit",
+          market:      'IDX',
+          broker:      'bibit',
           date,
           annualYield: 0,
         });
@@ -121,22 +121,22 @@ function parseBibit(raw) {
       const re2 = /\b([A-Z]{2,6})\s+(\d+)\s*[Ll]ot\s+Rp\s*([\d.,]+)/gi;
       for (const m of raw.matchAll(re2)) {
         const ticker = m[1].toUpperCase();
-        if (ticker === "RP" || ticker === "LOT") continue;
+        if (ticker === 'RP' || ticker === 'LOT') {continue;}
         results.push({
-          type:        "stocks",
+          type:        'stocks',
           ticker,
-          name:        resolveName(ticker, "IDX"),
+          name:        resolveName(ticker, 'IDX'),
           shares:      parseIdrNum(m[2]),
           seedPrice:   parseIdrNum(m[3]),
-          market:      "IDX",
-          broker:      "bibit",
-          date:        new Date().toISOString().split("T")[0],
+          market:      'IDX',
+          broker:      'bibit',
+          date:        new Date().toISOString().split('T')[0],
           annualYield: 0,
         });
       }
     }
   } catch (err) {
-    console.error("[parser/stock] parseBibit error:", err);
+    console.error('[parser/stock] parseBibit error:', err);
     throw new Error(`parseBibit gagal: ${err.message}`);
   }
 
@@ -161,13 +161,13 @@ function parseStockbit(raw) {
     const csvRe = /^([A-Z]{2,6}),(\d+),([\d.,]+),(\d{4}-\d{2}-\d{2})/gm;
     for (const m of raw.matchAll(csvRe)) {
       results.push({
-        type:        "stocks",
+        type:        'stocks',
         ticker:      m[1],
-        name:        resolveName(m[1], "IDX"),
+        name:        resolveName(m[1], 'IDX'),
         shares:      parseIdrNum(m[2]),
         seedPrice:   parseIdrNum(m[3]),
-        market:      "IDX",
-        broker:      "stockbit",
+        market:      'IDX',
+        broker:      'stockbit',
         date:        m[4],
         annualYield: 0,
       });
@@ -178,20 +178,20 @@ function parseStockbit(raw) {
       const textRe = /(?:Beli|Buy)\s+([A-Z]{2,6})\s+(\d+)\s*lot\s+@\s*Rp\s*([\d.,]+)/gi;
       for (const m of raw.matchAll(textRe)) {
         results.push({
-          type:        "stocks",
+          type:        'stocks',
           ticker:      m[1].toUpperCase(),
-          name:        resolveName(m[1].toUpperCase(), "IDX"),
+          name:        resolveName(m[1].toUpperCase(), 'IDX'),
           shares:      parseIdrNum(m[2]),
           seedPrice:   parseIdrNum(m[3]),
-          market:      "IDX",
-          broker:      "stockbit",
-          date:        new Date().toISOString().split("T")[0],
+          market:      'IDX',
+          broker:      'stockbit',
+          date:        new Date().toISOString().split('T')[0],
           annualYield: 0,
         });
       }
     }
   } catch (err) {
-    console.error("[parser/stock] parseStockbit error:", err);
+    console.error('[parser/stock] parseStockbit error:', err);
     throw new Error(`parseStockbit gagal: ${err.message}`);
   }
 
@@ -216,25 +216,25 @@ function parseIBKR(raw) {
     const lines = raw.split(/[\r\n]+/).filter(Boolean);
 
     for (const line of lines) {
-      const cols = line.split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
+      const cols = line.split(',').map((c) => c.trim().replace(/^"|"$/g, ''));
 
       // IBKR format: Trades,Data,BUY,STK,AAPL,2024-01-15,10,185.00,...
-      if (cols[0] === "Trades" && cols[1] === "Data" && cols[2] === "BUY") {
+      if (cols[0] === 'Trades' && cols[1] === 'Data' && cols[2] === 'BUY') {
         const ticker   = cols[4]?.toUpperCase();
         const date     = parseDate(cols[5]);
         const quantity = Math.abs(parseFloat(cols[6]) || 0);
         const price    = parseUsdNum(cols[7]);
 
-        if (!ticker || quantity <= 0 || price <= 0) continue;
+        if (!ticker || quantity <= 0 || price <= 0) {continue;}
 
         results.push({
-          type:        "stocks",
+          type:        'stocks',
           ticker,
-          name:        resolveName(ticker, "US"),
+          name:        resolveName(ticker, 'US'),
           shares:      quantity,
           seedPrice:   price,            // USD per share
-          market:      "US",
-          broker:      "ibkr",
+          market:      'US',
+          broker:      'ibkr',
           date,
           annualYield: 0,
         });
@@ -246,22 +246,22 @@ function parseIBKR(raw) {
       const simpleRe = /^([A-Z]{1,5}),([\d.]+),([\d.]+),(\d{4}-\d{2}-\d{2})/gm;
       for (const m of raw.matchAll(simpleRe)) {
         const ticker = m[1].toUpperCase();
-        if (!looksLikeUS(ticker)) continue;
+        if (!looksLikeUS(ticker)) {continue;}
         results.push({
-          type:        "stocks",
+          type:        'stocks',
           ticker,
-          name:        resolveName(ticker, "US"),
+          name:        resolveName(ticker, 'US'),
           shares:      parseUsdNum(m[2]),
           seedPrice:   parseUsdNum(m[3]),
-          market:      "US",
-          broker:      "other",
+          market:      'US',
+          broker:      'other',
           date:        m[4],
           annualYield: 0,
         });
       }
     }
   } catch (err) {
-    console.error("[parser/stock] parseIBKR error:", err);
+    console.error('[parser/stock] parseIBKR error:', err);
     throw new Error(`parseIBKR gagal: ${err.message}`);
   }
 
@@ -283,34 +283,34 @@ function parseGenericStock(raw) {
 
   try {
     // Pattern: TICKER shares/lot price date (flexible)
-    const re = /\b([A-Z]{2,6})\b[^\r\n]*?(\d[\d.,]*)\s*(?:shares?|lot|lbr)\s+(?:[@$Rp\s]*)(\d[\d.,]*)[^\r\n]*?(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}|\d{4}[\/\-\.]\d{2}[\/\-\.]\d{2})/gi;
+    const re = /\b([A-Z]{2,6})\b[^\r\n]*?(\d[\d.,]*)\s*(?:shares?|lot|lbr)\s+(?:[@$Rp\s]*)(\d[\d.,]*)[^\r\n]*?(\d{1,2}[-/.]\d{1,2}[-/.]\d{4}|\d{4}[-/.]\d{2}[-/.]\d{2})/gi;
 
     for (const m of raw.matchAll(re)) {
       const ticker = m[1].toUpperCase();
-      if (["LOT", "SHARES", "BUY", "SELL"].includes(ticker)) continue;
+      if (['LOT', 'SHARES', 'BUY', 'SELL'].includes(ticker)) {continue;}
 
       const isUS     = looksLikeUS(ticker);
-      const market   = isUS ? "US" : "IDX";
+      const market   = isUS ? 'US' : 'IDX';
       const shares   = parseIdrNum(m[2]);
       const price    = isUS ? parseUsdNum(m[3]) : parseIdrNum(m[3]);
       const date     = parseDate(m[4]);
 
       if (shares > 0 && price > 0) {
         results.push({
-          type:        "stocks",
+          type:        'stocks',
           ticker,
           name:        resolveName(ticker, market),
           shares,
           seedPrice:   price,
           market,
-          broker:      "other",
+          broker:      'other',
           date,
           annualYield: 0,
         });
       }
     }
   } catch (err) {
-    console.error("[parser/stock] parseGenericStock error:", err);
+    console.error('[parser/stock] parseGenericStock error:', err);
     throw new Error(`parseGenericStock gagal: ${err.message}`);
   }
 
@@ -325,7 +325,7 @@ function deduplicateParsed(items) {
   const seen = new Set();
   return items.filter((item) => {
     const key = `${item.ticker}:${item.shares}:${item.seedPrice}:${item.date}`;
-    if (seen.has(key)) return false;
+    if (seen.has(key)) {return false;}
     seen.add(key);
     return true;
   });
@@ -337,9 +337,9 @@ function deduplicateParsed(items) {
 
 export const STOCK_PARSERS = {
   bibit: {
-    label:    "Bibit (IDX)",
-    category: "stocks",
-    market:   "IDX",
+    label:    'Bibit (IDX)',
+    category: 'stocks',
+    market:   'IDX',
     hint: `Buka Bibit → Riwayat Transaksi → copy semua teks
 
 Contoh format:
@@ -356,9 +356,9 @@ Rp 9.100 / lembar
   },
 
   stockbit: {
-    label:    "Stockbit (IDX)",
-    category: "stocks",
-    market:   "IDX",
+    label:    'Stockbit (IDX)',
+    category: 'stocks',
+    market:   'IDX',
     hint: `Buka Stockbit → Portofolio → Export CSV, atau copy teks
 
 Contoh CSV:
@@ -368,9 +368,9 @@ TLKM,5,3850,2024-02-10`,
   },
 
   ibkr: {
-    label:    "IBKR / Interactive Brokers (US)",
-    category: "stocks",
-    market:   "US",
+    label:    'IBKR / Interactive Brokers (US)',
+    category: 'stocks',
+    market:   'US',
     hint: `Download Activity Statement dari IBKR (Format: CSV)
 Buka file → copy isi baris "Trades,Data,BUY,..."
 
@@ -379,10 +379,10 @@ Trades,Data,BUY,STK,AAPL,2024-01-15,10,185.00,USD,...`,
     parse: parseIBKR,
   },
 
-  "generic-stock": {
-    label:    "Generic (IDX + US)",
-    category: "stocks",
-    market:   "BOTH",
+  'generic-stock': {
+    label:    'Generic (IDX + US)',
+    category: 'stocks',
+    market:   'BOTH',
     hint: `Format bebas: TICKER jumlah price tanggal
 
 Contoh:
@@ -402,15 +402,15 @@ AAPL 10 shares 185.00 2024-01-15`,
 export function runStockParser(sourceKey, rawText) {
   const rule = STOCK_PARSERS[sourceKey];
   if (!rule) {
-    throw new Error(`Parser saham tidak dikenal: "${sourceKey}". Tersedia: ${Object.keys(STOCK_PARSERS).join(", ")}`);
+    throw new Error(`Parser saham tidak dikenal: "${sourceKey}". Tersedia: ${Object.keys(STOCK_PARSERS).join(', ')}`);
   }
 
   console.info(`[parser/stock] Menjalankan "${rule.label}" pada ${rawText.length} karakter`);
 
   // Bersihkan raw text dari karakter tidak perlu
   const cleaned = rawText
-    .replace(/\r\n/g, "\n")
-    .replace(/\t/g, " ")
+    .replace(/\r\n/g, '\n')
+    .replace(/\t/g, ' ')
     .trim();
 
   return rule.parse(cleaned);

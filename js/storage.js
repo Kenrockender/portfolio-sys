@@ -12,12 +12,12 @@ import { PLAT_COLORS, STOCK_FEES, CRYPTO_FEES } from './config.js';
 export function toDisp(idr) {
   if (S.currency === 'USD') {
     const v = idr / S.usdIdr;
-    if (v >= 1e6) return `$${(v / 1e6).toFixed(2)}M`;
-    if (v >= 1000) return `$${v.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+    if (v >= 1e6) {return `$${(v / 1e6).toFixed(2)}M`;}
+    if (v >= 1000) {return `$${v.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;}
     return `$${v.toFixed(2)}`;
   }
-  if (idr >= 1e9) return `Rp ${(idr / 1e9).toFixed(2)}B`;
-  if (idr >= 1e6) return `Rp ${(idr / 1e6).toFixed(2)}Jt`;
+  if (idr >= 1e9) {return `Rp ${(idr / 1e9).toFixed(2)}B`;}
+  if (idr >= 1e6) {return `Rp ${(idr / 1e6).toFixed(2)}Jt`;}
   return `Rp ${Math.round(idr).toLocaleString('id-ID')}`;
 }
 
@@ -30,16 +30,16 @@ export function dispPrice(idr) {
 }
 
 export function formatChartY(v) {
-  if (v === 0) return '0';
+  if (v === 0) {return '0';}
   if (S.currency === 'USD') {
     const d = v / S.usdIdr;
-    if (d >= 1e6) return `$${(d / 1e6).toFixed(1)}M`;
-    if (d >= 1e3) return `$${(d / 1000).toFixed(1)}k`;
+    if (d >= 1e6) {return `$${(d / 1e6).toFixed(1)}M`;}
+    if (d >= 1e3) {return `$${(d / 1000).toFixed(1)}k`;}
     return `$${d.toFixed(0)}`;
   }
-  if (v >= 1e9) return `${(v / 1e9).toFixed(1)}B`;
-  if (v >= 1e6) return `${(v / 1e6).toFixed(1)}Jt`;
-  if (v >= 1e3) return `${(v / 1e3).toFixed(1)}Rb`;
+  if (v >= 1e9) {return `${(v / 1e9).toFixed(1)}B`;}
+  if (v >= 1e6) {return `${(v / 1e6).toFixed(1)}Jt`;}
+  if (v >= 1e3) {return `${(v / 1e3).toFixed(1)}Rb`;}
   return v.toString();
 }
 
@@ -56,7 +56,7 @@ export function dispForeign(amt, ccy) {
 // totals() dipanggil (termasuk dari dalam loop chart). Sekarang hanya
 // dihitung saat dibutuhkan tanpa side-effect.
 export function savingsIdr(a) {
-  if (a.currency === 'IDR') return a.foreignAmt ?? a.idr ?? 0;
+  if (a.currency === 'IDR') {return a.foreignAmt ?? a.idr ?? 0;}
   return (a.foreignAmt ?? 0) * (S.fxRates[a.currency] ?? 1);
 }
 
@@ -80,21 +80,21 @@ export function stockMul(h) {
 // ── Crypto Price Helper ──────────────────────────────────────────
 export function cryptoPrice(a) {
   const coin = (a.coin || '').toUpperCase();
-  if (coin === 'BTC') return S.btcIdr || 0;
-  if (coin === 'ETH') return S.ethIdr || 0;
-  if (coin === 'XRP') return S.xrpIdr || 0;
+  if (coin === 'BTC') {return S.btcIdr || 0;}
+  if (coin === 'ETH') {return S.ethIdr || 0;}
+  if (coin === 'XRP') {return S.xrpIdr || 0;}
   // [Fix 1] Altcoin fallback
   const alt = S.altcoinPrices?.[coin];
-  if (alt > 0) return alt;
+  if (alt > 0) {return alt;}
   return 0;
 }
 
 export function hasCryptoPrice(coin) {
   const c = coin.toUpperCase();
-  if (c === 'BTC' && S.btcIdr > 0) return true;
-  if (c === 'ETH' && S.ethIdr > 0) return true;
-  if (c === 'XRP' && S.xrpIdr > 0) return true;
-  if (S.altcoinPrices?.[c] > 0) return true;
+  if (c === 'BTC' && S.btcIdr > 0) {return true;}
+  if (c === 'ETH' && S.ethIdr > 0) {return true;}
+  if (c === 'XRP' && S.xrpIdr > 0) {return true;}
+  if (S.altcoinPrices?.[c] > 0) {return true;}
   return false;
 }
 
@@ -184,8 +184,8 @@ export function calcCryptoFees(value, platform, type = 'buy', applyStampDuty = f
 }
 
 export function applyTax(pnl, type, asset = null) {
-  if (S.taxMode === 'pre' || pnl == null) return pnl;
-  if (pnl <= 0) return pnl;
+  if (S.taxMode === 'pre' || pnl == null) {return pnl;}
+  if (pnl <= 0) {return pnl;}
   if (type === 'stocks' && asset) {
     const currentValue = asset.shares * stockMul(asset) * stockPrice(asset);
     const fees = calcStockFees(currentValue, asset.broker || 'other', 'sell', true);
@@ -196,13 +196,13 @@ export function applyTax(pnl, type, asset = null) {
     const fees = calcCryptoFees(currentValue, asset.platform || 'other', 'sell', true);
     return pnl - fees.total;
   }
-  if (type === 'savings') return pnl * 0.80;
+  if (type === 'savings') {return pnl * 0.80;}
   return pnl;
 }
 
 export function assetMetricsWithTax(type, item) {
   const basic = assetMetrics(type, item);
-  if (!basic.pnl) return { ...basic, pnlPostTax: null, retPostTax: null };
+  if (!basic.pnl) {return { ...basic, pnlPostTax: null, retPostTax: null };}
   const pnlPostTax = applyTax(basic.pnl, type, item);
   const retPostTax = basic.cost > 0 ? (pnlPostTax / basic.cost * 100) : null;
   return { ...basic, pnlPostTax, retPostTax };
@@ -224,7 +224,7 @@ export function computeAnnualIncome() {
 // ── Portfolio Analytics Computation ───────────────────────────────
 export function computePortfolioAnalytics() {
   const hist = [...(S.historyData || [])].sort((a, b) => a.date.localeCompare(b.date));
-  if (hist.length < 2) return null;
+  if (hist.length < 2) {return null;}
 
   const values = hist.map(h => h.value);
   const dailyReturns = [];
@@ -240,7 +240,7 @@ export function computePortfolioAnalytics() {
   const totalReturn = values.length > 0 ? ((values[values.length - 1] / values[0]) - 1) * 100 : 0;
 
   let maxDD = 0, peak = values[0] || 0;
-  for (let v of values) {
+  for (const v of values) {
     peak = Math.max(peak, v);
     maxDD = Math.min(maxDD, (v - peak) / peak);
   }
@@ -274,10 +274,10 @@ export function filterAssets(assets, type) {
     }
     let platMatch = true;
     if (S.filterPlatform) {
-      if (type === 'crypto') platMatch = a.platform === S.filterPlatform;
-      if (type === 'gold') platMatch = 'physical' === S.filterPlatform;
-      if (type === 'stocks') platMatch = a.broker === S.filterPlatform;
-      if (type === 'savings') platMatch = a.bank === S.filterPlatform;
+      if (type === 'crypto') {platMatch = a.platform === S.filterPlatform;}
+      if (type === 'gold') {platMatch = 'physical' === S.filterPlatform;}
+      if (type === 'stocks') {platMatch = a.broker === S.filterPlatform;}
+      if (type === 'savings') {platMatch = a.bank === S.filterPlatform;}
     }
     return nameMatch && platMatch;
   });

@@ -92,7 +92,7 @@ const _canvasBgPlugin = {
 // Must be called BEFORE any chart is created so new instances pick up
 // the right colors. Called in destroyAllCharts() before _renderAll().
 function applyChartTheme() {
-  if (typeof Chart === 'undefined') return;
+  if (typeof Chart === 'undefined') {return;}
   Chart.defaults.color           = getCssVar('--muted') || (_isLightTheme() ? '#64748b' : '#475569');
   Chart.defaults.borderColor     = getCssVar('--border') || (_isLightTheme() ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.06)');
   Chart.defaults.backgroundColor = 'transparent';
@@ -185,7 +185,7 @@ export function renderCharts(T) {
   // Update range buttons
   ['1W', '1M', '6M', '1Y', 'ALL'].forEach(r => {
     const b = document.getElementById('btn' + r);
-    if (b) b.classList.toggle('active', S.historyRange === r);
+    if (b) {b.classList.toggle('active', S.historyRange === r);}
   });
 
   renderLineChart(T);
@@ -194,14 +194,14 @@ export function renderCharts(T) {
 // ── Get Filtered History ──────────────────────────────────────────
 function getFilteredHistory() {
   const data = [...S.historyData].sort((a, b) => a.date.localeCompare(b.date));
-  if (!data.length) return [];
-  if (S.historyRange === 'ALL') return data;
+  if (!data.length) {return [];}
+  if (S.historyRange === 'ALL') {return data;}
 
   const now = new Date(), cutoff = new Date(now);
-  if (S.historyRange === '1W') cutoff.setDate(now.getDate() - 7);
-  else if (S.historyRange === '1M') cutoff.setMonth(now.getMonth() - 1);
-  else if (S.historyRange === '6M') cutoff.setMonth(now.getMonth() - 6);
-  else if (S.historyRange === '1Y') cutoff.setFullYear(now.getFullYear() - 1);
+  if (S.historyRange === '1W') {cutoff.setDate(now.getDate() - 7);}
+  else if (S.historyRange === '1M') {cutoff.setMonth(now.getMonth() - 1);}
+  else if (S.historyRange === '6M') {cutoff.setMonth(now.getMonth() - 6);}
+  else if (S.historyRange === '1Y') {cutoff.setFullYear(now.getFullYear() - 1);}
 
   const filtered = data.filter(d => new Date(d.date) >= cutoff);
   // Jika data di rentang ini kurang dari 2 titik, tampilkan semua data yang ada
@@ -236,8 +236,8 @@ function renderLineChart(T) {
 
   const labels = hist.map(d => {
     const dt = new Date(d.date);
-    if (S.historyRange === '1W') return dt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric' });
-    if (S.historyRange === '1Y' || S.historyRange === 'ALL') return dt.toLocaleDateString('en-GB', { month: 'short', year: '2-digit' });
+    if (S.historyRange === '1W') {return dt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric' });}
+    if (S.historyRange === '1Y' || S.historyRange === 'ALL') {return dt.toLocaleDateString('en-GB', { month: 'short', year: '2-digit' });}
     return dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
   });
   const values = hist.map(d => S.currency === 'USD' ? d.value / S.usdIdr : d.value);
@@ -274,7 +274,7 @@ function renderLineChart(T) {
 let histLineChart = null;
 export function renderHistoryLineChart(T) {
   const wrap = document.getElementById('histLineWrap');
-  if (!wrap) return;
+  if (!wrap) {return;}
   if (histLineChart) { histLineChart.destroy(); histLineChart = null; }
 
   const hist = getFilteredHistory();
@@ -295,8 +295,8 @@ export function renderHistoryLineChart(T) {
 
   const labels = hist.map(d => {
     const dt = new Date(d.date);
-    if (S.historyRange === '1W') return dt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric' });
-    if (S.historyRange === '1Y' || S.historyRange === 'ALL') return dt.toLocaleDateString('en-GB', { month: 'short', year: '2-digit' });
+    if (S.historyRange === '1W') {return dt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric' });}
+    if (S.historyRange === '1Y' || S.historyRange === 'ALL') {return dt.toLocaleDateString('en-GB', { month: 'short', year: '2-digit' });}
     return dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
   });
 
@@ -305,7 +305,7 @@ export function renderHistoryLineChart(T) {
     : [T ? (S.currency === 'USD' ? T.t / S.usdIdr : T.t) : 0];
 
   const canvas = document.getElementById('histLineChart');
-  if (!canvas) return;
+  if (!canvas) {return;}
   const cryptoCol = getCssVar('--crypto') || '#8b5cf6';
   const downCol   = getCssVar('--down')   || '#fb7185';
   const isDown = values.length >= 2 && values[values.length - 1] < values[0];
@@ -364,7 +364,6 @@ export function renderHistoryLineChart(T) {
     });
   });
 }
-
 
 
 // ── Build Line Chart Config ───────────────────────────────────────
@@ -428,10 +427,10 @@ function buildLineConfig(labels, values, T) {
 // ── Build Pie Chart Helper ────────────────────────────────────────
 function _buildPie(canvasId, labelsIn, valsIn, colsIn, total) {
   const ctx = document.getElementById(canvasId);
-  if (!ctx) return null;
+  if (!ctx) {return null;}
   // Destroy existing instance on this canvas if any
   const existing = Chart.getChart(ctx);
-  if (existing) existing.destroy();
+  if (existing) {existing.destroy();}
 
   const nonZero = labelsIn.map((l, i) => ({ l, v: valsIn[i], c: colsIn[i] })).filter(x => x.v > 0);
   const labels = nonZero.map(x => x.l);
@@ -471,7 +470,7 @@ function _buildPie(canvasId, labelsIn, valsIn, colsIn, total) {
 // ── Build Bars Helper ─────────────────────────────────────────────
 function _buildBars(containerId, entries, total, col_fn) {
   const el = document.getElementById(containerId);
-  if (!el) return;
+  if (!el) {return;}
 
   el.innerHTML = entries.filter(([, v]) => v > 0).map(([label, val]) => {
     const pct = val / total * 100, col = col_fn(label);
@@ -544,7 +543,7 @@ export function renderCryptoCoinPie() {
   if (coinPie) { coinPie.destroy(); coinPie = null; }
 
   const canvas = document.getElementById('coinPie');
-  if (!canvas) return;
+  if (!canvas) {return;}
 
   // Group by coin — aggregate semua platform per koin
   const coinMap = {};
@@ -557,7 +556,7 @@ export function renderCryptoCoinPie() {
   const total   = Object.values(coinMap).reduce((s, v) => s + v, 0) || 1;
   const entries = Object.entries(coinMap).sort((a, b) => b[1] - a[1]);
 
-  if (entries.length === 0) return;
+  if (entries.length === 0) {return;}
 
   // Warna per koin — identik di mana-mana di app ini
   const COIN_COLORS = {
@@ -587,7 +586,7 @@ export function renderCryptoCoinPie() {
 
   // Render legend
   const legendEl = document.getElementById('coinPieLegend');
-  if (!legendEl) return;
+  if (!legendEl) {return;}
 
   legendEl.innerHTML = entries.map(([coin, val]) => {
     const pct = (val / total * 100).toFixed(1);
@@ -619,7 +618,7 @@ export function renderStocksProportion(T) {
   if (stocksPie) { stocksPie.destroy(); stocksPie = null; }
 
   const assets = DATA.stocks;
-  if (!assets.length) return;
+  if (!assets.length) {return;}
 
   if (_stkPieTab === 'broker') {
     const m = {};
@@ -688,10 +687,10 @@ export function renderStocksTickerPie() {
   if (stocksTickerPie) { stocksTickerPie.destroy(); stocksTickerPie = null; }
 
   const canvas = document.getElementById('stocksTickerPie');
-  if (!canvas) return;
+  if (!canvas) {return;}
 
   const assets = DATA.stocks;
-  if (!assets.length) return;
+  if (!assets.length) {return;}
 
   // Nilai per ticker — jika ada 2 lot BBCA gabungkan
   const tickerMap = {};
@@ -704,7 +703,7 @@ export function renderStocksTickerPie() {
   const total   = Object.values(tickerMap).reduce((s, v) => s + v, 0) || 1;
   const entries = Object.entries(tickerMap).sort((a, b) => b[1] - a[1]);
 
-  if (entries.length === 0) return;
+  if (entries.length === 0) {return;}
 
   // Palette — cukup banyak untuk cover banyak saham sekaligus
   const PALETTE = [
@@ -737,7 +736,7 @@ export function renderStocksTickerPie() {
 
   // Legend
   const legendEl = document.getElementById('stocksTickerPieLegend');
-  if (!legendEl) return;
+  if (!legendEl) {return;}
 
   legendEl.innerHTML = entries.map(([ticker, val], i) => {
     const pct = (val / total * 100).toFixed(1);
@@ -773,7 +772,7 @@ export function renderSavingsProportion(T) {
   if (savingsPie) { savingsPie.destroy(); savingsPie = null; }
 
   const assets = DATA.savings;
-  if (!assets.length) return;
+  if (!assets.length) {return;}
 
   if (_savPieTab === 'bank') {
     const m = {};
@@ -839,7 +838,7 @@ export function renderBenchChart(T) {
   if (benchChart) { benchChart.destroy(); benchChart = null; }
 
   const canvas = document.getElementById('benchChart');
-  if (!canvas) return;
+  if (!canvas) {return;}
 
   const bd = getBenchData(T);
   if (!bd) {
@@ -892,7 +891,7 @@ export function renderBenchChart(T) {
   ];
 
   const synthNote = getBenchData._synthetic ?
-    `<span style="font-size:8px;color:var(--warn);letter-spacing:.1em;margin-left:8px;">ESTIMASI — sync tiap hari untuk data nyata</span>` : '';
+    '<span style="font-size:8px;color:var(--warn);letter-spacing:.1em;margin-left:8px;">ESTIMASI — sync tiap hari untuk data nyata</span>' : '';
 
   document.getElementById('benchLegend').innerHTML = datasets.map(d =>
     `<div class="bl-item"><div class="bl-line" style="background:${d.col}"></div><span>${d.label} (base 100)</span></div>`
@@ -901,7 +900,7 @@ export function renderBenchChart(T) {
   // Update buttons
   ['6M', '1Y', 'ALL'].forEach(r => {
     const b = document.getElementById('benchBtn' + r);
-    if (b) b.classList.toggle('active', S.benchRange === r);
+    if (b) {b.classList.toggle('active', S.benchRange === r);}
   });
 
   document.getElementById('benchTabTotal')?.classList.toggle('active', S.benchTab === 'total');
@@ -927,10 +926,10 @@ function getBenchData(T) {
     filtered = workingHist;
   } else {
     const now = new Date(), cutoff = new Date(now);
-    if (S.benchRange === '6M') cutoff.setMonth(now.getMonth() - 6);
-    else if (S.benchRange === '1Y') cutoff.setFullYear(now.getFullYear() - 1);
+    if (S.benchRange === '6M') {cutoff.setMonth(now.getMonth() - 6);}
+    else if (S.benchRange === '1Y') {cutoff.setFullYear(now.getFullYear() - 1);}
     filtered = workingHist.filter(d => new Date(d.date) >= cutoff);
-    if (filtered.length < 2) filtered = workingHist;
+    if (filtered.length < 2) {filtered = workingHist;}
   }
 
   const step = Math.max(1, Math.floor(filtered.length / 60));
@@ -975,8 +974,8 @@ function getBenchData(T) {
     return dates.map(dateStr => {
       const dt = new Date(dateStr).getTime();
       const times = idxData.map(x => new Date(x.date).getTime());
-      if (dt <= times[0]) return +idxData[0].idx.toFixed(2);
-      if (dt >= times[times.length - 1]) return +idxData[times.length - 1].idx.toFixed(2);
+      if (dt <= times[0]) {return +idxData[0].idx.toFixed(2);}
+      if (dt >= times[times.length - 1]) {return +idxData[times.length - 1].idx.toFixed(2);}
       for (let i = 0; i < idxData.length - 1; i++) {
         if (dt >= times[i] && dt <= times[i + 1]) {
           const t = (dt - times[i]) / (times[i + 1] - times[i]);
@@ -1000,7 +999,7 @@ function getBenchData(T) {
 
 // ── Generate Synthetic History ────────────────────────────────────
 function generateSyntheticHistory(rangeMonths, T) {
-  if (!T) T = totals();
+  if (!T) {T = totals();}
   const totalCost =
     DATA.crypto.reduce((s, h) => s + (h.costBasisIdr || 0), 0) +
     DATA.gold.reduce((s, h) => s + h.grams * (h.costBasisPerGram || 0), 0) +
@@ -1041,12 +1040,12 @@ function generateSyntheticHistory(rangeMonths, T) {
 export function cryptoSlide(idx) {
   _cryptoSlide = idx;
   const track = document.getElementById('cryptoTrack');
-  if (track) track.style.transform = `translateX(-${idx * 100}%)`;
+  if (track) {track.style.transform = `translateX(-${idx * 100}%)`;}
   document.getElementById('cryptoNavAlloc')?.classList.toggle('crypto-active', idx === 0);
   document.getElementById('cryptoNavChart')?.classList.toggle('crypto-active', idx === 1);
   document.getElementById('cryptoNavCoin')?.classList.toggle('crypto-active',  idx === 2);
-  if (idx === 1) requestAnimationFrame(() => requestAnimationFrame(() => _renderAccumChart('crypto')));
-  if (idx === 2) requestAnimationFrame(() => requestAnimationFrame(() => renderCryptoCoinPie()));
+  if (idx === 1) {requestAnimationFrame(() => requestAnimationFrame(() => _renderAccumChart('crypto')));}
+  if (idx === 2) {requestAnimationFrame(() => requestAnimationFrame(() => renderCryptoCoinPie()));}
 }
 
 export function cryptoAccumRange(r) {
@@ -1061,12 +1060,12 @@ export function cryptoAccumRange(r) {
 export function stkSlide(idx) {
   _stkSlide = idx;
   const track = document.getElementById('stkTrack');
-  if (track) track.style.transform = `translateX(-${idx * 100}%)`;
+  if (track) {track.style.transform = `translateX(-${idx * 100}%)`;}
   document.getElementById('stkNavAlloc')?.classList.toggle('active',    idx === 0);
   document.getElementById('stkNavChart')?.classList.toggle('active',    idx === 1);
   document.getElementById('stkNavTicker')?.classList.toggle('active',   idx === 2);
-  if (idx === 1) requestAnimationFrame(() => requestAnimationFrame(() => _renderAccumChart('stocks')));
-  if (idx === 2) requestAnimationFrame(() => requestAnimationFrame(() => renderStocksTickerPie()));
+  if (idx === 1) {requestAnimationFrame(() => requestAnimationFrame(() => _renderAccumChart('stocks')));}
+  if (idx === 2) {requestAnimationFrame(() => requestAnimationFrame(() => renderStocksTickerPie()));}
 }
 
 export function stkAccumRange(r) {
@@ -1081,10 +1080,10 @@ export function stkAccumRange(r) {
 export function savSlide(idx) {
   _savSlide = idx;
   const track = document.getElementById('savTrack');
-  if (track) track.style.transform = `translateX(-${idx * 100}%)`;
+  if (track) {track.style.transform = `translateX(-${idx * 100}%)`;}
   document.getElementById('savNavAlloc')?.classList.toggle('sav-active', idx === 0);
   document.getElementById('savNavChart')?.classList.toggle('sav-active', idx === 1);
-  if (idx === 1) requestAnimationFrame(() => requestAnimationFrame(() => _renderAccumChart('savings')));
+  if (idx === 1) {requestAnimationFrame(() => requestAnimationFrame(() => _renderAccumChart('savings')));}
 }
 
 export function savAccumRange(r) {
@@ -1117,7 +1116,7 @@ async function _renderAccumChart(section) {
   else { if (_savAccumChart) { _savAccumChart.destroy(); _savAccumChart = null; } }
 
   const canvas = document.getElementById(canvasId);
-  if (!canvas) return;
+  if (!canvas) {return;}
 
   const assets = isCrypto ? DATA.crypto : isStocks ? DATA.stocks : DATA.savings;
   const T = totals();
@@ -1163,8 +1162,8 @@ async function _renderAccumChart(section) {
 
   // Current value per asset
   const assetNow = assets.map(item => {
-    if (isCrypto) return item.amount * cryptoPrice(item);
-    if (isStocks) return item.shares * stockMul(item) * stockPrice(item);
+    if (isCrypto) {return item.amount * cryptoPrice(item);}
+    if (isStocks) {return item.shares * stockMul(item) * stockPrice(item);}
     return item.idr || 0;
   });
 
@@ -1267,9 +1266,9 @@ async function _renderAccumChart(section) {
     }
   });
 
-  if (isCrypto) _cryptoAccumChart = chartObj;
-  else if (isStocks) _stkAccumChart = chartObj;
-  else _savAccumChart = chartObj;
+  if (isCrypto) {_cryptoAccumChart = chartObj;}
+  else if (isStocks) {_stkAccumChart = chartObj;}
+  else {_savAccumChart = chartObj;}
 
   // ── Legend ──
   const legendEl = document.getElementById(legendId);
@@ -1289,7 +1288,7 @@ async function _renderAccumChart(section) {
       </div>`;
     }).join('');
     if (isSynthetic) {
-      legendEl.innerHTML += `<div style="font-size:8px;color:var(--warn);letter-spacing:.08em;width:100%;margin-top:4px">Estimasi</div>`;
+      legendEl.innerHTML += '<div style="font-size:8px;color:var(--warn);letter-spacing:.08em;width:100%;margin-top:4px">Estimasi</div>';
     }
   }
 }

@@ -22,20 +22,20 @@
  * NOTE: TIDAK ADA dividendsReceived — sudah dihapus sesuai spec.
  */
 
-import { parseIdrNum, parseUsdNum, parseDate } from "./parser-utils.js";
+import { parseIdrNum, parseUsdNum, parseDate } from './parser-utils.js';
 
 // ── Nama bank yang dikenal ────────────────────────────────────────
 const KNOWN_BANKS = {
-  bca: "bca", bank_central_asia: "bca", "bank bca": "bca",
-  bri: "bri", bank_rakyat: "bri", "bank bri": "bri",
-  bni: "bni", "bank negara": "bni",
-  mandiri: "mandiri", "bank mandiri": "mandiri",
-  ocbc: "ocbc", "ocbc nisp": "ocbc",
-  krom: "krom", "bank krom": "krom",
-  btpn: "btpn", jenius: "jenius",
-  permata: "permata", "bank permata": "permata",
-  danamon: "danamon",
-  cimb: "cimb", "cimb niaga": "cimb",
+  bca: 'bca', bank_central_asia: 'bca', 'bank bca': 'bca',
+  bri: 'bri', bank_rakyat: 'bri', 'bank bri': 'bri',
+  bni: 'bni', 'bank negara': 'bni',
+  mandiri: 'mandiri', 'bank mandiri': 'mandiri',
+  ocbc: 'ocbc', 'ocbc nisp': 'ocbc',
+  krom: 'krom', 'bank krom': 'krom',
+  btpn: 'btpn', jenius: 'jenius',
+  permata: 'permata', 'bank permata': 'permata',
+  danamon: 'danamon',
+  cimb: 'cimb', 'cimb niaga': 'cimb',
 };
 
 /**
@@ -43,9 +43,9 @@ const KNOWN_BANKS = {
  * @param {string} raw
  * @returns {string}
  */
-function resolveBank(raw = "") {
+function resolveBank(raw = '') {
   const lower = raw.toLowerCase().trim();
-  return KNOWN_BANKS[lower] ?? lower.split(" ")[0] ?? "other";
+  return KNOWN_BANKS[lower] ?? lower.split(' ')[0] ?? 'other';
 }
 
 /**
@@ -53,9 +53,9 @@ function resolveBank(raw = "") {
  * @param {string} str
  * @returns {string}
  */
-function detectCurrency(str = "") {
+function detectCurrency(str = '') {
   const match = str.toUpperCase().match(/\b(IDR|USD|SGD|AUD|EUR|GBP|JPY|CNH|CHF|CAD|NZD|HKD)\b/);
-  return match ? match[1] : "IDR";
+  return match ? match[1] : 'IDR';
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -80,27 +80,27 @@ function parseSavingsGeneric(raw, opts = {}) {
       const line = lines[i];
 
       // Format: "BCA Tabungan | IDR | 45000000 | 1.5% | 2024-01-10"
-      if (line.includes("|")) {
-        const parts = line.split("|").map((p) => p.trim());
+      if (line.includes('|')) {
+        const parts = line.split('|').map((p) => p.trim());
         if (parts.length >= 3) {
           const name       = parts[0];
           const currency   = detectCurrency(parts[1]);
           const foreignAmt = parseIdrNum(parts[2]);
-          const yield_     = parts[3] ? parseFloat(parts[3].replace("%", "")) : 0;
-          const date       = parseDate(parts[4] ?? "");
+          const yield_     = parts[3] ? parseFloat(parts[3].replace('%', '')) : 0;
+          const date       = parseDate(parts[4] ?? '');
           const rate       = fxRates[currency] ?? usdIdr;
           const idr        = Math.round(foreignAmt * rate);
 
           if (foreignAmt > 0) {
             results.push({
-              type:        "savings",
+              type:        'savings',
               name,
               bank:        resolveBank(name),
               currency,
               foreignAmt,
               idr,
               annualYield: isNaN(yield_) ? 0 : yield_,
-              note:        "",
+              note:        '',
               date,
             });
           }
@@ -117,25 +117,25 @@ function parseSavingsGeneric(raw, opts = {}) {
         const currency   = m[3].toUpperCase();
         const rate       = fxRates[currency] ?? usdIdr;
         const idr        = Math.round(foreignAmt * rate);
-        const date       = parseDate(lines[i + 1] ?? "");
+        const date       = parseDate(lines[i + 1] ?? '');
 
         if (foreignAmt > 0) {
           results.push({
-            type:        "savings",
+            type:        'savings',
             name,
             bank:        resolveBank(name),
             currency,
             foreignAmt,
             idr,
             annualYield: 0,
-            note:        "",
+            note:        '',
             date,
           });
         }
       }
     }
   } catch (err) {
-    console.error("[parser/savings] parseSavingsGeneric error:", err);
+    console.error('[parser/savings] parseSavingsGeneric error:', err);
     throw new Error(`parseSavingsGeneric gagal: ${err.message}`);
   }
 
@@ -165,30 +165,30 @@ function parseSavingsCSV(raw, opts = {}) {
     const dataLines = headerIdx >= 0 ? lines.slice(headerIdx + 1) : lines;
 
     for (const line of dataLines) {
-      const cols = line.split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
-      if (cols.length < 4) continue;
+      const cols = line.split(',').map((c) => c.trim().replace(/^"|"$/g, ''));
+      if (cols.length < 4) {continue;}
 
       const [name, bank, currency, balRaw, yieldRaw, dateRaw, noteRaw] = cols;
       const foreignAmt = parseIdrNum(balRaw);
-      if (!name || foreignAmt <= 0) continue;
+      if (!name || foreignAmt <= 0) {continue;}
 
       const rate = fxRates[currency?.toUpperCase()] ?? usdIdr;
       const idr  = Math.round(foreignAmt * rate);
 
       results.push({
-        type:        "savings",
+        type:        'savings',
         name,
         bank:        resolveBank(bank),
-        currency:    currency?.toUpperCase() ?? "IDR",
+        currency:    currency?.toUpperCase() ?? 'IDR',
         foreignAmt,
         idr,
-        annualYield: yieldRaw ? parseFloat(yieldRaw.replace("%", "")) || 0 : 0,
-        note:        noteRaw ?? "",
+        annualYield: yieldRaw ? parseFloat(yieldRaw.replace('%', '')) || 0 : 0,
+        note:        noteRaw ?? '',
         date:        parseDate(dateRaw),
       });
     }
   } catch (err) {
-    console.error("[parser/savings] parseSavingsCSV error:", err);
+    console.error('[parser/savings] parseSavingsCSV error:', err);
     throw new Error(`parseSavingsCSV gagal: ${err.message}`);
   }
 
@@ -200,9 +200,9 @@ function parseSavingsCSV(raw, opts = {}) {
 // ════════════════════════════════════════════════════════════════
 
 export const SAVINGS_PARSERS = {
-  "savings-generic": {
-    label:    "Tabungan (Format Bebas)",
-    category: "savings",
+  'savings-generic': {
+    label:    'Tabungan (Format Bebas)',
+    category: 'savings',
     hint: `Format dengan pipe (|) atau nama bank + saldo:
 
 Contoh:
@@ -215,9 +215,9 @@ USD Savings 1550 USD
     parse: parseSavingsGeneric,
   },
 
-  "savings-csv": {
-    label:    "Tabungan CSV",
-    category: "savings",
+  'savings-csv': {
+    label:    'Tabungan CSV',
+    category: 'savings',
     hint: `Format CSV: name,bank,currency,balance,yield%,date,note
 
 Contoh:
@@ -243,7 +243,7 @@ export function runSavingsParser(sourceKey, rawText, opts = {}) {
     throw new Error(`Parser savings tidak dikenal: "${sourceKey}".`);
   }
   console.info(`[parser/savings] Menjalankan "${rule.label}" pada ${rawText.length} karakter`);
-  return rule.parse(rawText.replace(/\r\n/g, "\n").trim(), opts);
+  return rule.parse(rawText.replace(/\r\n/g, '\n').trim(), opts);
 }
 
 /**

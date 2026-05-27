@@ -8,7 +8,7 @@ let installPromptShown = false;
 export function initPWAInstallPrompt() {
   const dismissed = localStorage.getItem('pwa-install-dismissed');
   const installed  = localStorage.getItem('pwa-installed');
-  if (dismissed === 'true' || installed === 'true') return;
+  if (dismissed === 'true' || installed === 'true') {return;}
 
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
@@ -70,7 +70,7 @@ function hideInstallBanner() {
 }
 
 async function handleInstallClick() {
-  if (!deferredPrompt) return;
+  if (!deferredPrompt) {return;}
   deferredPrompt.prompt();
   const { outcome } = await deferredPrompt.userChoice;
   if (outcome === 'accepted') {

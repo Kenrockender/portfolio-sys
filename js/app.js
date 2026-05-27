@@ -113,33 +113,33 @@ function _acFindItem(id, type) {
 }
 
 function _acIconClass(type, item) {
-  if (type === 'crypto') return item.coin === 'BTC' ? 'icon-btc' : item.coin === 'ETH' ? 'icon-eth' : item.coin === 'XRP' ? 'icon-xrp' : 'icon-alt';
-  if (type === 'gold') return 'icon-gold';
-  if (type === 'stocks') return 'icon-stk';
+  if (type === 'crypto') {return item.coin === 'BTC' ? 'icon-btc' : item.coin === 'ETH' ? 'icon-eth' : item.coin === 'XRP' ? 'icon-xrp' : 'icon-alt';}
+  if (type === 'gold') {return 'icon-gold';}
+  if (type === 'stocks') {return 'icon-stk';}
   return 'icon-save';
 }
 
 function _acIconLabel(type, item) {
-  if (type === 'crypto') return item.coin;
-  if (type === 'gold') return 'Au';
-  if (type === 'stocks') return `<span style="font-size:8px;font-weight:800">${item.ticker}</span>`;
+  if (type === 'crypto') {return item.coin;}
+  if (type === 'gold') {return 'Au';}
+  if (type === 'stocks') {return `<span style="font-size:8px;font-weight:800">${item.ticker}</span>`;}
   return S.currency === 'USD' ? '$' : 'Rp';
 }
 
 function _acDisplayName(type, item) {
-  if (type === 'crypto') return item.name || item.coin;
-  if (type === 'gold') return item.name || 'Gold';
-  if (type === 'stocks') return item.name || item.ticker;
+  if (type === 'crypto') {return item.name || item.coin;}
+  if (type === 'gold') {return item.name || 'Gold';}
+  if (type === 'stocks') {return item.name || item.ticker;}
   return item.name || 'Savings';
 }
 
 function _acSubLine(type, item) {
   const tags = [];
-  if (type === 'crypto') tags.push(ptag(item.platform || 'other'), `${item.amount} ${item.coin}`);
-  if (type === 'gold') tags.push(ptag('physical'), `${item.grams}g`);
-  if (type === 'stocks') tags.push(ptag(item.broker || 'other'), item.market === 'IDX' ? `${item.shares} lot` : `${item.shares} shares`);
-  if (type === 'savings') tags.push(ptag(item.bank || 'other'), ctag(item.currency || 'IDR'));
-  if (item.date) tags.push(`<span style="color:var(--muted)">${item.date}</span>`);
+  if (type === 'crypto') {tags.push(ptag(item.platform || 'other'), `${item.amount} ${item.coin}`);}
+  if (type === 'gold') {tags.push(ptag('physical'), `${item.grams}g`);}
+  if (type === 'stocks') {tags.push(ptag(item.broker || 'other'), item.market === 'IDX' ? `${item.shares} lot` : `${item.shares} shares`);}
+  if (type === 'savings') {tags.push(ptag(item.bank || 'other'), ctag(item.currency || 'IDR'));}
+  if (item.date) {tags.push(`<span style="color:var(--muted)">${item.date}</span>`);}
   return tags.join(' ');
 }
 
@@ -159,17 +159,17 @@ async function _acRenderChart(item, type, m) {
 
 function _acShowLoader() {
   const canvas = document.getElementById('acChart');
-  if (!canvas) return;
+  if (!canvas) {return;}
   if (_acChart) { _acChart.destroy(); _acChart = null; }
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   const noteEl = document.getElementById('acNote');
-  if (noteEl) noteEl.textContent = '⏳ Memuat data historis…';
+  if (noteEl) {noteEl.textContent = '⏳ Memuat data historis…';}
 }
 
 function _acDrawChart(pts, accent, isSynthetic) {
   const canvas = document.getElementById('acChart');
-  if (!canvas) return;
+  if (!canvas) {return;}
   if (_acChart) { _acChart.destroy(); _acChart = null; }
 
   const months = (RANGE_DAYS[_acRange] || 90) / 30;
@@ -224,7 +224,7 @@ function _acDrawChart(pts, accent, isSynthetic) {
   });
 
   const noteEl = document.getElementById('acNote');
-  if (noteEl) noteEl.textContent = isSynthetic ? 'Estimasi — data historis tidak tersedia' : '';
+  if (noteEl) {noteEl.textContent = isSynthetic ? 'Estimasi — data historis tidak tersedia' : '';}
 }
 
 function _acFmtTs(ts, months) {
@@ -242,7 +242,7 @@ function _acSyntheticPts(item, type, m) {
   const vol = { crypto: 0.038, stocks: 0.022, gold: 0.014, savings: 0.001 }[type] || 0.018;
 
   let seed = 0;
-  for (let i = 0; i < item.id.length; i++) seed = (seed * 31 + item.id.charCodeAt(i)) & 0x7fffffff;
+  for (let i = 0; i < item.id.length; i++) {seed = (seed * 31 + item.id.charCodeAt(i)) & 0x7fffffff;}
   const rand = () => { seed = (seed * 1664525 + 1013904223) & 0xffffffff; return (seed >>> 0) / 4294967296; };
   const randn = () => { const u = rand() + 1e-10, v = rand(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
 
@@ -256,8 +256,8 @@ function _acSyntheticPts(item, type, m) {
     const noise = trend * vol * randn();
     return { ts, price: 0, value: Math.max(1, Math.round(trend + noise)) };
   }).map((p, i, a) => {
-    if (i === 0) p.value = cost;
-    if (i === a.length - 1) p.value = current;
+    if (i === 0) {p.value = cost;}
+    if (i === a.length - 1) {p.value = current;}
     return p;
   });
 }
@@ -272,7 +272,7 @@ function openImport() {
     return;
   }
   const overlay = document.getElementById('imp-overlay');
-  if (!overlay) return;
+  if (!overlay) {return;}
   overlay.style.display = 'flex';
   // Allow pointer events while modal is open
   overlay.style.pointerEvents = 'auto';
@@ -284,7 +284,7 @@ function openImport() {
 // Fully resets the modal so re-opening it is always a clean slate.
 function closeImport() {
   const overlay = document.getElementById('imp-overlay');
-  if (!overlay) return;
+  if (!overlay) {return;}
 
   // Remove open class (triggers CSS fade-out if defined)
   overlay.classList.remove('open');
@@ -304,10 +304,10 @@ function closeImport() {
 
     // Clear any preview / result areas
     const preview = overlay.querySelector('#imp-preview, .imp-preview, [data-imp-preview]');
-    if (preview) preview.innerHTML = '';
+    if (preview) {preview.innerHTML = '';}
 
     const result = overlay.querySelector('#imp-result, .imp-result, [data-imp-result]');
-    if (result) result.innerHTML = '';
+    if (result) {result.innerHTML = '';}
 
     // Reset any status / error messages
     const status = overlay.querySelector('#imp-status, .imp-status, [data-imp-status]');
@@ -340,7 +340,7 @@ window._renderAll = function() {
 // Replaces direct window._renderAll checks in those modules so they
 // don't need to know about the render pipeline.
 window.addEventListener('portfolio:update', () => {
-  if (typeof window._renderAll === 'function') window._renderAll();
+  if (typeof window._renderAll === 'function') {window._renderAll();}
 });
 
 // ── [Fix 5] window.App — Public API Namespace ────────────────────
@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Load goal target sekali di awal — bukan setiap render
   const savedGoal = localStorage.getItem('portfolio-goal');
-  if (savedGoal && !isNaN(savedGoal)) S.goalTarget = parseInt(savedGoal);
+  if (savedGoal && !isNaN(savedGoal)) {S.goalTarget = parseInt(savedGoal);}
 
   // Init crypto nav active state
   document.getElementById('cryptoNavAlloc')?.classList.add('crypto-active');
@@ -420,7 +420,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     window._renderAll();
   } catch (e) {
     console.error('[APP] renderAll crashed:', e);
-    const _cs1 = document.getElementById('cloudStatusText') || document.getElementById('cloudStatus'); if(_cs1) _cs1.textContent = 'renderAll crash: ' + e.message;
+    const _cs1 = document.getElementById('cloudStatusText') || document.getElementById('cloudStatus'); if(_cs1) {_cs1.textContent = 'renderAll crash: ' + e.message;}
     document.getElementById('cloudStatus').classList.add('err');
   }
 
@@ -438,12 +438,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     impOverlay.addEventListener('click', (e) => {
       // Only close if the click landed directly on the overlay (backdrop),
       // not on a child element inside the modal box.
-      if (e.target === impOverlay) closeImport();
+      if (e.target === impOverlay) {closeImport();}
     });
   }
 
   document.getElementById('imp-overlay')?.style.setProperty('display', 'none');
-  
+
 });
 
 // Init Cloud - wait for Firebase SDK to be ready
@@ -453,7 +453,7 @@ function initCloudSafe() {
       initCloud();
     } catch (e) {
       console.error('[APP] initCloud crashed:', e);
-      const _cs2 = document.getElementById('cloudStatusText') || document.getElementById('cloudStatus'); if(_cs2) _cs2.textContent = 'initCloud crash: ' + e.message;
+      const _cs2 = document.getElementById('cloudStatusText') || document.getElementById('cloudStatus'); if(_cs2) {_cs2.textContent = 'initCloud crash: ' + e.message;}
       document.getElementById('cloudStatus').classList.add('err');
     }
   } else {
@@ -463,7 +463,7 @@ function initCloudSafe() {
         initCloud();
       } catch (e) {
         console.error('[APP] initCloud crashed:', e);
-        const _cs2 = document.getElementById('cloudStatusText') || document.getElementById('cloudStatus'); if(_cs2) _cs2.textContent = 'initCloud crash: ' + e.message;
+        const _cs2 = document.getElementById('cloudStatusText') || document.getElementById('cloudStatus'); if(_cs2) {_cs2.textContent = 'initCloud crash: ' + e.message;}
         document.getElementById('cloudStatus').classList.add('err');
       }
     }, { once: true });

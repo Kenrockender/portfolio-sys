@@ -40,9 +40,9 @@ const T = {
   basedOnLinearRegression: { en: 'Based on historical linear regression — not market prediction', id: 'Berdasarkan regresi linear historis — bukan prediksi pasar' },
   techSignalsProjectionNote: { en: 'Technical signals & projections will appear after at least 7 historical snapshots', id: 'Sinyal teknikal & proyeksi akan muncul setelah minimal 7 snapshot historis' },
   syncDailyNote: { en: 'Click <strong>SYNC</strong> daily to build portfolio historical data.', id: 'Klik <strong>SYNC</strong> setiap hari untuk membangun data historis portofolio.' },
-  disclaimer: { 
-    en: 'This model uses technical analysis and historical statistics. Projections are <strong>not investment advice</strong> and do not guarantee actual results. Markets can move beyond the model. Always do your own research (DYOR).', 
-    id: 'Model ini menggunakan analisis teknikal dan statistik historis. Proyeksi <strong>bukan saran investasi</strong> dan tidak menjamin hasil aktual. Pasar dapat bergerak di luar model. Selalu lakukan riset mandiri (DYOR).' 
+  disclaimer: {
+    en: 'This model uses technical analysis and historical statistics. Projections are <strong>not investment advice</strong> and do not guarantee actual results. Markets can move beyond the model. Always do your own research (DYOR).',
+    id: 'Model ini menggunakan analisis teknikal dan statistik historis. Proyeksi <strong>bukan saran investasi</strong> dan tidak menjamin hasil aktual. Pasar dapat bergerak di luar model. Selalu lakukan riset mandiri (DYOR).'
   },
   riskIntelligenceQuantitative: { en: 'RISK INTELLIGENCE · QUANTITATIVE', id: 'INTELIJEN RISIKO · KUANTITATIF' },
 };
@@ -68,10 +68,10 @@ const GRADE_COLORS = {
 
 // Map a 0-100 sub-score to the matching 5-tier color
 function scoreColor(s) {
-  if (s < 20) return '#34d399';
-  if (s < 40) return '#a3e635';
-  if (s < 60) return '#fbbf24';
-  if (s < 80) return '#fb923c';
+  if (s < 20) {return '#34d399';}
+  if (s < 40) {return '#a3e635';}
+  if (s < 60) {return '#fbbf24';}
+  if (s < 80) {return '#fb923c';}
   return '#fb7185';
 }
 
@@ -176,7 +176,7 @@ function riskBar(score, weight, label, desc) {
 
 // ── Health metric chip ────────────────────────────────────────────
 function healthChip(label, val, unit, hint, good, warn) {
-  const raw = val != null ? parseFloat(String(val).replace(/[^0-9.\-]/g, '')) : null;
+  const raw = val != null ? parseFloat(String(val).replace(/[^0-9.-]/g, '')) : null;
   const isNum = raw !== null && !isNaN(raw);
 
   const color = !isNum ? 'var(--muted)'
@@ -257,7 +257,7 @@ function renderError(e, title) {
 // ── Main render function ──────────────────────────────────────────
 export function renderMLPanel() {
   const el = document.getElementById('mlPanel');
-  if (!el) return;
+  if (!el) {return;}
 
   // Compute with safety
   try {
@@ -317,7 +317,7 @@ export function renderMLPanel() {
   ].join('');
 
   const dataWarning = (h.dataPoints || 0) < 7
-    ? `<div class="ml-info-note">💡 Sync harga setiap hari untuk analisis lebih akurat. Butuh minimal 7 snapshot.</div>`
+    ? '<div class="ml-info-note">💡 Sync harga setiap hari untuk analisis lebih akurat. Butuh minimal 7 snapshot.</div>'
     : '';
 
   el.innerHTML = `
@@ -485,7 +485,7 @@ export function renderMLPanel() {
 // ── AI Handlers ───────────────────────────────────────────────────
 
 window.runRiskAI = async function () {
-  if (_riskLoading) return;
+  if (_riskLoading) {return;}
   _riskLoading = true;
 
   const card = document.getElementById('mlRiskAiCard');
@@ -512,13 +512,13 @@ window.runRiskAI = async function () {
     out.innerHTML = renderError(e, 'AI Risk Analysis');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Retry AI Analysis`;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Retry AI Analysis';
     _riskLoading = false;
   }
 };
 
 window.runPredictionAI = async function () {
-  if (_predLoading || !_signals) return;
+  if (_predLoading || !_signals) {return;}
   _predLoading = true;
 
   const card = document.getElementById('mlPredAiCard');
@@ -545,7 +545,7 @@ window.runPredictionAI = async function () {
     out.innerHTML = renderError(e, 'AI Price Prediction');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Retry AI Prediction`;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Retry AI Prediction';
     _predLoading = false;
   }
 };

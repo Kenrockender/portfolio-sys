@@ -12,7 +12,7 @@ import { CG_IDS, FX_PAIRS, RANGE_DAYS } from './config.js';
 // ── CoinGecko Price Fetch ────────────────────────────────────────
 export async function fetchCG() {
   const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,ripple&vs_currencies=idr,usd');
-  if (!r.ok) throw 0;
+  if (!r.ok) {throw 0;}
   const d = await r.json();
   const usdIdr = (d.bitcoin?.usd && d.bitcoin?.idr) ? Math.round(d.bitcoin.idr / d.bitcoin.usd) : null;
   return { btcIdr: d.bitcoin.idr, ethIdr: d.ethereum.idr, xrpIdr: d.ripple.idr, usdIdr };
@@ -26,7 +26,7 @@ export async function fetchAltcoinPrices() {
       .map(a => (a.coin || '').toUpperCase())
       .filter(c => !MAJOR.has(c) && CG_IDS[c])
   )];
-  if (coins.length === 0) return;
+  if (coins.length === 0) {return;}
 
   const ids = coins.map(c => CG_IDS[c]).join(',');
   const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=idr`;
@@ -35,13 +35,13 @@ export async function fetchAltcoinPrices() {
   let d = null;
   try {
     const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
-    if (r.ok) d = await r.json();
+    if (r.ok) {d = await r.json();}
   } catch (_) {}
 
   if (!d) {
     try {
       const r = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`, { signal: AbortSignal.timeout(9000) });
-      if (r.ok) d = await r.json();
+      if (r.ok) {d = await r.json();}
     } catch (_) {}
   }
 
@@ -65,7 +65,7 @@ async function _proxyFetch(url) {
   for (const makeProxy of _PROXIES) {
     try {
       const r = await fetch(makeProxy(url), { signal: AbortSignal.timeout(9000) });
-      if (r.ok) return r;
+      if (r.ok) {return r;}
     } catch (_) {}
   }
   throw new Error(`[API] All proxies failed for: ${url}`);
@@ -77,7 +77,7 @@ export async function fetchYahoo(sym) {
   const r = await _proxyFetch(url);
   const d = await r.json();
   const p = d?.chart?.result?.[0]?.meta?.regularMarketPrice;
-  if (!p) throw 0;
+  if (!p) {throw 0;}
   return p;
 }
 
@@ -98,7 +98,7 @@ export async function fetchLogamMulia() {
     } catch (_) {}
   }
 
-  if (!html) throw new Error('[LM] Semua proxy gagal');
+  if (!html) {throw new Error('[LM] Semua proxy gagal');}
 
   // Parse <tr> rows — cari baris yang kolom pertama persis "1 gr"
   // HTML LM: <tr><td>1 gr</td><td>2,902,000</td><td>2,909,255</td></tr>
@@ -121,7 +121,7 @@ export async function fetchLogamMulia() {
 }
 /** Parse angka IDR dari HTML: "1.687.000" → 1687000 */
 function _parseIdrHtml(str) {
-  if (!str) return 0;
+  if (!str) {return 0;}
   // LM HTML pakai koma sebagai thousand separator (bukan titik)
   // e.g. "2,902,000" → hapus semua koma → "2902000"
   return Math.round(parseFloat(String(str).trim().replace(/,/g, '')) || 0);
@@ -132,7 +132,7 @@ function _syncUiStart() {
   const btn = document.getElementById('syncBtn');
   const last = document.getElementById('lastSync');
   if (btn) { btn.disabled = true; btn.classList.add('spinning'); }
-  if (last) last.textContent = 'syncing...';
+  if (last) {last.textContent = 'syncing...';}
 }
 
 function _syncUiEnd(errorMsg = null) {
@@ -168,7 +168,7 @@ export async function syncAllPrices() {
     setPrice('btcIdr', cg.btcIdr || FALLBACK.btcIdr);
     setPrice('ethIdr', cg.ethIdr || FALLBACK.ethIdr);
     setPrice('xrpIdr', cg.xrpIdr || FALLBACK.xrpIdr);
-    if (cg.usdIdr) setPrice('usdIdr', cg.usdIdr);
+    if (cg.usdIdr) {setPrice('usdIdr', cg.usdIdr);}
 
     setStatus('btc', 'live');
     setStatus('eth', 'live');
@@ -281,7 +281,7 @@ export async function syncAllPrices() {
   try {
     if ('setAppBadge' in navigator) {
       const total = Object.values(window.__portfolioTotals || {}).reduce((s, v) => s + (v || 0), 0);
-      if (total > 0) navigator.setAppBadge(Math.round(total / 1_000_000));
+      if (total > 0) {navigator.setAppBadge(Math.round(total / 1_000_000));}
     }
   } catch (_) {}
 
@@ -321,7 +321,7 @@ const _historyCache = {};  // { key: { pts, ts } }
 
 function _cacheGet(key) {
   const entry = _historyCache[key];
-  if (!entry) return null;
+  if (!entry) {return null;}
   if (Date.now() - entry.ts > _CACHE_TTL) { delete _historyCache[key]; return null; }
   return entry.pts;
 }
@@ -335,16 +335,16 @@ export async function fetchAssetPriceHistory(item, type, range) {
   const cacheKey = `${type}:${item.id}:${range}`;
 
   const cached = _cacheGet(cacheKey);
-  if (cached) return cached;
+  if (cached) {return cached;}
 
   try {
     if (type === 'crypto') {
       const cgId = CG_IDS[item.coin];
-      if (!cgId) return null;
+      if (!cgId) {return null;}
 
       const url = `https://api.coingecko.com/api/v3/coins/${cgId}/market_chart?vs_currency=idr&days=${days}&interval=daily`;
       const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
-      if (!r.ok) return null;
+      if (!r.ok) {return null;}
 
       const d = await r.json();
       const pts = (d.prices || []).map(([ts, price]) => ({
@@ -363,11 +363,11 @@ export async function fetchAssetPriceHistory(item, type, range) {
       const url = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=${rangeStr}`;
 
       const raw = await _proxyFetch(url).catch(() => null);
-      if (!raw) return null;
+      if (!raw) {return null;}
 
       const d = await raw.json();
       const result = d?.chart?.result?.[0];
-      if (!result) return null;
+      if (!result) {return null;}
 
       const times = result.timestamp || [];
       const closes = result.indicators?.quote?.[0]?.close || [];
@@ -381,7 +381,7 @@ export async function fetchAssetPriceHistory(item, type, range) {
 
       const pts = times.map((ts, i) => {
         const price = closes[i];
-        if (!price) return null;
+        if (!price) {return null;}
         const priceIdr = toIdr(price);
         return { ts: ts * 1000, price: priceIdr, value: Math.round(mul * priceIdr) };
       }).filter(Boolean);
@@ -395,11 +395,11 @@ export async function fetchAssetPriceHistory(item, type, range) {
       const url = `https://query2.finance.yahoo.com/v8/finance/chart/GC%3DF?interval=1d&range=${rangeStr}`;
 
       const raw = await _proxyFetch(url).catch(() => null);
-      if (!raw) return null;
+      if (!raw) {return null;}
 
       const d = await raw.json();
       const result = d?.chart?.result?.[0];
-      if (!result) return null;
+      if (!result) {return null;}
 
       const times = result.timestamp || [];
       const closes = result.indicators?.quote?.[0]?.close || [];
@@ -407,7 +407,7 @@ export async function fetchAssetPriceHistory(item, type, range) {
 
       const pts = times.map((ts, i) => {
         const priceUsdOz = closes[i];
-        if (!priceUsdOz) return null;
+        if (!priceUsdOz) {return null;}
         const priceIdrGram = (priceUsdOz / OZ_TO_GRAM) * S.usdIdr;
         return { ts: ts * 1000, price: Math.round(priceIdrGram), value: Math.round(item.grams * priceIdrGram) };
       }).filter(Boolean);

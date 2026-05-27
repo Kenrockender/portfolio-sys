@@ -43,7 +43,7 @@ export function applyI18n() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
     const val = t(key);
-    if (val) el.textContent = val;
+    if (val) {el.textContent = val;}
   });
 
   document.getElementById('searchInput').placeholder = S.lang === 'id' ? 'Cari aset / ticker…' : 'Search asset / ticker…';
@@ -76,7 +76,7 @@ export const THEMES = [
 export function setTheme(id) {
   S.theme = id;
   applyTheme();
-  if (typeof window._destroyAllCharts === 'function') window._destroyAllCharts();
+  if (typeof window._destroyAllCharts === 'function') {window._destroyAllCharts();}
   window.dispatchEvent(new CustomEvent('portfolio:update'));
 }
 
@@ -87,7 +87,7 @@ export function toggleTheme() {
 
 export function openThemePicker() {
   const overlay = document.getElementById('themePickerOverlay');
-  if (!overlay) return;
+  if (!overlay) {return;}
   _buildThemePicker();
   overlay.classList.add('open');
 }
@@ -98,7 +98,7 @@ export function closeThemePicker() {
 
 function _buildThemePicker() {
   const grid = document.getElementById('themePickerGrid');
-  if (!grid) return;
+  if (!grid) {return;}
   grid.innerHTML = THEMES.map(th => {
     const isLight = th.id === 'light' || th.id === 'solarized';
     const textCol = isLight ? '#1e293b' : '#dde4f0';
@@ -127,7 +127,7 @@ function _updateThemePickerActive() {
   if (btn) {
     const cur = THEMES.find(t => t.id === S.theme);
     const icons = { dark:'Dark', light:'Light', midnight:'Midnight', forest:'Forest', dracula:'Dracula', amoled:'AMOLED', solarized:'Solar', colorful:'Color' };
-    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="13.5" cy="6.5" r="1.3"/><circle cx="17.5" cy="10.5" r="1.3"/><circle cx="8.5" cy="7.5" r="1.3"/><circle cx="6.5" cy="12.5" r="1.3"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c.98 0 1.78-.81 1.78-1.78 0-.47-.19-.9-.5-1.2-.29-.3-.5-.73-.5-1.14 0-.98.78-1.78 1.78-1.78H16c2.76 0 5-2.24 5-5 0-4.97-4.03-9-9-9z"/></svg>`;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="13.5" cy="6.5" r="1.3"/><circle cx="17.5" cy="10.5" r="1.3"/><circle cx="8.5" cy="7.5" r="1.3"/><circle cx="6.5" cy="12.5" r="1.3"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c.98 0 1.78-.81 1.78-1.78 0-.47-.19-.9-.5-1.2-.29-.3-.5-.73-.5-1.14 0-.98.78-1.78 1.78-1.78H16c2.76 0 5-2.24 5-5 0-4.97-4.03-9-9-9z"/></svg>';
     btn.title = `Theme: ${cur?.label || S.theme}`;
   }
   // Update mobile button
@@ -141,7 +141,7 @@ function _updateThemePickerActive() {
 // ── Tab Navigation ────────────────────────────────────────────────
 export function setTab(tab) {
   // Redirect legacy ML tab → analytics
-  if (tab === 'ml') tab = 'analytics';
+  if (tab === 'ml') {tab = 'analytics';}
 
   ['home', 'holdings', 'history', 'analytics', 'txlog', 'rebalance'].forEach(id => {
     document.getElementById('panel' + id.charAt(0).toUpperCase() + id.slice(1))?.classList.toggle('active', id === tab);
@@ -151,13 +151,13 @@ export function setTab(tab) {
   if (tab === 'analytics') {
     renderAnalytics();
     requestAnimationFrame(() => {
-      if (typeof window.renderMLPanel === 'function') window.renderMLPanel();
+      if (typeof window.renderMLPanel === 'function') {window.renderMLPanel();}
     });
   }
-  if (tab === 'history')   renderHistoryPanel();
-  if (tab === 'txlog')     renderTxLog();
-  if (tab === 'rebalance') renderRebalance();
-  if (tab === 'home') window.dispatchEvent(new CustomEvent('portfolio:update'));
+  if (tab === 'history')   {renderHistoryPanel();}
+  if (tab === 'txlog')     {renderTxLog();}
+  if (tab === 'rebalance') {renderRebalance();}
+  if (tab === 'home') {window.dispatchEvent(new CustomEvent('portfolio:update'));}
 }
 
 // ── Tax Mode Toggle ───────────────────────────────────────────────
@@ -172,10 +172,10 @@ export function setTaxMode(mode) {
 // ── Render History Panel ──────────────────────────────────────────
 function renderHistoryPanel() {
   const list = document.getElementById('snapshotList');
-  if (!list) return;
-  
+  if (!list) {return;}
+
   const history = S.historyData || [];
-  
+
   if (history.length === 0) {
     list.innerHTML = `
       <p style="text-align:center;padding:20px;line-height:1.8">
@@ -184,7 +184,7 @@ function renderHistoryPanel() {
       </p>`;
     return;
   }
-  
+
   // Show last 30 snapshots
   const recent = history.slice(-30).reverse();
   list.innerHTML = recent.map((h, i) => `
@@ -219,7 +219,7 @@ export function setHistoryRange(r) {
   // Preserve language state before updating
   const savedLang = S.lang;
   S.historyRange = r;
-  
+
   // Ensure language is preserved after render
   window.dispatchEvent(new CustomEvent('portfolio:update'));
   // Re-apply language state
@@ -269,17 +269,17 @@ let _lastPlatformKey = '';
 
 export function buildPlatformOptions() {
   const platforms = new Set();
-  DATA.crypto.forEach(a => { if (a.platform) platforms.add(a.platform); });
+  DATA.crypto.forEach(a => { if (a.platform) {platforms.add(a.platform);} });
   DATA.gold.forEach(() => platforms.add('physical'));
-  DATA.stocks.forEach(h => { if (h.broker) platforms.add(h.broker); });
-  DATA.savings.forEach(a => { if (a.bank) platforms.add(a.bank); });
+  DATA.stocks.forEach(h => { if (h.broker) {platforms.add(h.broker);} });
+  DATA.savings.forEach(a => { if (a.bank) {platforms.add(a.bank);} });
 
   const key = [...platforms].sort().join('|');
   const sel = document.getElementById('platformFilter');
   const cur = sel?.value;
 
   // Only rebuild DOM if platform list actually changed
-  if (key === _lastPlatformKey) return;
+  if (key === _lastPlatformKey) {return;}
   _lastPlatformKey = key;
 
   sel.innerHTML = `<option value="">${t('all_platforms')}</option>` +
@@ -356,7 +356,7 @@ export function renderKPIs(T, M) {
 // ── Edit Goal Target ──────────────────────────────────────────────
 export function editGoalTarget() {
   const el = document.getElementById('goalTargetLabel');
-  if (!el || el.querySelector('input')) return;
+  if (!el || el.querySelector('input')) {return;}
 
   // Tampilkan nilai dalam IDR penuh, bukan "Jt" — lebih jelas saat edit
   const current = S.goalTarget;
@@ -397,7 +397,7 @@ export function saveGoalTarget(val) {
 export function renderPriceBar() {
   const s = (id, p, st) => {
     const d = document.getElementById('d-' + id), v = document.getElementById('p-' + id);
-    if (d) d.className = `pdot ${st}`;
+    if (d) {d.className = `pdot ${st}`;}
     if (v) { v.className = `val ${st}`; v.textContent = p; }
   };
 
@@ -412,7 +412,7 @@ export function renderPriceBar() {
   if (bar) {
     const seen = new Set();
     const unique = DATA.stocks.filter(h => {
-      if (!S.stockPrices[h.ticker] || seen.has(h.ticker)) return false;
+      if (!S.stockPrices[h.ticker] || seen.has(h.ticker)) {return false;}
       seen.add(h.ticker);
       return true;
     });
@@ -425,7 +425,7 @@ export function renderPriceBar() {
 // ── Render FX Ticker Bar ──────────────────────────────────────────
 export function renderFxTickerBar() {
   const bar = document.getElementById('fxTickerBar');
-  if (!bar) return;
+  if (!bar) {return;}
 
   const shown = ['USD', 'SGD', 'EUR', 'GBP', 'AUD', 'JPY'];
   bar.innerHTML = shown.map(ccy =>
@@ -437,7 +437,7 @@ export function renderFxTickerBar() {
 function buildRow({ id, type, iconCls, icon, name, tagsHtml, sub, val, pct, barCol, liveStr, liveSt, metrics, yieldPct }) {
   const pnlBadge = metrics?.pnl != null
     ? `<span class="pnl-badge ${metrics.pnl >= 0 ? 'up' : 'down'}">${metrics.pnl >= 0 ? '+' : ''}${metrics.ret?.toFixed(1)}%</span>`
-    : `<span class="pnl-badge na">N/A</span>`;
+    : '<span class="pnl-badge na">N/A</span>';
 
   const yieldBadge = yieldPct ? `<span class="asset-yield-badge">${yieldPct}% p.a.</span>` : '';
   const liveStr2 = liveStr ? `<div class="asset-live ${liveSt || ''}">${liveStr}</div>` : '';
@@ -478,9 +478,9 @@ function _sectionFp(assets, type) {
 // Update a single value node by id (no-op if element absent)
 function _set(id, text, cls) {
   const el = document.getElementById(id);
-  if (!el) return;
+  if (!el) {return;}
   el.textContent = text;
-  if (cls !== undefined) el.className = cls;
+  if (cls !== undefined) {el.className = cls;}
 }
 
 // ── Render Crypto Rows ────────────────────────────────────────────
@@ -506,7 +506,7 @@ export function renderCrypto(T) {
       const p = cryptoPrice(a), v = a.amount * p, pct = T.c > 0 ? v / T.c * 100 : 0;
       const m = assetMetrics('crypto', a);
       const row = document.getElementById('row-' + a.id);
-      if (!row) return;
+      if (!row) {return;}
       row.querySelector('.asset-value').textContent = toDisp(v);
       row.querySelector('.asset-qty').textContent = pct.toFixed(1) + '% of class';
       row.querySelector('.alloc-bar').style.width = pct.toFixed(1) + '%';
@@ -569,9 +569,9 @@ export function renderGold(T) {
   const pp = document.getElementById('goldPanelPrice');
   const pg = document.getElementById('goldPanelGrams');
   const pa = document.getElementById('goldPanelAvgBuy');
-  if (pp) pp.textContent = dispPrice(S.goldGramIdr);
-  if (pg) pg.textContent = totalGrams.toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' g';
-  if (pa) pa.textContent = avgBuy > 0 ? dispPrice(avgBuy) : '–';
+  if (pp) {pp.textContent = dispPrice(S.goldGramIdr);}
+  if (pg) {pg.textContent = totalGrams.toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' g';}
+  if (pa) {pa.textContent = avgBuy > 0 ? dispPrice(avgBuy) : '–';}
 
   const assets = filterAssets(DATA.gold, 'gold');
   if (assets.length === 0) {
@@ -589,7 +589,7 @@ export function renderGold(T) {
       const v = h.grams * S.goldGramIdr, pct = T.g > 0 ? v / T.g * 100 : 0;
       const m = assetMetrics('gold', h);
       const row = document.getElementById('row-' + h.id);
-      if (!row) return;
+      if (!row) {return;}
       row.querySelector('.asset-value').textContent = toDisp(v);
       row.querySelector('.asset-qty').textContent = pct.toFixed(1) + '% of class';
       row.querySelector('.alloc-bar').style.width = pct.toFixed(1) + '%';
@@ -642,7 +642,7 @@ export function renderStocks(T) {
   const groups = {};
   assets.forEach(h => {
     const key = h.ticker;
-    if (!groups[key]) groups[key] = [];
+    if (!groups[key]) {groups[key] = [];}
     groups[key].push(h);
   });
 
@@ -664,9 +664,9 @@ export function renderStocks(T) {
       const liveStr = `${isIDX ? `Rp ${Math.round(p).toLocaleString('id-ID')}` : dispPrice(p)} / share`;
 
       const groupEl = document.getElementById(`stkgrp-${ticker}`);
-      if (!groupEl) return;
+      if (!groupEl) {return;}
       const mainRow = groupEl.querySelector('.asset-row');
-      if (!mainRow) return;
+      if (!mainRow) {return;}
       mainRow.querySelector('.asset-value').textContent = toDisp(totalVal);
       mainRow.querySelector('.asset-qty').textContent = pct.toFixed(1) + '% of class';
       mainRow.querySelector('.alloc-bar').style.width = pct.toFixed(1) + '%';
@@ -684,7 +684,7 @@ export function renderStocks(T) {
       if (entries.length > 1) {
         entries.forEach(h => {
           const subRow = document.getElementById(`subrow-${h.id}`);
-          if (!subRow) return;
+          if (!subRow) {return;}
           const hVal = h.shares * mul * p;
           const hCost = h.shares * mul * (h.seedPrice || 0);
           const hPnl = hCost > 0 ? hVal - hCost : null;
@@ -723,7 +723,7 @@ export function renderStocks(T) {
 
     const pnlBadge = pnl != null
       ? `<span class="pnl-badge ${pnl >= 0 ? 'up' : 'down'}">${pnl >= 0 ? '+' : ''}${ret?.toFixed(1)}%</span>`
-      : `<span class="pnl-badge na">N/A</span>`;
+      : '<span class="pnl-badge na">N/A</span>';
 
     const multiTag = entries.length > 1
       ? `<span class="ptag" style="background:rgba(99,102,241,.15);color:#818cf8;border-color:rgba(99,102,241,.3)">${entries.length}×</span>`
@@ -779,7 +779,7 @@ export function renderStocks(T) {
         </div>
         ${entries.length > 1
           ? `<span class="asset-expand-chevron" id="chev-${groupId}" style="opacity:.5;transition:transform .25s">▾</span>`
-          : `<span class="asset-expand-chevron" style="opacity:.35"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg></span>`
+          : '<span class="asset-expand-chevron" style="opacity:.35"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg></span>'
         }
       </div>
       ${entries.length > 1 ? `<div class="stk-sub-list" id="sub-${groupId}" style="display:none">${subRows}</div>` : ''}
@@ -791,10 +791,10 @@ export function renderStocks(T) {
 window.toggleStkGroup = function(groupId) {
   const subList = document.getElementById('sub-' + groupId);
   const chev    = document.getElementById('chev-' + groupId);
-  if (!subList) return;
+  if (!subList) {return;}
   const isOpen = subList.style.display !== 'none';
   subList.style.display = isOpen ? 'none' : 'block';
-  if (chev) chev.style.transform = isOpen ? '' : 'rotate(180deg)';
+  if (chev) {chev.style.transform = isOpen ? '' : 'rotate(180deg)';}
 };
 
 // ── Render Savings Rows ───────────────────────────────────────────
@@ -817,7 +817,7 @@ export function renderSavings(T) {
       const aIdr = savingsIdr(a);
       const pct = T.sv > 0 ? aIdr / T.sv * 100 : 0;
       const row = document.getElementById('row-' + a.id);
-      if (!row) return;
+      if (!row) {return;}
       row.querySelector('.asset-value').textContent = toDisp(aIdr);
       row.querySelector('.asset-qty').textContent = pct.toFixed(1) + '% of class';
       row.querySelector('.alloc-bar').style.width = pct.toFixed(1) + '%';
@@ -853,7 +853,7 @@ export function renderSavings(T) {
 // ── Render Section Metrics ────────────────────────────────────────
 export function renderSectionMetrics(M, income) {
   // income is pre-computed by renderAll — no need to call computeAnnualIncome() again
-  if (!income) income = computeAnnualIncome();
+  if (!income) {income = computeAnnualIncome();}
   const f = (id, v, cls) => {
     const el = document.getElementById(id);
     if (el) { el.textContent = v; el.className = `sm-val ${cls}`; }
@@ -904,7 +904,7 @@ export function renderAnalytics() {
       <div class="analytics-stat"><div class="an-label">Total Return</div><div class="an-value an-na">–</div></div>
       <div class="analytics-stat"><div class="an-label">Daily Change</div><div class="an-value an-na">–</div></div>
       <div class="analytics-stat"><div class="an-label">Weekly Change</div><div class="an-value an-na">–</div></div>`;
-    note.textContent = "Butuh minimal 2 snapshot historis (sync tiap hari)";
+    note.textContent = 'Butuh minimal 2 snapshot historis (sync tiap hari)';
     return;
   }
 
@@ -945,12 +945,12 @@ export function renderAnalytics() {
   }
 
   // Render ML / Risk Intelligence panel (merged into analytics)
-  if (typeof window.renderMLPanel === 'function') window.renderMLPanel();
+  if (typeof window.renderMLPanel === 'function') {window.renderMLPanel();}
 }
 
 // ── Render All ────────────────────────────────────────────────────
 export function renderAll(T) {
-  if (!T) T = totals();
+  if (!T) {T = totals();}
   const M = computeMetrics(T);
   const income = computeAnnualIncome();
 
@@ -974,7 +974,7 @@ let _pendingDelItem = null, _pendingDelType = null;
 
 // ── Transaction Log Helper ────────────────────────────────────────
 function _logTx(action, type, item, prevItem = null) {
-  if (!DATA.txLog) DATA.txLog = [];
+  if (!DATA.txLog) {DATA.txLog = [];}
 
   const typeLabels = { crypto: 'Crypto', gold: 'Gold', stocks: 'Stocks', savings: 'Savings' };
   let name = '–', detail = '';
@@ -997,15 +997,15 @@ function _logTx(action, type, item, prevItem = null) {
   if (action === 'EDIT' && prevItem) {
     const changes = [];
     if (type === 'crypto') {
-      if (prevItem.amount !== item?.amount) changes.push(`amount: ${prevItem.amount} → ${item?.amount}`);
-      if (prevItem.costBasisIdr !== item?.costBasisIdr) changes.push(`cost: Rp ${(prevItem.costBasisIdr||0).toLocaleString('id-ID')} → Rp ${(item?.costBasisIdr||0).toLocaleString('id-ID')}`);
+      if (prevItem.amount !== item?.amount) {changes.push(`amount: ${prevItem.amount} → ${item?.amount}`);}
+      if (prevItem.costBasisIdr !== item?.costBasisIdr) {changes.push(`cost: Rp ${(prevItem.costBasisIdr||0).toLocaleString('id-ID')} → Rp ${(item?.costBasisIdr||0).toLocaleString('id-ID')}`);}
     } else if (type === 'stocks') {
-      if (prevItem.shares !== item?.shares) changes.push(`shares: ${prevItem.shares} → ${item?.shares}`);
-      if (prevItem.seedPrice !== item?.seedPrice) changes.push(`price: ${prevItem.seedPrice} → ${item?.seedPrice}`);
+      if (prevItem.shares !== item?.shares) {changes.push(`shares: ${prevItem.shares} → ${item?.shares}`);}
+      if (prevItem.seedPrice !== item?.seedPrice) {changes.push(`price: ${prevItem.seedPrice} → ${item?.seedPrice}`);}
     } else if (type === 'savings') {
-      if (prevItem.foreignAmt !== item?.foreignAmt) changes.push(`balance: ${prevItem.foreignAmt} → ${item?.foreignAmt}`);
+      if (prevItem.foreignAmt !== item?.foreignAmt) {changes.push(`balance: ${prevItem.foreignAmt} → ${item?.foreignAmt}`);}
     }
-    if (changes.length) detail = changes.join(', ');
+    if (changes.length) {detail = changes.join(', ');}
   }
 
   DATA.txLog.unshift({
@@ -1018,7 +1018,7 @@ function _logTx(action, type, item, prevItem = null) {
   });
 
   // Simpan max 200 entri
-  if (DATA.txLog.length > 200) DATA.txLog.length = 200;
+  if (DATA.txLog.length > 200) {DATA.txLog.length = 200;}
 }
 
 const MODALS = {
@@ -1108,7 +1108,7 @@ const MODALS = {
     save() { DATA.crypto.push({ id: uid(), ...this.getData() }); },
     edit(id) {
       const i = DATA.crypto.findIndex(x => x.id === id);
-      if (i >= 0) DATA.crypto[i] = { ...DATA.crypto[i], ...this.getData() };
+      if (i >= 0) {DATA.crypto[i] = { ...DATA.crypto[i], ...this.getData() };}
     }
   },
   gold: {
@@ -1137,7 +1137,7 @@ const MODALS = {
     save() { DATA.gold.push({ id: uid(), ...this.getData() }); },
     edit(id) {
       const i = DATA.gold.findIndex(x => x.id === id);
-      if (i >= 0) DATA.gold[i] = { ...DATA.gold[i], ...this.getData() };
+      if (i >= 0) {DATA.gold[i] = { ...DATA.gold[i], ...this.getData() };}
     }
   },
   stocks: {
@@ -1190,7 +1190,7 @@ const MODALS = {
     getData() {
       const bv = document.getElementById('f-broker').value;
       const fb = bv === 'other' ? (document.getElementById('f-broker-custom').value || 'Other') : bv;
-      const nf = document.getElementById('f-name'); if (nf) nf.readOnly = false;
+      const nf = document.getElementById('f-name'); if (nf) {nf.readOnly = false;}
       return {
         ticker: document.getElementById('f-ticker').value,
         name: document.getElementById('f-name').value || document.getElementById('f-ticker').value,
@@ -1205,7 +1205,7 @@ const MODALS = {
     save() { DATA.stocks.push({ id: uid(), ...this.getData() }); },
     edit(id) {
       const i = DATA.stocks.findIndex(x => x.id === id);
-      if (i >= 0) DATA.stocks[i] = { ...DATA.stocks[i], ...this.getData() };
+      if (i >= 0) {DATA.stocks[i] = { ...DATA.stocks[i], ...this.getData() };}
     }
   },
   savings: {
@@ -1256,7 +1256,7 @@ const MODALS = {
     save() { DATA.savings.push({ id: uid(), ...this.getData() }); },
     edit(id) {
       const i = DATA.savings.findIndex(x => x.id === id);
-      if (i >= 0) DATA.savings[i] = { ...DATA.savings[i], ...this.getData() };
+      if (i >= 0) {DATA.savings[i] = { ...DATA.savings[i], ...this.getData() };}
     }
   }
 };
@@ -1270,7 +1270,7 @@ function validateModal(sec) {
   const errors = [];
   const markErr = (id, msg) => {
     const el = document.getElementById(id);
-    if (!el) return;
+    if (!el) {return;}
     el.classList.add('input-error');
     const e = document.createElement('div');
     e.className = 'modal-field-error';
@@ -1282,36 +1282,36 @@ function validateModal(sec) {
   const str = id => (document.getElementById(id)?.value || '').trim();
   const validateDate = () => {
     const dv = str('f-date');
-    if (!dv) return;
+    if (!dv) {return;}
     const d = new Date(dv);
     if (isNaN(d.getTime())) { markErr('f-date', 'Format tanggal tidak valid'); return; }
     const today = new Date(); today.setHours(23,59,59,999);
-    if (d > today) markErr('f-date', 'Tanggal tidak boleh di masa depan');
-    if (d < new Date('2000-01-01')) markErr('f-date', 'Tanggal terlalu jauh ke belakang');
+    if (d > today) {markErr('f-date', 'Tanggal tidak boleh di masa depan');}
+    if (d < new Date('2000-01-01')) {markErr('f-date', 'Tanggal terlalu jauh ke belakang');}
   };
   if (sec === 'crypto') {
-    if (num('f-amount') <= 0)      markErr('f-amount',    'Jumlah harus lebih dari 0');
-    if (num('f-costbasis') < 0)    markErr('f-costbasis', 'Modal beli tidak boleh negatif');
+    if (num('f-amount') <= 0)      {markErr('f-amount',    'Jumlah harus lebih dari 0');}
+    if (num('f-costbasis') < 0)    {markErr('f-costbasis', 'Modal beli tidak boleh negatif');}
     validateDate();
   }
   if (sec === 'gold') {
-    if (!str('f-name'))            markErr('f-name',       'Deskripsi wajib diisi');
-    if (num('f-grams') <= 0)       markErr('f-grams',      'Berat harus lebih dari 0');
-    if (num('f-costpergram') <= 0) markErr('f-costpergram','Harga beli/gram harus lebih dari 0');
+    if (!str('f-name'))            {markErr('f-name',       'Deskripsi wajib diisi');}
+    if (num('f-grams') <= 0)       {markErr('f-grams',      'Berat harus lebih dari 0');}
+    if (num('f-costpergram') <= 0) {markErr('f-costpergram','Harga beli/gram harus lebih dari 0');}
     validateDate();
   }
   if (sec === 'stocks') {
-    if (!str('f-ticker'))          markErr('f-ticker', 'Kode saham wajib diisi');
-    if (num('f-shares') <= 0)      markErr('f-shares', 'Jumlah lot/lembar harus lebih dari 0');
+    if (!str('f-ticker'))          {markErr('f-ticker', 'Kode saham wajib diisi');}
+    if (num('f-shares') <= 0)      {markErr('f-shares', 'Jumlah lot/lembar harus lebih dari 0');}
     const y = parseFloat(document.getElementById('f-yield')?.value);
-    if (!isNaN(y) && (y < 0 || y > 100)) markErr('f-yield', 'Yield harus antara 0–100%');
+    if (!isNaN(y) && (y < 0 || y > 100)) {markErr('f-yield', 'Yield harus antara 0–100%');}
     validateDate();
   }
   if (sec === 'savings') {
-    if (!str('f-name'))            markErr('f-name', 'Nama rekening wajib diisi');
-    if (num('f-amt') <= 0)         markErr('f-amt',  'Saldo harus lebih dari 0');
+    if (!str('f-name'))            {markErr('f-name', 'Nama rekening wajib diisi');}
+    if (num('f-amt') <= 0)         {markErr('f-amt',  'Saldo harus lebih dari 0');}
     const y = parseFloat(document.getElementById('f-yield')?.value);
-    if (!isNaN(y) && (y < 0 || y > 100)) markErr('f-yield', 'Yield harus antara 0–100%');
+    if (!isNaN(y) && (y < 0 || y > 100)) {markErr('f-yield', 'Yield harus antara 0–100%');}
     validateDate();
   }
   return errors.length === 0;
@@ -1320,7 +1320,7 @@ function validateModal(sec) {
 export function openModal(sec, editId = null) {
   _sec = sec; _editId = editId;
   const m = MODALS[sec], isEdit = !!editId;
-  let ed = isEdit ? DATA[sec].find(x => x.id === editId) || null : null;
+  const ed = isEdit ? DATA[sec].find(x => x.id === editId) || null : null;
 
   document.getElementById('modalTitle').textContent = (isEdit ? t('label_edit_mode') + ' — ' : '') + m.title;
   document.getElementById('modalSub').textContent = m.sub;
@@ -1331,12 +1331,12 @@ export function openModal(sec, editId = null) {
 
   if (!isEdit) {
     const df = document.getElementById('f-date');
-    if (df) df.value = new Date().toISOString().split('T')[0];
+    if (df) {df.value = new Date().toISOString().split('T')[0];}
   }
 
   ['f-platform', 'f-broker', 'f-bank'].forEach(id => {
     const el = document.getElementById(id), ci = document.getElementById(id + '-custom');
-    if (el && ci && el.value === 'other') ci.style.display = 'block';
+    if (el && ci && el.value === 'other') {ci.style.display = 'block';}
   });
 }
 
@@ -1346,15 +1346,15 @@ export function closeModal() {
 }
 
 export function saveModal() {
-  if (!_sec) return;
-  if (!validateModal(_sec)) return;
+  if (!_sec) {return;}
+  if (!validateModal(_sec)) {return;}
   const m = MODALS[_sec];
   const isEdit = !!_editId;
 
   // Snapshot item sebelum edit (untuk log)
   const prevItem = isEdit ? JSON.parse(JSON.stringify(DATA[_sec]?.find(x => x.id === _editId) || {})) : null;
 
-  if (isEdit) m.edit(_editId); else m.save();
+  if (isEdit) {m.edit(_editId);} else {m.save();}
 
   // Log transaction
   const newItem = isEdit
@@ -1364,7 +1364,7 @@ export function saveModal() {
 
   closeModal();
   saveDataToCloud();
-  if (_sec === 'stocks') syncStocksOnly(); else renderAll();
+  if (_sec === 'stocks') {syncStocksOnly();} else {renderAll();}
 }
 
 // ── Delete Logic ──────────────────────────────────────────────────
@@ -1382,7 +1382,7 @@ export function del(id) {
 }
 
 export function confirmDel() {
-  if (!_pendingDelId) return;
+  if (!_pendingDelId) {return;}
   _logTx('DELETE', _pendingDelType, _pendingDelItem);
   ['crypto', 'gold', 'stocks', 'savings'].forEach(k => { DATA[k] = DATA[k].filter(x => x.id !== _pendingDelId); });
   _pendingDelId = null; _pendingDelItem = null; _pendingDelType = null;
@@ -1408,16 +1408,16 @@ window.toggleCustomInput = function (sel, ciId) {
 window.onCoinChange = function () {
   const v = document.getElementById('f-coin')?.value;
   const ci = document.getElementById('f-coin-custom');
-  if (!ci) return;
+  if (!ci) {return;}
   if (v === 'OTHER') { ci.style.display = 'block'; ci.focus(); }
   else { ci.style.display = 'none'; ci.value = ''; }
 };
 
 window.onSavingsCcyChange = function () {
   const ccy = document.getElementById('f-ccy')?.value;
-  if (!ccy) return;
+  if (!ccy) {return;}
   const lbl = document.getElementById('f-amt-label'), hint = document.getElementById('fxHint');
-  if (lbl) lbl.textContent = `${t('f_balance')} (${ccy})`;
+  if (lbl) {lbl.textContent = `${t('f_balance')} (${ccy})`;}
   if (hint) {
     const rate = S.fxRates[ccy];
     if (ccy === 'IDR') { hint.textContent = ''; }
@@ -1429,7 +1429,7 @@ window.onSavingsCcyChange = function () {
 window.autoFillStockName = function (ticker) {
   const ni = document.getElementById('f-name');
   const mktEl = document.getElementById('f-market');
-  if (!ni || !mktEl) return;
+  if (!ni || !mktEl) {return;}
 
   // Auto-detect correct market from ticker if not editing
   const allMaps = [
@@ -1456,19 +1456,19 @@ window.autoFillStockName = function (ticker) {
 // Rebuild datalist and shares label when market dropdown changes
 window.onMarketChange = function () {
   const mkt = document.getElementById('f-market')?.value;
-  if (!mkt) return;
+  if (!mkt) {return;}
   _updateStockDatalist(mkt);
   _updateSharesLabel(mkt);
   // Clear ticker and name when market changes so user picks from correct list
   const tickerEl = document.getElementById('f-ticker');
   const nameEl   = document.getElementById('f-name');
-  if (tickerEl) tickerEl.value = '';
+  if (tickerEl) {tickerEl.value = '';}
   if (nameEl)   { nameEl.value = ''; nameEl.readOnly = true; }
 };
 
 function _updateStockDatalist(mkt) {
   const dl = document.getElementById('stock-list');
-  if (!dl) return;
+  if (!dl) {return;}
   const entries = mkt === 'IDX' ? Object.entries(POPULAR_STOCKS_IDX)
     : mkt === 'US' ? Object.entries(US_STOCKS)
     : Object.entries(INDEX_FUNDS);
@@ -1477,7 +1477,7 @@ function _updateStockDatalist(mkt) {
 
 function _updateSharesLabel(mkt) {
   const lbl = document.getElementById('f-shares-label');
-  if (!lbl) return;
+  if (!lbl) {return;}
   lbl.textContent = mkt === 'IDX' ? 'Lot' : mkt === 'INDEX' ? 'Unit / Lembar' : 'Shares';
 }
 
@@ -1485,7 +1485,7 @@ async function previewPrice() {
   const ticker = document.getElementById('f-ticker')?.value?.trim()?.toUpperCase();
   const mk = document.getElementById('f-market')?.value;
   const hint = document.getElementById('tickerHint'), pe = document.getElementById('f-price');
-  if (!ticker || !hint) return;
+  if (!ticker || !hint) {return;}
   hint.textContent = '↻ mengambil harga live…'; hint.className = 'fetch-hint spin';
   try {
     // IDX → append .JK; INDEX and US → use ticker as-is (^GSPC, SPY, AAPL etc.)
@@ -1495,7 +1495,7 @@ async function previewPrice() {
     const isIdrIndex = mk === 'INDEX' && (ticker.startsWith('^IH') || ticker.startsWith('^LQ') || ticker.startsWith('^ID'));
     const pIdr = (mk === 'US' || (mk === 'INDEX' && !isIdrIndex)) ? Math.round(p * S.usdIdr) : Math.round(p);
     hint.textContent = `${dispPrice(pIdr)} (live)`; hint.className = 'fetch-hint ok';
-    if (pe) pe.value = pIdr;
+    if (pe) {pe.value = pIdr;}
   } catch {
     hint.textContent = t('ticker_not_found'); hint.className = 'fetch-hint err';
   }
@@ -1504,10 +1504,10 @@ async function previewPrice() {
 async function fetchYahoo(sym) {
   const url = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=1d`;
   const r = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`, { signal: AbortSignal.timeout(9000) });
-  if (!r.ok) throw 0;
+  if (!r.ok) {throw 0;}
   const d = await r.json();
   const p = d?.chart?.result?.[0]?.meta?.regularMarketPrice;
-  if (!p) throw 0;
+  if (!p) {throw 0;}
   return p;
 }
 
@@ -1517,10 +1517,10 @@ async function fetchYahoo(sym) {
 
 export function openManualPrice() {
   const overlay = document.getElementById('manualPriceOverlay');
-  if (!overlay) return;
+  if (!overlay) {return;}
 
   // Pre-fill current values
-  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+  const set = (id, val) => { const el = document.getElementById(id); if (el) {el.value = val || '';} };
   set('mp-btc', S.btcIdr);
   set('mp-eth', S.ethIdr);
   set('mp-xrp', S.xrpIdr);
@@ -1653,9 +1653,9 @@ const _PBAR_CFG = {
 
 window.pbarInlineEdit = function(key) {
   const cfg = _PBAR_CFG[key];
-  if (!cfg) return;
+  if (!cfg) {return;}
   const el = document.getElementById('p-' + key);
-  if (!el || el.querySelector('input')) return; // sudah ada input
+  if (!el || el.querySelector('input')) {return;} // sudah ada input
 
   const cur = cfg.get();
   el.innerHTML = `<input
@@ -1674,9 +1674,9 @@ window.pbarInlineEdit = function(key) {
 
 window.pbarInlineSave = function(key, val) {
   const cfg = _PBAR_CFG[key];
-  if (!cfg) return;
+  if (!cfg) {return;}
   const v = parseFloat(val);
-  if (!isNaN(v) && v > 0) cfg.set(v);
+  if (!isNaN(v) && v > 0) {cfg.set(v);}
   window.dispatchEvent(new CustomEvent('portfolio:update'));
 };
 
@@ -1766,7 +1766,7 @@ export function exportJSON() {
 
 export function renderTxLog() {
   const el = document.getElementById('txLogList');
-  if (!el) return;
+  if (!el) {return;}
 
   const log = DATA.txLog || [];
   if (log.length === 0) {
@@ -1807,7 +1807,7 @@ export function renderTxLog() {
 
 export function exportTxLog() {
   const log = DATA.txLog || [];
-  if (log.length === 0) return;
+  if (log.length === 0) {return;}
   const rows = ['Timestamp,Action,Type,Name,Detail'];
   log.forEach(tx => {
     rows.push([tx.ts, tx.action, tx.type, `"${tx.name}"`, `"${tx.detail || ''}"`].join(','));
@@ -1825,11 +1825,11 @@ export function exportTxLog() {
 
 export function renderRebalance() {
   const el = document.getElementById('rebalPanel');
-  if (!el) return;
+  if (!el) {return;}
 
   const T = totals();
   if (T.t <= 0) {
-    el.innerHTML = `<div class="tx-empty">Tambah aset terlebih dahulu untuk melihat rebalancing.</div>`;
+    el.innerHTML = '<div class="tx-empty">Tambah aset terlebih dahulu untuk melihat rebalancing.</div>';
     return;
   }
 
@@ -1893,7 +1893,7 @@ export function renderRebalance() {
   // Group by ticker
   const tickerMap = {};
   allAssets.forEach(a => {
-    if (!tickerMap[a.ticker]) tickerMap[a.ticker] = { ...a, val: 0 };
+    if (!tickerMap[a.ticker]) {tickerMap[a.ticker] = { ...a, val: 0 };}
     tickerMap[a.ticker].val += a.val;
   });
   const tickerList = Object.values(tickerMap).sort((a, b) => b.val - a.val);
@@ -1953,14 +1953,14 @@ export function renderRebalance() {
 }
 
 window.updateRebalTarget = function(key, val) {
-  if (!S.rebalTargets) S.rebalTargets = { crypto:0, gold:0, stocks:0, savings:0, tickers:{} };
+  if (!S.rebalTargets) {S.rebalTargets = { crypto:0, gold:0, stocks:0, savings:0, tickers:{} };}
   S.rebalTargets[key] = parseFloat(val) || 0;
   localStorage.setItem('portfolio-rebal-targets', JSON.stringify(S.rebalTargets));
   renderRebalance();
 };
 
 window.updateRebalTickerTarget = function(ticker, val) {
-  if (!S.rebalTargets.tickers) S.rebalTargets.tickers = {};
+  if (!S.rebalTargets.tickers) {S.rebalTargets.tickers = {};}
   S.rebalTargets.tickers[ticker] = parseFloat(val) || 0;
   localStorage.setItem('portfolio-rebal-targets', JSON.stringify(S.rebalTargets));
   // Debounce re-render agar tidak flicker saat mengetik
@@ -1995,8 +1995,8 @@ export async function exportPDF() {
   };
   const setColor = (hex, type = 'fill') => {
     const [r,g,b] = hex2rgb(hex.replace(/[^#a-fA-F0-9]/g,'').slice(0,7).padEnd(7,'0'));
-    if (type === 'fill') doc.setFillColor(r,g,b);
-    else doc.setTextColor(r,g,b);
+    if (type === 'fill') {doc.setFillColor(r,g,b);}
+    else {doc.setTextColor(r,g,b);}
   };
   const txt = (text, x, yy, size = 10, color = '#0f172a', align = 'left', bold = false) => {
     doc.setFontSize(size);
@@ -2079,7 +2079,7 @@ export async function exportPDF() {
   const holdHeaders = ['Nama', 'Qty', 'Nilai', 'Modal', 'Tanggal'];
 
   for (const sec of sections) {
-    if (!sec.items || sec.items.length === 0) continue;
+    if (!sec.items || sec.items.length === 0) {continue;}
     if (y > 250) { doc.addPage(); y = 20; }
 
     txt(sec.title, PL, y, 9, '#475569', 'left', true);

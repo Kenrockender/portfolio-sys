@@ -13,7 +13,7 @@
  *   { type:'crypto', coin, name, amount, costBasisIdr, platform, date }
  */
 
-import { parseIdrNum, parseDate, COIN_NAMES, CRYPTO_COINS } from "./parser-utils.js";
+import { parseIdrNum, parseDate, COIN_NAMES, CRYPTO_COINS } from './parser-utils.js';
 
 // ════════════════════════════════════════════════════════════════
 //  PINTU
@@ -32,17 +32,17 @@ function parsePintu(raw) {
     // Pattern 1: Beli/Buy COIN \n date \n amount COIN \n Rp total
     const re1 = new RegExp(
       `(?:Beli|Buy)\\s+(${CRYPTO_COINS})\\s*[\\r\\n]+([^\\r\\n]+)[\\r\\n]+([\\d.,]+)\\s*(?:${CRYPTO_COINS})[\\r\\n]+Rp\\s*([\\d.,]+)`,
-      "gi"
+      'gi'
     );
     for (const m of raw.matchAll(re1)) {
       const coin = m[1].toUpperCase();
       results.push({
-        type:         "crypto",
+        type:         'crypto',
         coin,
         name:         COIN_NAMES[coin] ?? coin,
         amount:       parseIdrNum(m[3]),
         costBasisIdr: parseIdrNum(m[4]),
-        platform:     "pintu",
+        platform:     'pintu',
         date:         parseDate(m[2]),
       });
     }
@@ -51,7 +51,7 @@ function parsePintu(raw) {
     if (results.length === 0) {
       const re2 = new RegExp(
         `(${CRYPTO_COINS})\\s+([\\d.,]+)\\s*(?:${CRYPTO_COINS})?\\s*[\\r\\n]*Rp\\s*([\\d.,]+)`,
-        "gi"
+        'gi'
       );
       for (const m of raw.matchAll(re2)) {
         const coin   = m[1].toUpperCase();
@@ -62,19 +62,19 @@ function parsePintu(raw) {
         );
         if (!exists) {
           results.push({
-            type:         "crypto",
+            type:         'crypto',
             coin,
             name:         COIN_NAMES[coin] ?? coin,
             amount,
             costBasisIdr: parseIdrNum(m[3]),
-            platform:     "pintu",
-            date:         new Date().toISOString().split("T")[0],
+            platform:     'pintu',
+            date:         new Date().toISOString().split('T')[0],
           });
         }
       }
     }
   } catch (err) {
-    console.error("[parser/tokocrypto] parsePintu error:", err);
+    console.error('[parser/tokocrypto] parsePintu error:', err);
     throw new Error(`parsePintu gagal: ${err.message}`);
   }
 
@@ -98,39 +98,39 @@ function parseTokocrypto(raw) {
     // Pattern: BUY COIN/IDR \n Qty: amount \n Total: Rp price \n date
     const re = new RegExp(
       `(?:BUY|BELI)\\s+(${CRYPTO_COINS})\\/IDR[^\\r\\n]*[\\r\\n]+Qty:\\s*([\\d.,]+)[^\\r\\n]*[\\r\\n]+Total:\\s*Rp\\s*([\\d.,]+)[^\\r\\n]*[\\r\\n]+([^\\r\\n]+)`,
-      "gi"
+      'gi'
     );
     for (const m of raw.matchAll(re)) {
       const coin = m[1].toUpperCase();
       results.push({
-        type:         "crypto",
+        type:         'crypto',
         coin,
         name:         COIN_NAMES[coin] ?? coin,
         amount:       parseIdrNum(m[2]),
         costBasisIdr: parseIdrNum(m[3]),
-        platform:     "tokocrypto",
+        platform:     'tokocrypto',
         date:         parseDate(m[4]),
       });
     }
 
     // Fallback: CSV style "BTC,0.005,9500000,2024-01-15"
     if (results.length === 0) {
-      const csvRe = new RegExp(`(${CRYPTO_COINS}),([\\d.]+),([\\d.]+),(\\d{4}-\\d{2}-\\d{2})`, "gi");
+      const csvRe = new RegExp(`(${CRYPTO_COINS}),([\\d.]+),([\\d.]+),(\\d{4}-\\d{2}-\\d{2})`, 'gi');
       for (const m of raw.matchAll(csvRe)) {
         const coin = m[1].toUpperCase();
         results.push({
-          type:         "crypto",
+          type:         'crypto',
           coin,
           name:         COIN_NAMES[coin] ?? coin,
           amount:       parseIdrNum(m[2]),
           costBasisIdr: parseIdrNum(m[3]),
-          platform:     "tokocrypto",
+          platform:     'tokocrypto',
           date:         m[4],
         });
       }
     }
   } catch (err) {
-    console.error("[parser/tokocrypto] parseTokocrypto error:", err);
+    console.error('[parser/tokocrypto] parseTokocrypto error:', err);
     throw new Error(`parseTokocrypto gagal: ${err.message}`);
   }
 
@@ -153,17 +153,17 @@ function parseIndodax(raw) {
   try {
     const re = new RegExp(
       `(${CRYPTO_COINS})\\/IDR\\s+(?:Buy|Beli)[^\\r\\n]*[\\r\\n]+Rp\\s*([\\d.,]+)\\s+([\\d.,]+)\\s*(?:${CRYPTO_COINS})\\s*[\\r\\n]+([\\d\\s\\/A-Za-z]+)`,
-      "gi"
+      'gi'
     );
     for (const m of raw.matchAll(re)) {
       const coin = m[1].toUpperCase();
       results.push({
-        type:         "crypto",
+        type:         'crypto',
         coin,
         name:         COIN_NAMES[coin] ?? coin,
         amount:       parseIdrNum(m[3]),
         costBasisIdr: parseIdrNum(m[2]),
-        platform:     "indodax",
+        platform:     'indodax',
         date:         parseDate(m[4]),
       });
     }
@@ -172,23 +172,23 @@ function parseIndodax(raw) {
     if (results.length === 0) {
       const re2 = new RegExp(
         `(?:Buy|Beli)\\s+(${CRYPTO_COINS})\\s+IDR\\s+([\\d.,]+)\\s+([\\d.,]+)`,
-        "gi"
+        'gi'
       );
       for (const m of raw.matchAll(re2)) {
         const coin = m[1].toUpperCase();
         results.push({
-          type:         "crypto",
+          type:         'crypto',
           coin,
           name:         COIN_NAMES[coin] ?? coin,
           amount:       parseIdrNum(m[3]),
           costBasisIdr: parseIdrNum(m[2]),
-          platform:     "indodax",
-          date:         new Date().toISOString().split("T")[0],
+          platform:     'indodax',
+          date:         new Date().toISOString().split('T')[0],
         });
       }
     }
   } catch (err) {
-    console.error("[parser/tokocrypto] parseIndodax error:", err);
+    console.error('[parser/tokocrypto] parseIndodax error:', err);
     throw new Error(`parseIndodax gagal: ${err.message}`);
   }
 
@@ -212,22 +212,22 @@ function parsePluang(raw) {
     // Pattern: Beli Coin (SYMBOL) \n Rp total \n amount COIN \n date
     const re = new RegExp(
       `(?:Beli|Buy)\\s+[^\\r\\n]*\\((${CRYPTO_COINS})\\)[\\r\\n]+Rp\\s*([\\d.,]+)[\\r\\n]+([\\d.,]+)\\s*(?:${CRYPTO_COINS})[\\r\\n]+([^\\r\\n]+)`,
-      "gi"
+      'gi'
     );
     for (const m of raw.matchAll(re)) {
       const coin = m[1].toUpperCase();
       results.push({
-        type:         "crypto",
+        type:         'crypto',
         coin,
         name:         COIN_NAMES[coin] ?? coin,
         amount:       parseIdrNum(m[3]),
         costBasisIdr: parseIdrNum(m[2]),
-        platform:     "pluang",
+        platform:     'pluang',
         date:         parseDate(m[4]),
       });
     }
   } catch (err) {
-    console.error("[parser/tokocrypto] parsePluang error:", err);
+    console.error('[parser/tokocrypto] parsePluang error:', err);
     throw new Error(`parsePluang gagal: ${err.message}`);
   }
 
@@ -255,8 +255,8 @@ function parsePluang(raw) {
  */
 function parseIndodaxTaxReport(raw) {
   const lines = raw
-    .replace(/\r\n/g, "\n")
-    .split("\n")
+    .replace(/\r\n/g, '\n')
+    .split('\n')
     .map(l => l.trim())
     .filter(Boolean);
 
@@ -278,7 +278,7 @@ function parseIndodaxTaxReport(raw) {
   const DATA_RE   = /^\d{10,}\s+([A-Z]+)\/IDR\s+(Buy|Sell)\s+([\d,]+)\s+([\d.]+)/i;
 
   const coinMap = new Map();
-  let lastDate  = "";
+  let lastDate  = '';
 
   for (const line of lines) {
     // Coba pola 1 dulu (pdf.js format — date+data dalam satu baris)
@@ -303,23 +303,23 @@ function parseIndodaxTaxReport(raw) {
 
   if (coinMap.size === 0) {
     throw new Error(
-      "Tidak ada transaksi yang berhasil diparsing.\n\n" +
-      "Pastikan file yang diupload adalah PDF Tax Report dari Indodax."
+      'Tidak ada transaksi yang berhasil diparsing.\n\n' +
+      'Pastikan file yang diupload adalah PDF Tax Report dari Indodax.'
     );
   }
 
   const results = [];
   for (const [coin, entry] of coinMap) {
     const netAmount = entry.buyAmount - entry.sellAmount;
-    if (netAmount <= 0.000001) continue;
+    if (netAmount <= 0.000001) {continue;}
     const avgBuyPrice  = entry.buyAmount > 0 ? entry.buyValue / entry.buyAmount : 0;
     const costBasisIdr = Math.round(netAmount * avgBuyPrice);
-    const dateParts    = entry.firstDate.split("-");
+    const dateParts    = entry.firstDate.split('-');
     const dateISO      = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
     results.push({
-      type: "crypto", coin, name: COIN_NAMES[coin] ?? coin,
+      type: 'crypto', coin, name: COIN_NAMES[coin] ?? coin,
       amount: Math.round(netAmount * 1e8) / 1e8,
-      costBasisIdr, platform: "indodax", date: dateISO,
+      costBasisIdr, platform: 'indodax', date: dateISO,
     });
   }
   return results;
@@ -330,13 +330,13 @@ function _addTx(coinMap, coin, type, priceStr, amtStr, dateStr) {
   type  = type.toLowerCase();
   const price   = parseIdrNum(priceStr);
   const coinAmt = parseFloat(amtStr) || 0;
-  if (!coin || coinAmt <= 0 || price <= 0) return;
-  if (!coinMap.has(coin)) coinMap.set(coin, { buyAmount:0, buyValue:0, sellAmount:0, firstDate: dateStr });
+  if (!coin || coinAmt <= 0 || price <= 0) {return;}
+  if (!coinMap.has(coin)) {coinMap.set(coin, { buyAmount:0, buyValue:0, sellAmount:0, firstDate: dateStr });}
   const entry = coinMap.get(coin);
-  if (type === "buy") {
+  if (type === 'buy') {
     entry.buyAmount += coinAmt;
     entry.buyValue  += coinAmt * price;
-    if (_parseDMY(dateStr) < _parseDMY(entry.firstDate)) entry.firstDate = dateStr;
+    if (_parseDMY(dateStr) < _parseDMY(entry.firstDate)) {entry.firstDate = dateStr;}
   } else {
     entry.sellAmount += coinAmt;
   }
@@ -344,7 +344,7 @@ function _addTx(coinMap, coin, type, priceStr, amtStr, dateStr) {
 
 /** Parse DD-MM-YYYY → Date */
 function _parseDMY(str) {
-  const [d, m, y] = str.split("-");
+  const [d, m, y] = str.split('-');
   return new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
 }
 
@@ -377,15 +377,15 @@ function _parseDMY(str) {
  * @throws {Error}
  */
 function parsePluangCSV(raw) {
-  const lines = raw.replace(/\r\n/g, "\n").split("\n").filter(Boolean);
+  const lines = raw.replace(/\r\n/g, '\n').split('\n').filter(Boolean);
 
   // Cari baris header yang mengandung "Order Date"
-  const headerIdx = lines.findIndex(l => l.includes("Order Date") && l.includes("Transaction"));
+  const headerIdx = lines.findIndex(l => l.includes('Order Date') && l.includes('Transaction'));
   if (headerIdx < 0) {
     throw new Error(
-      "Format CSV tidak dikenal.\n\n" +
-      "Pastikan file yang diupload adalah Transaction History Report dari Pluang " +
-      "(bukan Tax Report PDF).\nDownload dari Pluang → Akun → Riwayat Transaksi → Export CSV"
+      'Format CSV tidak dikenal.\n\n' +
+      'Pastikan file yang diupload adalah Transaction History Report dari Pluang ' +
+      '(bukan Tax Report PDF).\nDownload dari Pluang → Akun → Riwayat Transaksi → Export CSV'
     );
   }
 
@@ -395,26 +395,26 @@ function parsePluangCSV(raw) {
   for (const line of dataLines) {
     // Parse CSV dengan benar (handle quoted fields)
     const cols = _parseCSVLine(line);
-    if (cols.length < 16) continue;
+    if (cols.length < 16) {continue;}
 
-    const dateStr  = cols[0].replace(/"/g, "").trim();  // "Fri, Mar 14, 2025"
-    const txType   = cols[4].replace(/"/g, "").trim().toUpperCase();
-    const coin     = cols[5].replace(/"/g, "").trim().toUpperCase();
-    const status   = cols[8].replace(/"/g, "").trim().toUpperCase();
-    const price    = parseFloat(cols[10].replace(/"/g, "")) || 0;
-    const qty      = parseFloat(cols[12].replace(/"/g, "")) || 0;
+    const dateStr  = cols[0].replace(/"/g, '').trim();  // "Fri, Mar 14, 2025"
+    const txType   = cols[4].replace(/"/g, '').trim().toUpperCase();
+    const coin     = cols[5].replace(/"/g, '').trim().toUpperCase();
+    const status   = cols[8].replace(/"/g, '').trim().toUpperCase();
+    const price    = parseFloat(cols[10].replace(/"/g, '')) || 0;
+    const qty      = parseFloat(cols[12].replace(/"/g, '')) || 0;
 
     // Hanya BUY & SELL yang berhasil
-    if (!["BUY", "SELL"].includes(txType)) continue;
-    if (!["SUCCESS", "COMPLETED"].includes(status)) continue;
-    if (!coin || qty <= 0 || price <= 0) continue;
+    if (!['BUY', 'SELL'].includes(txType)) {continue;}
+    if (!['SUCCESS', 'COMPLETED'].includes(status)) {continue;}
+    if (!coin || qty <= 0 || price <= 0) {continue;}
 
     if (!coinMap.has(coin)) {
       coinMap.set(coin, { buyAmount: 0, buyValue: 0, sellAmount: 0, firstDate: dateStr });
     }
     const entry = coinMap.get(coin);
 
-    if (txType === "BUY") {
+    if (txType === 'BUY') {
       entry.buyAmount += qty;
       entry.buyValue  += qty * price;
       // Simpan tanggal pembelian paling awal
@@ -428,7 +428,7 @@ function parsePluangCSV(raw) {
 
   if (coinMap.size === 0) {
     throw new Error(
-      "Tidak ada transaksi BUY/SELL yang ditemukan.\n\n" +
+      'Tidak ada transaksi BUY/SELL yang ditemukan.\n\n' +
       "Pastikan file CSV mengandung kolom 'Transaction Type' dengan nilai BUY atau SELL."
     );
   }
@@ -436,18 +436,18 @@ function parsePluangCSV(raw) {
   const results = [];
   for (const [coin, entry] of coinMap) {
     const netAmount = entry.buyAmount - entry.sellAmount;
-    if (netAmount <= 0.000001) continue;
+    if (netAmount <= 0.000001) {continue;}
 
     const avgBuyPrice  = entry.buyAmount > 0 ? entry.buyValue / entry.buyAmount : 0;
     const costBasisIdr = Math.round(netAmount * avgBuyPrice);
 
     results.push({
-      type:         "crypto",
+      type:         'crypto',
       coin,
       name:         COIN_NAMES[coin] ?? coin,
       amount:       Math.round(netAmount * 1e8) / 1e8,
       costBasisIdr,
-      platform:     "pluang",
+      platform:     'pluang',
       date:         _parseLDtoISO(entry.firstDate),
     });
   }
@@ -460,11 +460,11 @@ function parsePluangCSV(raw) {
  */
 function _parseCSVLine(line) {
   const result = [];
-  let cur = "", inQ = false;
+  let cur = '', inQ = false;
   for (let i = 0; i < line.length; i++) {
     const c = line[i];
     if (c === '"') { inQ = !inQ; }
-    else if (c === "," && !inQ) { result.push(cur); cur = ""; }
+    else if (c === ',' && !inQ) { result.push(cur); cur = ''; }
     else { cur += c; }
   }
   result.push(cur);
@@ -480,17 +480,17 @@ const MONTH_MAP = {
 };
 function _parseLocaleDate(str) {
   // "Fri, Mar 14, 2025" → bagian setelah koma pertama: " Mar 14, 2025"
-  const parts = str.replace(/^[A-Za-z]+,\s*/, "").split(/[\s,]+/).filter(Boolean);
+  const parts = str.replace(/^[A-Za-z]+,\s*/, '').split(/[\s,]+/).filter(Boolean);
   // parts: ["Mar", "14", "2025"]
-  if (parts.length < 3) return new Date(0);
+  if (parts.length < 3) {return new Date(0);}
   const m = MONTH_MAP[parts[0]] || 1;
   return new Date(parseInt(parts[2]), m - 1, parseInt(parts[1]));
 }
 
 function _parseLDtoISO(str) {
   const d = _parseLocaleDate(str);
-  if (!d || isNaN(d)) return new Date().toISOString().split("T")[0];
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  if (!d || isNaN(d)) {return new Date().toISOString().split('T')[0];}
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -513,7 +513,7 @@ function _parseLDtoISO(str) {
  * @throws {Error}
  */
 function parseFloqTaxReport(raw) {
-  const lines = raw.replace(/\r\n/g, "\n").split("\n").map(l => l.trim()).filter(Boolean);
+  const lines = raw.replace(/\r\n/g, '\n').split('\n').map(l => l.trim()).filter(Boolean);
 
   // Regex untuk baris transaksi Floq:
   // UUID  YYYY-MM-DD  BUY/SELL  COIN  Rp angka
@@ -524,40 +524,40 @@ function parseFloqTaxReport(raw) {
 
   for (const line of lines) {
     const m = line.match(TX_RE);
-    if (!m) continue;
+    if (!m) {continue;}
 
     const date   = m[1];                    // YYYY-MM-DD
     const type   = m[2].toUpperCase();
     const coin   = m[3].toUpperCase();
     const idr    = parseIdrNum(m[4]);
 
-    if (type !== "BUY" || idr <= 0) continue;
+    if (type !== 'BUY' || idr <= 0) {continue;}
 
     if (!coinMap.has(coin)) {
       coinMap.set(coin, { totalIdr: 0, firstDate: date });
     }
     const entry = coinMap.get(coin);
     entry.totalIdr += idr;
-    if (date < entry.firstDate) entry.firstDate = date;
+    if (date < entry.firstDate) {entry.firstDate = date;}
   }
 
   if (coinMap.size === 0) {
     throw new Error(
-      "Tidak ada transaksi BUY yang berhasil diparsing.\n\n" +
-      "Pastikan kamu copy-paste seluruh isi PDF (Ctrl+A → Ctrl+C) " +
-      "dari Laporan Pajak Floq."
+      'Tidak ada transaksi BUY yang berhasil diparsing.\n\n' +
+      'Pastikan kamu copy-paste seluruh isi PDF (Ctrl+A → Ctrl+C) ' +
+      'dari Laporan Pajak Floq.'
     );
   }
 
   const results = [];
   for (const [coin, entry] of coinMap) {
     results.push({
-      type:         "crypto",
+      type:         'crypto',
       coin,
       name:         COIN_NAMES[coin] ?? coin,
       amount:       0,            // ⚠ tidak tersedia di PDF — isi manual
       costBasisIdr: Math.round(entry.totalIdr),
-      platform:     "floq",
+      platform:     'floq',
       date:         entry.firstDate,
     });
   }
@@ -591,7 +591,7 @@ function parseFloqTaxReport(raw) {
  * @throws {Error}
  */
 function parseTokocryptoTaxReport(raw) {
-  const lines = raw.replace(/\r\n/g, "\n").split("\n").map(l => l.trim()).filter(Boolean);
+  const lines = raw.replace(/\r\n/g, '\n').split('\n').map(l => l.trim()).filter(Boolean);
 
   // Baris transaksi: diawali timestamp YYYY-MM-DD
   // Contoh: "2025-06-11 14:41:46 512245697 (S) ONDO_IDR Buy 14.686,799 6,8 99.870,23 ..."
@@ -602,7 +602,7 @@ function parseTokocryptoTaxReport(raw) {
       // Gabungkan dengan baris berikutnya jika baris berikutnya bukan timestamp
       let combined = lines[i];
       while (i + 1 < lines.length && !/^\d{4}-\d{2}-\d{2}/.test(lines[i + 1]) && !/^Total/.test(lines[i + 1])) {
-        combined += " " + lines[i + 1];
+        combined += ' ' + lines[i + 1];
         i++;
       }
       merged.push(combined);
@@ -619,7 +619,7 @@ function parseTokocryptoTaxReport(raw) {
 
   for (const line of merged) {
     const m = line.match(TX_RE);
-    if (!m) continue;
+    if (!m) {continue;}
 
     const date    = m[1];
     const coin    = m[2].toUpperCase();
@@ -627,19 +627,19 @@ function parseTokocryptoTaxReport(raw) {
     const price   = parseIdrNum(m[4]);   // harga per koin
     const qty     = parseIdrNum(m[5]);   // jumlah koin
 
-    if (!coin || qty <= 0 || price <= 0) continue;
+    if (!coin || qty <= 0 || price <= 0) {continue;}
     // Skip stablecoin
-    if (["USDT", "USDC", "BUSD", "IDR"].includes(coin)) continue;
+    if (['USDT', 'USDC', 'BUSD', 'IDR'].includes(coin)) {continue;}
 
     if (!coinMap.has(coin)) {
       coinMap.set(coin, { buyAmount: 0, buyValue: 0, sellAmount: 0, firstDate: date });
     }
     const entry = coinMap.get(coin);
 
-    if (type === "buy") {
+    if (type === 'buy') {
       entry.buyAmount += qty;
       entry.buyValue  += qty * price;
-      if (date < entry.firstDate) entry.firstDate = date;
+      if (date < entry.firstDate) {entry.firstDate = date;}
     } else {
       entry.sellAmount += qty;
     }
@@ -647,27 +647,27 @@ function parseTokocryptoTaxReport(raw) {
 
   if (coinMap.size === 0) {
     throw new Error(
-      "Tidak ada transaksi yang berhasil diparsing.\n\n" +
-      "Pastikan kamu copy-paste seluruh isi PDF (Ctrl+A → Ctrl+C) " +
-      "dari Ringkasan Pemotongan Pajak Tokocrypto."
+      'Tidak ada transaksi yang berhasil diparsing.\n\n' +
+      'Pastikan kamu copy-paste seluruh isi PDF (Ctrl+A → Ctrl+C) ' +
+      'dari Ringkasan Pemotongan Pajak Tokocrypto.'
     );
   }
 
   const results = [];
   for (const [coin, entry] of coinMap) {
     const netAmount = entry.buyAmount - entry.sellAmount;
-    if (netAmount <= 0.000001) continue;
+    if (netAmount <= 0.000001) {continue;}
 
     const avgBuyPrice  = entry.buyAmount > 0 ? entry.buyValue / entry.buyAmount : 0;
     const costBasisIdr = Math.round(netAmount * avgBuyPrice);
 
     results.push({
-      type:         "crypto",
+      type:         'crypto',
       coin,
       name:         COIN_NAMES[coin] ?? coin,
       amount:       Math.round(netAmount * 1e8) / 1e8,
       costBasisIdr,
-      platform:     "tokocrypto",
+      platform:     'tokocrypto',
       date:         entry.firstDate,
     });
   }
@@ -681,8 +681,8 @@ function parseTokocryptoTaxReport(raw) {
 
 export const CRYPTO_PARSERS = {
   pintu: {
-    label:    "Pintu",
-    category: "crypto",
+    label:    'Pintu',
+    category: 'crypto',
     hint: `Buka Pintu → Riwayat Transaksi → copy semua teks
 
 Contoh format:
@@ -694,8 +694,8 @@ Rp 9.350.000`,
   },
 
   tokocrypto: {
-    label:    "Tokocrypto",
-    category: "crypto",
+    label:    'Tokocrypto',
+    category: 'crypto',
     hint: `Buka Tokocrypto → History → copy teks
 
 Contoh format:
@@ -707,8 +707,8 @@ Total: Rp 9.500.000
   },
 
   indodax: {
-    label:    "Indodax",
-    category: "crypto",
+    label:    'Indodax',
+    category: 'crypto',
     hint: `Buka Indodax → Order History → copy teks
 
 Contoh format:
@@ -719,8 +719,8 @@ Rp 43.250.000  0,005 BTC
   },
 
   pluang: {
-    label:    "Pluang (Paste Teks)",
-    category: "crypto",
+    label:    'Pluang (Paste Teks)',
+    category: 'crypto',
     hint: `Buka Pluang → Riwayat Transaksi → copy teks
 
 Contoh format:
@@ -731,9 +731,9 @@ Rp 9.350.000
     parse: parsePluang,
   },
 
-  "tokocrypto-tax": {
-    label:    "Tokocrypto (Laporan Pajak PDF)",
-    category: "crypto",
+  'tokocrypto-tax': {
+    label:    'Tokocrypto (Laporan Pajak PDF)',
+    category: 'crypto',
     hint: `Buka PDF "Ringkasan Pemotongan Pajak" dari Tokocrypto
 → Ctrl+A → Ctrl+C → Paste di sini
 
@@ -748,9 +748,9 @@ Format baris yang dikenali:
     parse: parseTokocryptoTaxReport,
   },
 
-  "floq-tax": {
-    label:    "Floq (Laporan Pajak PDF)",
-    category: "crypto",
+  'floq-tax': {
+    label:    'Floq (Laporan Pajak PDF)',
+    category: 'crypto',
     hint: `Buka PDF "Laporan Pajak Aset Kripto" dari Floq
 → Ctrl+A → Ctrl+C → Paste di sini
 
@@ -769,9 +769,9 @@ Parser akan mengisi:
     parse: parseFloqTaxReport,
   },
 
-  "pluang-csv": {
-    label:    "Pluang (Transaction CSV)",
-    category: "crypto",
+  'pluang-csv': {
+    label:    'Pluang (Transaction CSV)',
+    category: 'crypto',
     hint: `Upload atau paste isi file CSV dari Pluang.
 
 Cara download:
@@ -788,9 +788,9 @@ Parser akan:
     parse: parsePluangCSV,
   },
 
-  "indodax-tax": {
-    label:    "Indodax (Tax Report PDF)",
-    category: "crypto",
+  'indodax-tax': {
+    label:    'Indodax (Tax Report PDF)',
+    category: 'crypto',
     hint: `Buka PDF "Final Tax Collection Slip" dari Indodax
 → Ctrl+A (pilih semua) → Ctrl+C (copy) → Paste di sini
 
@@ -816,12 +816,12 @@ Cocok untuk Tax Report 2023, 2024, dan 2025.`,
 export function runCryptoParser(sourceKey, rawText) {
   const rule = CRYPTO_PARSERS[sourceKey];
   if (!rule) {
-    throw new Error(`Parser kripto tidak dikenal: "${sourceKey}". Tersedia: ${Object.keys(CRYPTO_PARSERS).join(", ")}`);
+    throw new Error(`Parser kripto tidak dikenal: "${sourceKey}". Tersedia: ${Object.keys(CRYPTO_PARSERS).join(', ')}`);
   }
 
   console.info(`[parser/tokocrypto] Menjalankan "${rule.label}" pada ${rawText.length} karakter`);
 
-  const cleaned = rawText.replace(/\r\n/g, "\n").trim();
+  const cleaned = rawText.replace(/\r\n/g, '\n').trim();
   return rule.parse(cleaned);
 }
 

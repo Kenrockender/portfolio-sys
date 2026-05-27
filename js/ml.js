@@ -65,7 +65,7 @@ export function computeRiskScore() {
   const T = totals();
   const M = computeMetrics(T);
 
-  if (T.t <= 0) return { total: 0, breakdown: {}, raw: {}, grade: 'N/A', color: '#64748b' };
+  if (T.t <= 0) {return { total: 0, breakdown: {}, raw: {}, grade: 'N/A', color: '#64748b' };}
 
   // ── A. Concentration Risk ──────────────────────────────────────
   // How much of the portfolio is in a single asset?
@@ -97,7 +97,7 @@ export function computeRiskScore() {
     const vals = hist.map(h => h.value);
     const returns = [];
     for (let i = 1; i < vals.length; i++) {
-      if (vals[i - 1] > 0) returns.push((vals[i] - vals[i - 1]) / vals[i - 1]);
+      if (vals[i - 1] > 0) {returns.push((vals[i] - vals[i - 1]) / vals[i - 1]);}
     }
     const mean = returns.reduce((s, r) => s + r, 0) / returns.length;
     const variance = returns.reduce((s, r) => s + (r - mean) ** 2, 0) / returns.length;
@@ -128,7 +128,7 @@ export function computeRiskScore() {
     let peak = vals[0], maxDD = 0;
     for (const v of vals) {
       peak = Math.max(peak, v);
-      if (peak > 0) maxDD = Math.max(maxDD, (peak - v) / peak);
+      if (peak > 0) {maxDD = Math.max(maxDD, (peak - v) / peak);}
     }
     // 0% drawdown → 0, 30%+ → 100
     drawdownScore = Math.min(100, maxDD * 333);
@@ -289,7 +289,7 @@ Berikan analisis PADAT dalam format PERSIS ini (WAJIB ikuti format, isi dalam ba
  * Returns: trend, momentum, support, resistance, signal
  */
 export function computeTechnicalSignals(historyData) {
-  if (!historyData || historyData.length < 7) return null;
+  if (!historyData || historyData.length < 7) {return null;}
 
   const sorted = [...historyData].sort((a, b) => a.date.localeCompare(b.date));
   const vals = sorted.map(h => h.value);
@@ -319,7 +319,7 @@ export function computeTechnicalSignals(historyData) {
   // RSI-style overbought/oversold from recent returns
   const returns14 = [];
   for (let i = Math.max(1, n - 14); i < n; i++) {
-    if (vals[i - 1] > 0) returns14.push((vals[i] - vals[i - 1]) / vals[i - 1]);
+    if (vals[i - 1] > 0) {returns14.push((vals[i] - vals[i - 1]) / vals[i - 1]);}
   }
   const gains  = returns14.filter(r => r > 0).reduce((s, r) => s + r, 0);
   const losses = Math.abs(returns14.filter(r => r < 0).reduce((s, r) => s + r, 0));
@@ -332,16 +332,16 @@ export function computeTechnicalSignals(historyData) {
 
   // Composite signal
   let bullSignals = 0, bearSignals = 0;
-  if (sma7 > sma14)    bullSignals++;
-  if (sma14 > sma30)   bullSignals++;
-  if (trend7 > 0)      bullSignals++;
-  if (trend30 > 0)     bullSignals++;
-  if (rsi < 40)        bullSignals++; // oversold = buy signal
-  if (sma7 < sma14)    bearSignals++;
-  if (sma14 < sma30)   bearSignals++;
-  if (trend7 < 0)      bearSignals++;
-  if (trend30 < 0)     bearSignals++;
-  if (rsi > 70)        bearSignals++; // overbought = sell signal
+  if (sma7 > sma14)    {bullSignals++;}
+  if (sma14 > sma30)   {bullSignals++;}
+  if (trend7 > 0)      {bullSignals++;}
+  if (trend30 > 0)     {bullSignals++;}
+  if (rsi < 40)        {bullSignals++;} // oversold = buy signal
+  if (sma7 < sma14)    {bearSignals++;}
+  if (sma14 < sma30)   {bearSignals++;}
+  if (trend7 < 0)      {bearSignals++;}
+  if (trend30 < 0)     {bearSignals++;}
+  if (rsi > 70)        {bearSignals++;} // overbought = sell signal
 
   const signal = bullSignals > bearSignals ? 'BULLISH'
     : bearSignals > bullSignals ? 'BEARISH' : 'NEUTRAL';
@@ -453,7 +453,7 @@ export function computeHealthMetrics() {
     const vals = hist.map(h => h.value);
     const returns = [];
     for (let i = 1; i < vals.length; i++) {
-      if (vals[i - 1] > 0) returns.push((vals[i] - vals[i - 1]) / vals[i - 1]);
+      if (vals[i - 1] > 0) {returns.push((vals[i] - vals[i - 1]) / vals[i - 1]);}
     }
     const meanR = returns.reduce((s, r) => s + r, 0) / (returns.length || 1);
     const stdR  = Math.sqrt(returns.reduce((s, r) => s + (r - meanR) ** 2, 0) / (returns.length || 1));
@@ -468,7 +468,7 @@ export function computeHealthMetrics() {
     let peak = vals[0];
     for (const v of vals) {
       peak = Math.max(peak, v);
-      if (peak > 0) maxDD = Math.max(maxDD, (peak - v) / peak);
+      if (peak > 0) {maxDD = Math.max(maxDD, (peak - v) / peak);}
     }
   }
 
@@ -481,7 +481,7 @@ export function computeHealthMetrics() {
   if (hist.length >= 7) {
     const vals = hist.map(h => h.value);
     const gains = [];
-    for (let i = 1; i < vals.length; i++) gains.push(vals[i] > vals[i - 1]);
+    for (let i = 1; i < vals.length; i++) {gains.push(vals[i] > vals[i - 1]);}
     winRate = Math.round((gains.filter(Boolean).length / gains.length) * 100);
   }
 

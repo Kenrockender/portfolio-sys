@@ -110,12 +110,12 @@ export function getCacheStats() {
 let interactionDetected = false;
 
 function setupIntelligentPreload() {
-  if (interactionDetected) return;
-  
+  if (interactionDetected) {return;}
+
   const detectInteraction = () => {
     if (!interactionDetected) {
       interactionDetected = true;
-      
+
       // Preload likely-needed modules after user shows intent
       preloadModules([
         './charts.js',

@@ -65,7 +65,7 @@ const CRYPTO_COINS = Object.keys(COIN_NAMES).join('|');
 
 // ── Number parser (handles IDR format: 1.234.567 or 1,234,567) ──
 function parseIdrNum(str){
-  if(!str) return 0;
+  if(!str) {return 0;}
   str = str.toString().trim();
   // IDR format: dots as thousand separator, comma as decimal
   // e.g. "1.234.567" or "1.234.567,50"
@@ -84,17 +84,17 @@ function parseIdrNum(str){
       return parseFloat(cleaned.replace(/,/g,'')) || 0;
     }
   }
-  if(cleaned.includes('.')){ 
+  if(cleaned.includes('.')){
     // Could be IDR thousand sep OR decimal
     const parts = cleaned.split('.');
-    if(parts.length > 2) return parseFloat(cleaned.replace(/\./g,'')) || 0; // 1.234.567 → 1234567
-    if(parts[parts.length-1].length === 3) return parseFloat(cleaned.replace(/\./g,'')) || 0; // 1.234 → 1234
+    if(parts.length > 2) {return parseFloat(cleaned.replace(/\./g,'')) || 0;} // 1.234.567 → 1234567
+    if(parts[parts.length-1].length === 3) {return parseFloat(cleaned.replace(/\./g,'')) || 0;} // 1.234 → 1234
     return parseFloat(cleaned) || 0;
   }
-  if(cleaned.includes(',')){ 
+  if(cleaned.includes(',')){
     const parts = cleaned.split(',');
-    if(parts.length > 2) return parseFloat(cleaned.replace(/,/g,'')) || 0;
-    if(parts[parts.length-1].length === 3) return parseFloat(cleaned.replace(/,/g,'')) || 0;
+    if(parts.length > 2) {return parseFloat(cleaned.replace(/,/g,'')) || 0;}
+    if(parts[parts.length-1].length === 3) {return parseFloat(cleaned.replace(/,/g,'')) || 0;}
     return parseFloat(cleaned.replace(',','.')) || 0;
   }
   return parseFloat(cleaned) || 0;
@@ -102,13 +102,13 @@ function parseIdrNum(str){
 
 // ── Date parser ──────────────────────────────────────────────────
 function parseDate(str){
-  if(!str) return new Date().toISOString().split('T')[0];
+  if(!str) {return new Date().toISOString().split('T')[0];}
   str = str.trim();
   // ISO format
-  if(/^\d{4}-\d{2}-\d{2}/.test(str)) return str.slice(0,10);
+  if(/^\d{4}-\d{2}-\d{2}/.test(str)) {return str.slice(0,10);}
   // DD/MM/YYYY or DD-MM-YYYY
-  const dmy = str.match(/(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})/);
-  if(dmy) return `${dmy[3]}-${dmy[2].padStart(2,'0')}-${dmy[1].padStart(2,'0')}`;
+  const dmy = str.match(/(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
+  if(dmy) {return `${dmy[3]}-${dmy[2].padStart(2,'0')}-${dmy[1].padStart(2,'0')}`;}
   // D Mon YYYY (e.g. 12 Mar 2024)
   const monthNames={jan:'01',feb:'02',mar:'03',apr:'04',mei:'05',may:'05',jun:'06',
     jul:'07',agu:'08',aug:'08',sep:'09',okt:'10',oct:'10',nov:'11',des:'12',dec:'12'};
@@ -118,8 +118,8 @@ function parseDate(str){
     return `${dmonth[3]}-${m}-${dmonth[1].padStart(2,'0')}`;
   }
   // YYYY/MM/DD
-  const ymd = str.match(/(\d{4})[\/\-](\d{2})[\/\-](\d{2})/);
-  if(ymd) return `${ymd[1]}-${ymd[2]}-${ymd[3]}`;
+  const ymd = str.match(/(\d{4})[-/](\d{2})[-/](\d{2})/);
+  if(ymd) {return `${ymd[1]}-${ymd[2]}-${ymd[3]}`;}
   return new Date().toISOString().split('T')[0];
 }
 
@@ -144,12 +144,12 @@ const IMPORT_RULES = {
 
   binance: {
     label:'Binance', category:'crypto',
-    hint:`Buka Binance → Trade History → Export CSV, lalu paste isi CSV-nya\n\nContoh CSV:\nDate(UTC),Pair,Side,Price,Executed,Amount,Fee\n2024-01-15 10:30:00,BTCUSDT,BUY,43250.50,0.005 BTC,216.25 USDT,0.001`,
+    hint:'Buka Binance → Trade History → Export CSV, lalu paste isi CSV-nya\n\nContoh CSV:\nDate(UTC),Pair,Side,Price,Executed,Amount,Fee\n2024-01-15 10:30:00,BTCUSDT,BUY,43250.50,0.005 BTC,216.25 USDT,0.001',
     parse(raw){
       const results=[];
       // CSV format: Date,Pair,Side,Price,Executed,Amount,Fee
       const re = new RegExp(
-        `(\\d{4}-\\d{2}-\\d{2})[^,]*,([A-Z]+)USDT,BUY,([\\d.]+),(([\\d.]+)\\s*([A-Z]+)),([\\d.]+)`,
+        '(\\d{4}-\\d{2}-\\d{2})[^,]*,([A-Z]+)USDT,BUY,([\\d.]+),(([\\d.]+)\\s*([A-Z]+)),([\\d.]+)',
         'gi'
       );
       for(const m of raw.matchAll(re)){
@@ -165,7 +165,7 @@ const IMPORT_RULES = {
       }
       // Simple: BTCUSDT BUY qty price
       const re2 = new RegExp(
-        `([A-Z]+)USDT\\s+(?:BUY|buy)\\s+([\\d.]+)\\s+@?\\s*([\\d.]+)`,
+        '([A-Z]+)USDT\\s+(?:BUY|buy)\\s+([\\d.]+)\\s+@?\\s*([\\d.]+)',
         'gi'
       );
       for(const m of raw.matchAll(re2)){
@@ -174,11 +174,11 @@ const IMPORT_RULES = {
         const price_usdt = parseFloat(m[3])||0;
         const usdidr = getS().usdIdr||16200;
         if(!results.find(r=>r.coin===coin))
-          results.push({
+          {results.push({
             type:'crypto', coin, name:COIN_NAMES[coin]||coin,
             amount:qty, costBasisIdr:Math.round(qty*price_usdt*usdidr),
             platform:'binance', date:new Date().toISOString().split('T')[0]
-          });
+          });}
       }
       return results;
     }
@@ -213,12 +213,12 @@ const IMPORT_RULES = {
   stockbit_trade: {
     label: 'Stockbit — Trade Confirmation (PDF)',
     category: 'stocks',
-    hint: `Upload PDF Trade Confirmation dari Stockbit\n\nParser membaca:\n• Ticker saham (CDIA, BBCA, dst)\n• Jumlah lot & harga per lembar\n• Tanggal transaksi\n• Biaya total (Total Cost)\n\nHanya transaksi BUY yang diimport.`,
+    hint: 'Upload PDF Trade Confirmation dari Stockbit\n\nParser membaca:\n• Ticker saham (CDIA, BBCA, dst)\n• Jumlah lot & harga per lembar\n• Tanggal transaksi\n• Biaya total (Total Cost)\n\nHanya transaksi BUY yang diimport.',
     parse(raw) {
       const results = [];
 
       // ── Validasi: pastikan ini Trade Confirmation Stockbit
-      if (!/STOCKBIT/i.test(raw) || !/Trade\s*Confirmation/i.test(raw)) return results;
+      if (!/STOCKBIT/i.test(raw) || !/Trade\s*Confirmation/i.test(raw)) {return results;}
 
       // ── Ekstrak tanggal transaksi
       // Format di PDF: "Transaction Date 19/12/2025"
@@ -290,12 +290,12 @@ const IMPORT_RULES = {
   pluang_email: {
     label: 'Pluang — Email Konfirmasi Beli Crypto (PDF)',
     category: 'crypto',
-    hint: `Upload PDF email dari Pluang:\n"Your purchase of [Coin] was successful!"\n\nParser membaca:\n• Jenis coin (BTC, ETH, dst)\n• Jumlah unit\n• Total Paid (termasuk fee & pajak)\n• Tanggal transaksi`,
+    hint: 'Upload PDF email dari Pluang:\n"Your purchase of [Coin] was successful!"\n\nParser membaca:\n• Jenis coin (BTC, ETH, dst)\n• Jumlah unit\n• Total Paid (termasuk fee & pajak)\n• Tanggal transaksi',
     parse(raw) {
       const results = [];
 
       // ── Validasi: pastikan ini email Pluang
-      if (!/pluang/i.test(raw)) return results;
+      if (!/pluang/i.test(raw)) {return results;}
 
       // ── Pattern 1: Baca per-transaksi dari blok Transaction Details
       // Format di PDF setelah diekstrak:
@@ -378,12 +378,12 @@ const IMPORT_RULES = {
   krom_email: {
     label: 'Krom — Email Konfirmasi Deposito (PDF)',
     category: 'savings',
-    hint: `Upload PDF email dari Krom:\n"Deposito [NAMA] Berhasil Dibuat"\n\nParser membaca:\n• Nama deposito (dari subject)\n• Saldo awal (Rp)\n• Suku bunga (% p.a.)\n• Jatuh tempo (sebagai catatan)`,
+    hint: 'Upload PDF email dari Krom:\n"Deposito [NAMA] Berhasil Dibuat"\n\nParser membaca:\n• Nama deposito (dari subject)\n• Saldo awal (Rp)\n• Suku bunga (% p.a.)\n• Jatuh tempo (sebagai catatan)',
     parse(raw) {
       const results = [];
 
       // ── Validasi: pastikan ini email Krom
-      if (!/krom/i.test(raw) || !/deposito/i.test(raw)) return results;
+      if (!/krom/i.test(raw) || !/deposito/i.test(raw)) {return results;}
 
       // ── Nama deposito — dari subject email atau header
       // Format: "Deposito FEB 2026 Berhasil Dibuat"
@@ -398,7 +398,7 @@ const IMPORT_RULES = {
       // ── Saldo Awal: "Saldo Awal: Rp1.800.000"
       // Catatan: angka IDR format "1.800.000" (titik = pemisah ribuan)
       const saldoM = raw.match(/Saldo\s+Awal\s*:\s*Rp\s*([\d.,]+)/i);
-      if (!saldoM) return results;  // wajib ada saldo
+      if (!saldoM) {return results;}  // wajib ada saldo
       const saldo = parseIdrNum(saldoM[1]);
 
       // ── Suku bunga: "Suku Bunga: 6.5% p.a."
@@ -426,7 +426,7 @@ const IMPORT_RULES = {
         annualYield: bunga,
         date: txDate,
         _note: (() => {
-          if (!jatuhTempo) return '';
+          if (!jatuhTempo) {return '';}
           // Ringkas "27 Maret 2026" → "27/03/26"
           const mo={'januari':'01','februari':'02','maret':'03','april':'04','mei':'05',
             'juni':'06','juli':'07','agustus':'08','september':'09','oktober':'10',
@@ -452,19 +452,19 @@ const IMPORT_RULES = {
   'portfolio-sys': {
     label: 'PORTFOLIO.SYS (PDF Export)',
     category: 'auto',
-    hint: `Upload PDF laporan yang di-export dari PORTFOLIO.SYS sendiri.\n\nParser membaca semua aset:\n• Crypto (coin, jumlah, cost basis, platform)\n• Emas (gram, cost basis per gram)\n• Saham (ticker, lot, harga beli, broker)\n• Tabungan (bank, currency, saldo)`,
+    hint: 'Upload PDF laporan yang di-export dari PORTFOLIO.SYS sendiri.\n\nParser membaca semua aset:\n• Crypto (coin, jumlah, cost basis, platform)\n• Emas (gram, cost basis per gram)\n• Saham (ticker, lot, harga beli, broker)\n• Tabungan (bank, currency, saldo)',
     parse(raw) {
       const results = [];
 
       // ── Helper: parse "Rp 54.86Jt" / "Rp 317.728" / "Rp 2.44M" ──
       function parseRpAbbr(str) {
-        if (!str) return 0;
+        if (!str) {return 0;}
         str = String(str).replace(/\s/g, '').replace('Rp', '');
         const mulMap = { 'Jt': 1e6, 'M': 1e6, 'B': 1e9, 'Rb': 1e3, 'K': 1e3 };
         for (const [sfx, mul] of Object.entries(mulMap)) {
           const re = new RegExp(`^([\\d.,]+)${sfx}$`, 'i');
           const m = str.match(re);
-          if (m) return Math.round(parseFloat(m[1].replace(',', '.')) * mul);
+          if (m) {return Math.round(parseFloat(m[1].replace(',', '.')) * mul);}
         }
         return parseIdrNum(str);
       }
@@ -515,11 +515,11 @@ const IMPORT_RULES = {
         // 1. Coba window._POPULAR_STOCKS (reverse lookup, 8-char prefix)
         const stocks = window._POPULAR_STOCKS || {};
         for (const [t, n] of Object.entries(stocks)) {
-          if (n && nameLower.startsWith(n.toLowerCase().slice(0, 8))) return t;
+          if (n && nameLower.startsWith(n.toLowerCase().slice(0, 8))) {return t;}
         }
         // 2. Coba IDX_TICKER_MAP
         for (const [key, ticker] of Object.entries(IDX_TICKER_MAP)) {
-          if (nameLower.includes(key)) return ticker;
+          if (nameLower.includes(key)) {return ticker;}
         }
         // 3. Fallback: gabungkan 2 huruf pertama dari 2 kata pertama yang berarti
         const words = name.split(/\s+/).filter(w => w.length > 2 && !/tbk|pt\.|cv\./i.test(w));
@@ -554,7 +554,7 @@ const IMPORT_RULES = {
         if (/STOCK\s+HOLDINGS/i.test(line))   { section = 'stocks';  continue; }
         if (/^SAVINGS\s*$/i.test(line))        { section = 'savings'; continue; }
         if (/PORTFOLIO\.SYS[\s\u2013\u2014-]/i.test(line)) { section = null; continue; }
-        if (/^Nama\s+Qty\s+Nilai/i.test(line)) continue;
+        if (/^Nama\s+Qty\s+Nilai/i.test(line)) {continue;}
 
         if (section === 'crypto') {
           // "Bitcoin (indodax) 0.05621301 BTC Rp 68.04Jt Rp 54.86Jt 2023-12-20"
@@ -566,22 +566,22 @@ const IMPORT_RULES = {
             let platform = m[2].toLowerCase();
             const platformMap = {
               // Indodax variations (PDF might truncate)
-              'in': 'indodax', 'ind': 'indodax', 'indo': 'indodax', 'indod': 'indodax', 
+              'in': 'indodax', 'ind': 'indodax', 'indo': 'indodax', 'indod': 'indodax',
               'indoda': 'indodax', 'indodax': 'indodax', 'indodaz': 'indodax',
               // Pintu
               'pi': 'pintu', 'pin': 'pintu', 'pint': 'pintu', 'pintu': 'pintu',
               // Tokocrypto
-              'to': 'tokocrypto', 'tok': 'tokocrypto', 'toko': 'tokocrypto', 
+              'to': 'tokocrypto', 'tok': 'tokocrypto', 'toko': 'tokocrypto',
               'tokoc': 'tokocrypto', 'tokocr': 'tokocrypto', 'tokocrypto': 'tokocrypto',
               // Binance
-              'bi': 'binance', 'bin': 'binance', 'bina': 'binance', 
+              'bi': 'binance', 'bin': 'binance', 'bina': 'binance',
               'binan': 'binance', 'binanc': 'binance', 'binance': 'binance',
               // Floq
               'fl': 'floq', 'flo': 'floq', 'floq': 'floq',
               // Triv
               'tr': 'triv', 'tri': 'triv', 'triv': 'triv',
               // Pluang
-              'pl': 'pluang', 'plu': 'pluang', 'plua': 'pluang', 
+              'pl': 'pluang', 'plu': 'pluang', 'plua': 'pluang',
               'pluan': 'pluang', 'pluang': 'pluang',
               // Bitget
               'bit': 'bitget', 'bitg': 'bitget', 'bitge': 'bitget', 'bitget': 'bitget',
@@ -589,7 +589,7 @@ const IMPORT_RULES = {
               'ot': 'other', 'oth': 'other', 'othe': 'other', 'other': 'other',
             };
             platform = platformMap[platform] || platform;
-            
+
             results.push({
               type: 'crypto', coin,
               name: COIN_NAMES[coin] || coin,
@@ -665,12 +665,12 @@ const IMPORT_RULES = {
 
   generic: {
     label:'Format Universal (Bebas)', category:'auto',
-    hint:`Format bebas, satu aset per baris\n\nCRYPTO:\n  BTC 0.05 Rp50000000 [platform] [tanggal]\n  ETH 1.5 50000000\n\nSAHAM IDX:\n  BBCA 2 lot 9200 [broker] [tanggal]\n  TLKM 5lot 3850\n\nSAHAM US:\n  AAPL 3 185 USD\n  TSLA 2 250 USD\n\nTABUNGAN:\n  BCA Rp45000000\n  OCBC SGD 800`,
+    hint:'Format bebas, satu aset per baris\n\nCRYPTO:\n  BTC 0.05 Rp50000000 [platform] [tanggal]\n  ETH 1.5 50000000\n\nSAHAM IDX:\n  BBCA 2 lot 9200 [broker] [tanggal]\n  TLKM 5lot 3850\n\nSAHAM US:\n  AAPL 3 185 USD\n  TSLA 2 250 USD\n\nTABUNGAN:\n  BCA Rp45000000\n  OCBC SGD 800',
     parse(raw){
       const results=[];
       const lines = raw.split(/[\r\n]+/).map(l=>l.trim()).filter(Boolean);
       for(const line of lines){
-        if(line.startsWith('#')||line.startsWith('//')||line.startsWith(';')) continue;
+        if(line.startsWith('#')||line.startsWith('//')||line.startsWith(';')) {continue;}
         // CRYPTO: BTC 0.05 [Rp]50000000
         const reCrypto = new RegExp(`^(${CRYPTO_COINS})\\s+([\\d.,]+)\\s+(?:Rp\\s*)?(\\d[\\d.,]*)(?:\\s+(\\w+))?(?:\\s+(\\d{4}-\\d{2}-\\d{2}))?`,'i');
         const mCrypto = line.match(reCrypto);
@@ -761,9 +761,9 @@ function impSetStep(n){
   [1,2,3].forEach(i=>{
     const el=document.getElementById('impStep'+i);
     el.classList.remove('active','done');
-    if(i<n) el.classList.add('done'), document.getElementById('impStepNum'+i).innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg>';
-    else if(i===n) el.classList.add('active'), document.getElementById('impStepNum'+i).textContent=i;
-    else document.getElementById('impStepNum'+i).textContent=i;
+    if(i<n) {el.classList.add('done'), document.getElementById('impStepNum'+i).innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg>';}
+    else if(i===n) {el.classList.add('active'), document.getElementById('impStepNum'+i).textContent=i;}
+    else {document.getElementById('impStepNum'+i).textContent=i;}
   });
 }
 
@@ -842,7 +842,7 @@ function impRenderStep(){
 
 function impRenderInputArea(){
   const area = document.getElementById('impInputArea');
-  if(!area) return;
+  if(!area) {return;}
   if(_impMethod==='text'){
     area.innerHTML=`
       <textarea class="imp-textarea" id="impTextarea"
@@ -908,9 +908,9 @@ function impRenderInputArea(){
 
 function impRenderTemplate(){
   const area = document.getElementById('impTemplateArea');
-  if(!area) return;
+  if(!area) {return;}
   const rule = IMPORT_RULES[_impSource];
-  if(!rule?.hint) return;
+  if(!rule?.hint) {return;}
   area.innerHTML=`
     <div class="imp-template">
       <div class="imp-template-title">${impT('fmt','Recognized Format','Format yang Dikenali')}
@@ -923,16 +923,16 @@ function impRenderTemplate(){
 
 function impCopyTemplate(){
   const t = document.getElementById('impTemplateText');
-  if(t) navigator.clipboard.writeText(t.textContent).then(()=>{
+  if(t) {navigator.clipboard.writeText(t.textContent).then(()=>{
     const btn = document.querySelector('.imp-copy-btn');
     if(btn){ btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy example',1500); }
-  });
+  });}
 }
 
 function impChangeSource(val){
   _impSource=val;
   // Auto-switch method untuk parser yang punya format khusus
-  if(val === 'pluang-csv') impSetMethod('csv');
+  if(val === 'pluang-csv') {impSetMethod('csv');}
   impRenderTemplate();
 }
 
@@ -957,82 +957,82 @@ function autoDetectSource(rawText) {
 
   // Stockbit Trade Confirmation
   if (/STOCKBIT/i.test(t) && /Trade\s*Confirmation/i.test(t))
-    return 'stockbit_trade';
+    {return 'stockbit_trade';}
 
   // Pluang email beli crypto
   if (/pluang/i.test(t) && /purchase.*was\s+successful|Amount\s+[\d.]+\s+units/i.test(t))
-    return 'pluang_email';
+    {return 'pluang_email';}
 
   // Krom deposito email
   if (/krom/i.test(t) && /Deposito.*Berhasil\s+Dibuat|Saldo\s+Awal\s*:\s*Rp/i.test(t))
-    return 'krom_email';
+    {return 'krom_email';}
 
   // Pintu
   if (/pintu/i.test(t) && /(?:Beli|Buy)\s+(?:BTC|ETH|XRP)/i.test(t))
-    return 'pintu';
+    {return 'pintu';}
 
   // Tokocrypto
   if (/tokocrypto/i.test(t) && /BUY.*\/IDR|Qty:/i.test(t))
-    return 'tokocrypto';
+    {return 'tokocrypto';}
 
   // Indodax Tax Report PDF — cek lebih spesifik dulu
   if (/PORTFOLIO\.SYS/i.test(t) && /CRYPTO\s+HOLDINGS|GOLD\s+HOLDINGS|STOCK\s+HOLDINGS/i.test(t))
-    return 'portfolio-sys';
+    {return 'portfolio-sys';}
 
   // Indodax Tax Report PDF — cek lebih spesifik dulu
   if (/indodax/i.test(t) && /Final\s+Tax\s+Collection\s+Slip|Tax\s+Collection\s+Slip/i.test(t))
-    return 'indodax-tax';
+    {return 'indodax-tax';}
 
   // Indodax (copy-paste order history)
   if (/indodax/i.test(t))
-    return 'indodax';
+    {return 'indodax';}
 
   // Tokocrypto Tax Report PDF
   if (/tokocrypto/i.test(t) && /Ringkasan\s+Pemotongan\s+Pajak|PT\.\s*Aset\s+Digital/i.test(t))
-    return 'tokocrypto-tax';
+    {return 'tokocrypto-tax';}
 
   // Floq Tax Report PDF
   if (/floq|Kripto\s+Maksima\s+Koin/i.test(t) && /Laporan\s+Pajak\s+Aset\s+Kripto/i.test(t))
-    return 'floq-tax';
+    {return 'floq-tax';}
 
   // Pluang CSV
   if (/Order\s+Date.*Order\s+Time.*Transaction\s+Type/i.test(t) && /Bumi\s+Sent?osa/i.test(t))
-    return 'pluang-csv';
+    {return 'pluang-csv';}
 
   // Binance CSV
   if (/Date\(UTC\).*Pair.*Side.*Price/i.test(t) || /BTCUSDT.*BUY/i.test(t))
-    return 'binance';
+    {return 'binance';}
 
   // PORTFOLIO.SYS PDF export (self-import)
   if (/PORTFOLIO\.SYS/i.test(t) && /CRYPTO\s+HOLDINGS|GOLD\s+HOLDINGS|STOCK\s+HOLDINGS/i.test(t))
-    return 'portfolio-sys';
+    {return 'portfolio-sys';}
 
   // Bibit
   if (/bibit/i.test(t) && /lot/i.test(t))
-    return 'bibit';
+    {return 'bibit';}
 
   // Stockbit portfolio (copy-paste, bukan PDF konfirmasi)
   if (/stockbit/i.test(t) && /rata-rata|avg/i.test(t))
-    return 'stockbit';
+    {return 'stockbit';}
 
   return null; // tidak dideteksi → biarkan user pilih manual
 }
 
 function applyAutoDetect(rawText) {
   const detected = autoDetectSource(rawText);
-  if (!detected) return;
+  if (!detected) {return;}
 
   // Update state & dropdown
   _impSource = detected;
   const sel = document.getElementById('impSourceSel');
-  if (sel) sel.value = detected;
+  if (sel) {sel.value = detected;}
 
   // Update template hint
   impRenderTemplate();
 
   // Tampilkan notif kecil
   const fn = document.getElementById('impFileName');
-  if (fn) fn.textContent += ` — Detected: ${IMPORT_RULES[detected]?.label || detected}`;
+  if (fn) {fn.textContent += ` — Detected: ${IMPORT_RULES[detected]?.label || detected}`;}
 }
 
 // ── PDF extraction ───────────────────────────────────────────────
@@ -1041,7 +1041,7 @@ async function impHandlePdf(filesOrFile){
   const files = (filesOrFile instanceof FileList)
     ? Array.from(filesOrFile)
     : (filesOrFile ? [filesOrFile] : []);
-  if(!files.length) return;
+  if(!files.length) {return;}
 
   const progress=document.getElementById('impProgress');
   const fill=document.getElementById('impProgFill');
@@ -1050,8 +1050,8 @@ async function impHandlePdf(filesOrFile){
   txt.textContent=`${impT('loading_pdf','Loading','Memuat')} ${files.length} PDF...`;
 
   const pdfjsLib = window['pdfjs-dist/build/pdf'];
-  if(pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc=
-    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  if(pdfjsLib) {pdfjsLib.GlobalWorkerOptions.workerSrc=
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}
 
   _impRaw = '';
   let totalPages = 0;
@@ -1085,12 +1085,12 @@ async function impHandlePdf(filesOrFile){
             curLine.push(item.str);
             curY = y;
           } else {
-            if (curLine.length) lines.push(curLine.join(' '));
+            if (curLine.length) {lines.push(curLine.join(' '));}
             curLine = [item.str];
             curY = y;
           }
         }
-        if (curLine.length) lines.push(curLine.join(' '));
+        if (curLine.length) {lines.push(curLine.join(' '));}
         fileText += lines.join('\n') + '\n';
 
         const overall = ((fi/files.length) + (1/files.length)*(i/pdf.numPages))*90 + 5;
@@ -1107,9 +1107,9 @@ async function impHandlePdf(filesOrFile){
 
   // Update nama file di UI
   const fn = document.getElementById('impFileName');
-  if(fn) fn.textContent = files.length===1
+  if(fn) {fn.textContent = files.length===1
     ? ''+files[0].name
-    : `${files.length} file (${totalPages} pages)`;
+    : `${files.length} file (${totalPages} pages)`;}
 
   applyAutoDetect(_impRaw);
   fill.style.width='100%';
@@ -1122,7 +1122,7 @@ async function impHandleOcr(filesOrFile){
   const files = (filesOrFile instanceof FileList)
     ? Array.from(filesOrFile)
     : (filesOrFile ? [filesOrFile] : []);
-  if(!files.length) return;
+  if(!files.length) {return;}
 
   const progress=document.getElementById('impProgress');
   const fill=document.getElementById('impProgFill');
@@ -1163,9 +1163,9 @@ async function impHandleOcr(filesOrFile){
 
   await worker.terminate();
   const fn = document.getElementById('impFileName');
-  if(fn) fn.textContent = files.length===1
+  if(fn) {fn.textContent = files.length===1
     ? ''+files[0].name
-    : `${files.length} images`;
+    : `${files.length} images`;}
 
   applyAutoDetect(_impRaw);
   fill.style.width='100%';
@@ -1176,14 +1176,14 @@ async function impHandleOcr(filesOrFile){
 async function impHandleCsv(filesOrFile) {
   const files = filesOrFile instanceof FileList ? Array.from(filesOrFile)
               : Array.isArray(filesOrFile) ? filesOrFile : [filesOrFile];
-  if (!files.length) return;
+  if (!files.length) {return;}
 
   const progress = document.getElementById('impProgress');
   const fill     = document.getElementById('impProgFill');
   const txt      = document.getElementById('impProgText');
-  if (progress) progress.style.display = '';
-  if (fill) fill.style.width = '20%';
-  if (txt) txt.textContent = 'Membaca CSV...';
+  if (progress) {progress.style.display = '';}
+  if (fill) {fill.style.width = '20%';}
+  if (txt) {txt.textContent = 'Membaca CSV...';}
 
   _impRaw = '';
   for (let fi = 0; fi < files.length; fi++) {
@@ -1191,34 +1191,34 @@ async function impHandleCsv(filesOrFile) {
     try {
       const text = await file.text();
       _impRaw += (fi > 0 ? '\n\n--- FILE: ' + file.name + ' ---\n\n' : '') + text;
-      if (fill) fill.style.width = Math.round(((fi + 1) / files.length) * 90 + 5) + '%';
+      if (fill) {fill.style.width = Math.round(((fi + 1) / files.length) * 90 + 5) + '%';}
     } catch(e) {
-      if (txt) txt.textContent = 'Failed: ' + file.name + ' — ' + e.message;
+      if (txt) {txt.textContent = 'Failed: ' + file.name + ' — ' + e.message;}
     }
   }
 
   const fn = document.getElementById('impFileName');
-  if (fn) fn.textContent = files.length === 1
+  if (fn) {fn.textContent = files.length === 1
     ? files[0].name
-    : `${files.length} CSV files`;
+    : `${files.length} CSV files`;}
 
   applyAutoDetect(_impRaw);
-  if (fill) fill.style.width = '100%';
-  if (txt) txt.textContent = `${_impRaw.length} chars from ${files.length} CSV files`;
-  setTimeout(() => { if (progress) progress.style.display = 'none'; }, 2500);
+  if (fill) {fill.style.width = '100%';}
+  if (txt) {txt.textContent = `${_impRaw.length} chars from ${files.length} CSV files`;}
+  setTimeout(() => { if (progress) {progress.style.display = 'none';} }, 2500);
 }
 
 function impHandleDrop(e){
   e.preventDefault();
   document.getElementById('impDropzone')?.classList.remove('drag');
   const files = e.dataTransfer?.files;
-  if(!files || !files.length) return;
+  if(!files || !files.length) {return;}
   const pdfs = Array.from(files).filter(f=>f.type==='application/pdf');
   const imgs = Array.from(files).filter(f=>f.type.startsWith('image/'));
   const csvs = Array.from(files).filter(f=>f.name.match(/\.(csv|txt)$/i));
-  if(pdfs.length) impHandlePdf(pdfs);
-  if(imgs.length) impHandleOcr(imgs);
-  if(csvs.length) impHandleCsv(csvs);
+  if(pdfs.length) {impHandlePdf(pdfs);}
+  if(imgs.length) {impHandleOcr(imgs);}
+  if(csvs.length) {impHandleCsv(csvs);}
 }
 
 // ── Parsing & Preview ────────────────────────────────────────────
@@ -1227,7 +1227,7 @@ function impNext(){
     // Grab text from textarea if text mode
     if(_impMethod==='text'){
       const ta = document.getElementById('impTextarea');
-      if(ta) _impRaw = ta.value;
+      if(ta) {_impRaw = ta.value;}
     }
     if(!_impRaw.trim()){
       alert(impT('no_data','No data! Paste text or upload a file first.','Belum ada data! Tempelkan teks atau upload file terlebih dahulu.'));
@@ -1284,9 +1284,9 @@ function impToggleRow(id){
   const r=_impResults.find(x=>x._id===id);
   if(r){ r._checked=!r._checked; }
   const row=document.getElementById('impRow-'+id);
-  if(row) row.classList.toggle('unchecked',!r._checked);
+  if(row) {row.classList.toggle('unchecked',!r._checked);}
   const addBtn=document.getElementById('impNextBtn');
-  if(addBtn) addBtn.textContent=`${impT('add','Add','Tambah')} ${_impResults.filter(r=>r._checked).length} ${impT('items','Items →','Item →')}`;
+  if(addBtn) {addBtn.textContent=`${impT('add','Add','Tambah')} ${_impResults.filter(r=>r._checked).length} ${impT('items','Items →','Item →')}`;}
   addBtn.disabled=_impResults.filter(r=>r._checked).length===0;
 }
 
@@ -1295,7 +1295,7 @@ function impToggleAll(){
   _impResults.forEach(r=>r._checked=anyUnchecked);
   impRenderPreview(document.getElementById('impBody'));
   const addBtn=document.getElementById('impNextBtn');
-  if(addBtn){ 
+  if(addBtn){
     addBtn.textContent=`${impT('add','Add','Tambah')} ${_impResults.filter(r=>r._checked).length} ${impT('items','Items →','Item →')}`;
     addBtn.disabled=_impResults.filter(r=>r._checked).length===0;
   }
@@ -1352,7 +1352,7 @@ function impRenderPreview(body){
         }).join('')}
       </tbody>
     </table>
-    ${_impResults.length===0?`<div class="no-results">Tidak ada item yang berhasil di-parse</div>`:''}
+    ${_impResults.length===0?'<div class="no-results">Tidak ada item yang berhasil di-parse</div>':''}
     <div class="imp-warn-msg">
       ${impT('warn','Review data before importing. Click rows to check/uncheck.\n      Imported data will be added to existing assets.','Periksa data sebelum import. Klik baris untuk centang/uncentang.\n      Data yang diimport akan ditambahkan ke aset yang sudah ada.')}
     </div>
@@ -1366,5 +1366,5 @@ window.impSetMethod=impSetMethod; window.impChangeSource=impChangeSource;
 window.impHandlePdf=impHandlePdf; window.impHandleOcr=impHandleOcr; window.impHandleCsv=impHandleCsv;
 window.impHandleDrop=impHandleDrop; window.impCopyTemplate=impCopyTemplate;
 document.getElementById('impOverlay').addEventListener('click',e=>{
-  if(e.target.id==='impOverlay') closeImport();
+  if(e.target.id==='impOverlay') {closeImport();}
 });

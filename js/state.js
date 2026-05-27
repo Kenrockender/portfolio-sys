@@ -258,11 +258,11 @@ export function deleteDemoData() {
   DATA.savings = [];
   DATA.history = [];
   DATA.txLog = [];
-  
+
   // Clear history data
   S.historyData = [];
   S.historyLoaded = true;
-  
+
   console.log('[STATE] Demo data deleted - all arrays cleared');
 }
 

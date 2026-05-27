@@ -6,13 +6,13 @@ export const PORTFOLIOSYS_PARSERS = {
   'portfoliosys-pdf': {
     label: 'PORTFOLIO.SYS — Internal Report (PDF)',
     category: 'auto',
-    hint: `Upload PDF Laporan PORTFOLIO.SYS\n\nParser membaca:\n• Crypto, Gold, Stocks, Savings\n• Kuantitas & Modal (Cost Basis)\n• Tanggal transaksi\n• Platform asal`,
+    hint: 'Upload PDF Laporan PORTFOLIO.SYS\n\nParser membaca:\n• Crypto, Gold, Stocks, Savings\n• Kuantitas & Modal (Cost Basis)\n• Tanggal transaksi\n• Platform asal',
     parse(raw) {
       const results = [];
-      
+
       // Helper untuk parsing format IDR (contoh: 1.234.567)
       const parseIdrNum = (str) => {
-        if(!str) return 0;
+        if(!str) {return 0;}
         str = str.toString().trim();
         const cleaned = str.replace(/\s/g,'');
         if(cleaned.includes('.') && cleaned.includes(',')){
@@ -24,16 +24,16 @@ export const PORTFOLIOSYS_PARSERS = {
             return parseFloat(cleaned.replace(/,/g,'')) || 0;
           }
         }
-        if(cleaned.includes('.')){ 
+        if(cleaned.includes('.')){
           const parts = cleaned.split('.');
-          if(parts.length > 2) return parseFloat(cleaned.replace(/\./g,'')) || 0;
-          if(parts[parts.length-1].length === 3) return parseFloat(cleaned.replace(/\./g,'')) || 0;
+          if(parts.length > 2) {return parseFloat(cleaned.replace(/\./g,'')) || 0;}
+          if(parts[parts.length-1].length === 3) {return parseFloat(cleaned.replace(/\./g,'')) || 0;}
           return parseFloat(cleaned) || 0;
         }
-        if(cleaned.includes(',')){ 
+        if(cleaned.includes(',')){
           const parts = cleaned.split(',');
-          if(parts.length > 2) return parseFloat(cleaned.replace(/,/g,'')) || 0;
-          if(parts[parts.length-1].length === 3) return parseFloat(cleaned.replace(/,/g,'')) || 0;
+          if(parts.length > 2) {return parseFloat(cleaned.replace(/,/g,'')) || 0;}
+          if(parts[parts.length-1].length === 3) {return parseFloat(cleaned.replace(/,/g,'')) || 0;}
           return parseFloat(cleaned.replace(',','.')) || 0;
         }
         return parseFloat(cleaned) || 0;
@@ -41,8 +41,8 @@ export const PORTFOLIOSYS_PARSERS = {
 
       // Helper untuk parsing format Juta (contoh: Rp 1.88Jt)
       const parseJt = (str) => {
-        if(!str) return 0;
-        let s = str.replace(/Rp\s*/i, '').replace(/,/g, '').trim();
+        if(!str) {return 0;}
+        const s = str.replace(/Rp\s*/i, '').replace(/,/g, '').trim();
         if (/Jt$/i.test(s)) {
           return parseFloat(s.replace(/Jt/i, '')) * 1000000;
         }
@@ -84,10 +84,10 @@ export const PORTFOLIOSYS_PARSERS = {
       // 3. Ekstrak Stocks
       const stockRe = /([A-Za-z0-9\s]+?)\s*\([^)]*?\)[\s",]+([\d.,]+)\s*lot[\s\S]{1,40}?Rp\s*[\d.,]+(?:Jt)?[\s",]+(?:Rp\s*)?([\d.,]+(?:Jt)?)[\s",]+(\d{4}-\d{2}-\d{2})/gi;
       for (const m of stockBlock.matchAll(stockRe)) {
-        let name = m[1].trim();
-        let shares = parseInt(m[2].replace(/,/g, ''));
-        let costBasis = parseJt(m[3]);
-        let seedPrice = Math.round(costBasis / (shares * 100)); // IDX: 100 lembar/lot
+        const name = m[1].trim();
+        const shares = parseInt(m[2].replace(/,/g, ''));
+        const costBasis = parseJt(m[3]);
+        const seedPrice = Math.round(costBasis / (shares * 100)); // IDX: 100 lembar/lot
         results.push({
           type: 'stocks',
           ticker: name.substring(0, 4).toUpperCase(), // Ambil 4 huruf pertama jika tidak ada ticker penuh
@@ -103,7 +103,7 @@ export const PORTFOLIOSYS_PARSERS = {
       // 4. Ekstrak Savings
       const savRe = /"?([^",\n]+)"?[\s",]+([A-Za-z]{3})\s+([\d.,]+)[\s",]+(?:Rp\s*)?([\d.,]+(?:Jt)?)[\s",]*(\d{4}-\d{2}-\d{2})/gi;
       for (const m of savingsBlock.matchAll(savRe)) {
-        if(m[1].includes("PORTFOLIO")) continue; // Skip jika header match bocor
+        if(m[1].includes('PORTFOLIO')) {continue;} // Skip jika header match bocor
         results.push({
           type: 'savings',
           name: m[1].trim(),

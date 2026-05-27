@@ -5,7 +5,7 @@
 
 export function showSkeletonLoader(containerId, type = 'table') {
   const container = document.getElementById(containerId);
-  if (!container) return;
+  if (!container) {return;}
 
   const skeletonHTML = getSkeletonHTML(type);
   container.innerHTML = `<div class="skeleton-wrapper">${skeletonHTML}</div>`;
@@ -14,8 +14,8 @@ export function showSkeletonLoader(containerId, type = 'table') {
 
 export function hideSkeletonLoader(containerId) {
   const container = document.getElementById(containerId);
-  if (!container) return;
-  
+  if (!container) {return;}
+
   container.classList.remove('loading');
   const skeleton = container.querySelector('.skeleton-wrapper');
   if (skeleton) {
@@ -25,21 +25,21 @@ export function hideSkeletonLoader(containerId) {
 
 export function showLoadingOverlay(message = 'Loading...') {
   let overlay = document.getElementById('loading-overlay');
-  
+
   if (!overlay) {
     overlay = document.createElement('div');
     overlay.id = 'loading-overlay';
     overlay.className = 'loading-overlay';
     document.body.appendChild(overlay);
   }
-  
+
   overlay.innerHTML = `
     <div class="loading-spinner">
       <div class="spinner"></div>
       <p>${message}</p>
     </div>
   `;
-  
+
   overlay.classList.add('active');
 }
 
@@ -53,8 +53,8 @@ export function hideLoadingOverlay() {
 
 export function showInlineLoader(elementId) {
   const element = document.getElementById(elementId);
-  if (!element) return;
-  
+  if (!element) {return;}
+
   element.classList.add('loading-inline');
   const loader = document.createElement('span');
   loader.className = 'inline-spinner';
@@ -63,8 +63,8 @@ export function showInlineLoader(elementId) {
 
 export function hideInlineLoader(elementId) {
   const element = document.getElementById(elementId);
-  if (!element) return;
-  
+  if (!element) {return;}
+
   element.classList.remove('loading-inline');
   const loader = element.querySelector('.inline-spinner');
   if (loader) {
@@ -88,7 +88,7 @@ function getSkeletonHTML(type) {
           `).join('')}
         </div>
       `;
-    
+
     case 'card':
       return `
         <div class="skeleton-card">
@@ -103,7 +103,7 @@ function getSkeletonHTML(type) {
           </div>
         </div>
       `;
-    
+
     case 'chart':
       return `
         <div class="skeleton-chart">
@@ -117,7 +117,7 @@ function getSkeletonHTML(type) {
           </div>
         </div>
       `;
-    
+
     case 'stats':
       return `
         <div class="skeleton-stats">
@@ -129,7 +129,7 @@ function getSkeletonHTML(type) {
           `).join('')}
         </div>
       `;
-    
+
     default:
       return '<div class="skeleton-placeholder"></div>';
   }
