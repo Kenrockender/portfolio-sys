@@ -9,7 +9,7 @@
    ============================================================ */
 
 import { S, DATA } from './state.js';
-import { totals } from './storage.js';
+import { totals, cryptoPrice, stockPrice, stockMul, savingsIdr } from './storage.js';
 
 var i18n = (typeof window !== 'undefined' && window.psys && window.psys.i18n) || null;
 function t(k, fb)         { return i18n ? i18n.t(k, fb) : (fb || k); }
@@ -268,7 +268,7 @@ function renderAllocation() {
   if (grand <= 0) {
     svg.innerHTML = '<circle cx="100" cy="100" r="80" fill="none" stroke="var(--bg-sunk)" stroke-width="22"/>';
     legend.innerHTML = '<div class="alloc__leg-row"><span class="dot" style="background: var(--ink-faint);"></span><span>' + esc(lang() === 'id' ? 'Belum ada data' : 'No data yet') + '</span><span class="pct">…</span></div>';
-    if (big) big.textContent = '0';
+    if (big) big.textContent = '…';
     return;
   }
 
@@ -289,7 +289,16 @@ function renderAllocation() {
   }
   svg.innerHTML = donutSvg;
 
-  if (big) big.textContent = segs.filter(function (s) { return s.val > 0; }).length;
+  // Center: show total portfolio value in compact form (more useful than
+  // a class count). Auto-scale font so long strings still fit inside the
+  // 200×200 donut hole.
+  if (big) {
+    big.textContent = fmtIDR(grand, { compact: true });
+    var len = big.textContent.length;
+    big.style.fontSize = len > 11 ? '17px' : (len > 8 ? '20px' : '24px');
+  }
+  var subEl = document.querySelector('.alloc__chart-center__sub');
+  if (subEl) subEl.textContent = lang() === 'id' ? 'total portofolio' : 'total portfolio';
 
   var targets = (S.rebalTargets || { stocks: 30, crypto: 40, gold: 15, savings: 15 });
   legend.innerHTML = segs.map(function (s) {
@@ -490,16 +499,174 @@ function renderInsight() {
   msg.innerHTML = text;
 }
 
-/* ---- ML SIGNALS ---- */
+/* ---- SIGNALS ----
+   Computed from the existing data (no ML server). Picks up:
+   - asset-class concentration > 50 % (anomaly)
+   - drawdown ≥ |10 %| (anomaly)
+   - growth + low-vol → "growth-stable" regime
+   - drawdown phase → "defensive" regime
+   - single ticker > 25 % of portfolio (concentration)
+   - sharpe < 0.4 → "low risk-adjusted" warning              */
+
+function computeSignals() {
+  var sigs = [];
+  var T = totals();
+  var grand = T.t || 0;
+  if (grand <= 0) return sigs;
+
+  var pcts = {
+    stocks:  (T.k  / grand) * 100,
+    crypto:  (T.c  / grand) * 100,
+    gold:    (T.g  / grand) * 100,
+    savings: (T.sv / grand) * 100,
+  };
+  var labelById = {
+    stocks: lang() === 'id' ? 'saham' : 'stocks',
+    crypto: 'crypto',
+    gold:   lang() === 'id' ? 'emas' : 'gold',
+    savings: lang() === 'id' ? 'tabungan' : 'savings',
+  };
+
+  // 1. Class concentration > 50 %
+  Object.keys(pcts).forEach(function (k) {
+    if (pcts[k] > 50) {
+      sigs.push({
+        type: 'anomaly',
+        when: lang() === 'id' ? 'Sekarang' : 'Now',
+        msg: lang() === 'id'
+          ? 'Konsentrasi <b>' + labelById[k] + '</b> tinggi: ' + pcts[k].toFixed(1) + '% dari portofolio. Pertimbangkan rebalance.'
+          : 'High <b>' + labelById[k] + '</b> concentration: ' + pcts[k].toFixed(1) + '% of portfolio. Consider rebalancing.',
+        conf: Math.min(99, 70 + Math.floor(pcts[k] - 50)),
+      });
+    }
+  });
+
+  // 2. Individual position concentration > 25 %
+  var groups = {};
+  (DATA.crypto || []).forEach(function (a) {
+    var key = a.coin || '?';
+    groups[key] = (groups[key] || 0) + (a.amount || 0) * cryptoPrice(a);
+  });
+  (DATA.stocks || []).forEach(function (h) {
+    var key = h.ticker || '?';
+    groups[key] = (groups[key] || 0) + (h.shares || 0) * stockMul(h) * stockPrice(h);
+  });
+  Object.keys(groups).forEach(function (sym) {
+    var pct = (groups[sym] / grand) * 100;
+    if (pct > 25) {
+      sigs.push({
+        type: 'anomaly',
+        when: lang() === 'id' ? 'Sekarang' : 'Now',
+        msg: lang() === 'id'
+          ? '<b>' + sym + '</b> menempati ' + pct.toFixed(1) + '% portfolio (sendirian). Single-name risk tinggi.'
+          : '<b>' + sym + '</b> is ' + pct.toFixed(1) + '% of portfolio (single ticker). High single-name risk.',
+        conf: Math.min(99, 75 + Math.floor(pct - 25)),
+      });
+    }
+  });
+
+  // 3. Regime detection from 1Y metrics
+  var hist1y = historyFor('1Y');
+  var m = computeMetrics(hist1y);
+  if (m.return > 10 && m.vol < 18) {
+    sigs.push({
+      type: 'regime',
+      when: lang() === 'id' ? 'Hari ini' : 'Today',
+      msg: lang() === 'id'
+        ? 'Regime <b>"growth + stable"</b>. Return ' + m.return.toFixed(1) + '% dengan volatilitas ' + m.vol.toFixed(1) + '% (annualised).'
+        : 'Regime <b>"growth + stable"</b>. Return ' + m.return.toFixed(1) + '% at ' + m.vol.toFixed(1) + '% annualised vol.',
+      conf: 88,
+    });
+  } else if (m.return < -5) {
+    sigs.push({
+      type: 'regime',
+      when: lang() === 'id' ? 'Hari ini' : 'Today',
+      msg: lang() === 'id'
+        ? 'Regime <b>"defensive"</b>. Return 1Y ' + m.return.toFixed(1) + '%. Pertimbangkan menambah cash atau emas.'
+        : 'Regime <b>"defensive"</b>. 1Y return ' + m.return.toFixed(1) + '%. Consider adding cash or gold.',
+      conf: 84,
+    });
+  }
+
+  // 4. Drawdown anomaly
+  if (m.drawdown <= -10) {
+    sigs.push({
+      type: 'anomaly',
+      when: m.ddDate ? new Date(m.ddDate).toLocaleDateString(lang() === 'id' ? 'id-ID' : 'en-US', { day: 'numeric', month: 'short' }) : (lang() === 'id' ? 'Lalu' : 'Past'),
+      msg: lang() === 'id'
+        ? 'Max drawdown <b>' + m.drawdown.toFixed(1) + '%</b> pada periode 1Y. Pulih ' + Math.max(1, Math.floor((new Date() - new Date(m.ddDate || Date.now())) / (1000 * 60 * 60 * 24 * 7))) + ' minggu lalu.'
+        : 'Max drawdown <b>' + m.drawdown.toFixed(1) + '%</b> in 1Y. Recovered ' + Math.max(1, Math.floor((new Date() - new Date(m.ddDate || Date.now())) / (1000 * 60 * 60 * 24 * 7))) + ' weeks ago.',
+      conf: 92,
+    });
+  }
+
+  // 5. Sharpe outlook (predict)
+  if (m.sharpe >= 1) {
+    sigs.push({
+      type: 'predict',
+      when: lang() === 'id' ? 'Outlook' : 'Outlook',
+      msg: lang() === 'id'
+        ? 'Sharpe <b>' + m.sharpe.toFixed(2) + '</b> sehat. Risk-adjusted return mendukung continuation jika regime tidak berubah.'
+        : 'Sharpe <b>' + m.sharpe.toFixed(2) + '</b> is healthy. Risk-adjusted return supports continuation if regime holds.',
+      conf: 71,
+    });
+  } else if (m.sharpe < 0.4 && m.sharpe !== 0) {
+    sigs.push({
+      type: 'predict',
+      when: lang() === 'id' ? 'Outlook' : 'Outlook',
+      msg: lang() === 'id'
+        ? 'Sharpe <b>' + m.sharpe.toFixed(2) + '</b> rendah. Pertimbangkan defensive shift atau review thesis tiap aset.'
+        : 'Sharpe <b>' + m.sharpe.toFixed(2) + '</b> is low. Consider a defensive shift or review per-asset thesis.',
+      conf: 76,
+    });
+  }
+
+  // Sort: anomaly first, then regime, then predict
+  var order = { anomaly: 0, regime: 1, predict: 2 };
+  sigs.sort(function (a, b) { return (order[a.type] || 3) - (order[b.type] || 3); });
+  return sigs;
+}
+
 function renderSignals() {
   var sub = document.querySelector('[data-an-sig-sub]');
   var root = document.querySelector('[data-an-signals]');
   if (!root) return;
-  // No ML wiring yet — show empty state with helpful copy.
-  if (sub) sub.textContent = lang() === 'id' ? 'Belum diaktifkan (ML akan masuk di rilis berikut)' : 'Not enabled yet (ML in a later release)';
-  root.innerHTML = '<div class="signals__empty">' + esc(lang() === 'id'
-    ? 'Sinyal model belum aktif. ML akan menganalisis pola harga, mendeteksi anomali, dan memberi prediksi rentang harga di rilis berikut.'
-    : 'Model signals are not active. ML will analyse price patterns, flag anomalies, and predict price ranges in a future release.') + '</div>';
+
+  var sigs = computeSignals();
+  var anomalyCount = sigs.filter(function (s) { return s.type === 'anomaly'; }).length;
+  var regimeCount  = sigs.filter(function (s) { return s.type === 'regime';  }).length;
+  var predictCount = sigs.filter(function (s) { return s.type === 'predict'; }).length;
+
+  if (sub) {
+    sub.textContent = sigs.length === 0
+      ? (lang() === 'id' ? 'Tidak ada sinyal aktif' : 'No active signals')
+      : (lang() === 'id'
+          ? sigs.length + ' sinyal · ' + anomalyCount + ' anomali · ' + regimeCount + ' regime · ' + predictCount + ' outlook'
+          : sigs.length + ' signals · ' + anomalyCount + ' anomaly · ' + regimeCount + ' regime · ' + predictCount + ' outlook');
+  }
+
+  if (!sigs.length) {
+    root.innerHTML = '<div class="signals__empty">' + esc(lang() === 'id'
+      ? 'Portfolio kamu seimbang. Tidak ada anomali atau konsentrasi yang perlu di-flag sekarang.'
+      : 'Your portfolio is balanced. No anomaly or concentration to flag right now.') + '</div>';
+    return;
+  }
+
+  var typeLabel = {
+    anomaly: lang() === 'id' ? 'ANOMALI' : 'ANOMALY',
+    regime:  lang() === 'id' ? 'REGIME'  : 'REGIME',
+    predict: lang() === 'id' ? 'OUTLOOK' : 'OUTLOOK',
+  };
+
+  root.innerHTML = sigs.map(function (s) {
+    return ''
+      + '<div class="signal">'
+      + '  <span class="signal__when">' + esc(s.when) + '</span>'
+      + '  <span class="signal__msg">' + s.msg + '</span>'
+      + '  <span class="signal__type ' + s.type + '">' + esc(typeLabel[s.type] || s.type.toUpperCase()) + '</span>'
+      + '  <span class="signal__conf">conf ' + s.conf + '%</span>'
+      + '</div>';
+  }).join('');
 }
 
 /* ---- MONTHLY HEATMAP ---- */
