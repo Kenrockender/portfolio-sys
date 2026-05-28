@@ -1,0 +1,336 @@
+/* ============================================================
+   portfolio.sys — app shell styles
+   Composition on top of system.css. Phase 2 ships the shell;
+   per-tab styles arrive with Phases 3–5.
+   ============================================================ */
+
+/* ---- OFFLINE BANNER ---- */
+.offline-banner {
+  background: rgba(248, 113, 113, 0.10);
+  color: var(--down);
+  border-bottom: 1px solid rgba(248, 113, 113, 0.30);
+  font-family: var(--font-mono);
+  font-size: var(--size-small);
+  padding: 8px var(--sp-l);
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+.offline-banner[hidden] { display: none; }
+
+/* ============================================================
+   LOGIN OVERLAY
+   ============================================================ */
+
+.login-overlay {
+  position: fixed; inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-l);
+  background:
+    radial-gradient(ellipse at top, rgba(52, 211, 153, 0.04), transparent 70%),
+    var(--bg);
+  /* Same dotted texture as body */
+  background-image:
+    radial-gradient(1px 1px at 25% 35%, rgba(52, 211, 153, 0.04), transparent 50%),
+    radial-gradient(1px 1px at 75% 65%, rgba(52, 211, 153, 0.025), transparent 50%),
+    radial-gradient(ellipse at top, rgba(52, 211, 153, 0.04), transparent 70%);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--bg-elev);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  padding: var(--sp-xl) var(--sp-xl) var(--sp-l);
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: var(--sp-m);
+}
+
+.login-card__head {
+  display: flex; align-items: center;
+  margin-bottom: var(--sp-m);
+}
+.login-card__tools {
+  margin-left: auto;
+  display: flex; align-items: center; gap: var(--sp-s);
+}
+
+.login-card__hello {
+  font-size: clamp(40px, 6vw, 56px);
+  line-height: 1.02;
+  color: var(--ink);
+  margin-top: var(--sp-s);
+}
+
+.login-card__sub {
+  font-family: var(--font-serif);
+  font-variation-settings: 'opsz' 96, 'wght' 400, 'SOFT' 80;
+  font-size: var(--size-lead);
+  color: var(--ink-dim);
+  line-height: 1.5;
+  max-width: 36ch;
+  font-style: italic;
+}
+
+.login-google-btn {
+  margin-top: var(--sp-m);
+  width: 100%;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: var(--sp-m);
+  padding: 14px 18px;
+  background: var(--signal);
+  color: var(--bg);
+  border: 1px solid var(--signal);
+  border-radius: var(--r);
+  font-family: var(--font-sans);
+  font-size: var(--size-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--t) var(--ease), border-color var(--t) var(--ease), transform var(--t-fast) var(--ease);
+}
+.login-google-btn:hover { background: var(--signal-deep); border-color: var(--signal-deep); }
+.login-google-btn:active { transform: translateY(1px); }
+.login-google-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.login-google-btn svg { background: white; padding: 2px; border-radius: 3px; }
+
+.login-card__status {
+  min-height: 1.4em;
+  font-family: var(--font-mono);
+  font-size: var(--size-small);
+  color: var(--ink-dim);
+  text-align: center;
+}
+.login-card__status[data-error="true"] { color: var(--down); }
+
+.login-card__features {
+  list-style: none;
+  display: grid;
+  gap: 6px;
+  margin-top: var(--sp-s);
+  padding: var(--sp-m);
+  background: var(--bg-elev-2);
+  border-radius: var(--r);
+  font-family: var(--font-mono);
+  font-size: var(--size-small);
+  color: var(--ink-dim);
+  letter-spacing: 0.02em;
+}
+.login-card__features li {
+  display: flex; align-items: center; gap: var(--sp-s);
+}
+.login-card__features li::before {
+  content: '·';
+  color: var(--signal);
+  font-weight: 700;
+}
+
+.login-card__footer {
+  margin-top: var(--sp-s);
+  font-family: var(--font-mono);
+  font-size: var(--size-micro);
+  color: var(--ink-faint);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* ============================================================
+   TOPBAR
+   ============================================================ */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex; align-items: center;
+  gap: var(--sp-l);
+  padding: var(--sp-m) var(--sp-l);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--rule);
+}
+
+.brand {
+  display: flex; align-items: center;
+  gap: var(--sp-s);
+  font-family: var(--font-mono);
+  font-size: var(--size-small);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+.brand:hover { color: var(--signal); }
+.brand__name { white-space: nowrap; }
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-left: var(--sp-l);
+}
+.tab {
+  padding: 8px 16px;
+  font-size: var(--size-small);
+  color: var(--ink-dim);
+  border-radius: var(--r-sm);
+  font-weight: 500;
+  transition: color var(--t) var(--ease), background var(--t) var(--ease);
+}
+.tab:hover { color: var(--ink); }
+.tab[aria-current="page"] {
+  color: var(--ink);
+  background: var(--bg-elev-2);
+}
+
+.topbar__spacer { flex: 1; }
+
+/* Cloud sync status pill — written to by firebase-config.js */
+.cloud-pill {
+  display: inline-flex; align-items: center;
+  gap: 8px;
+  padding: 5px 10px 5px 12px;
+  background: var(--bg-elev-2);
+  border: 1px solid var(--rule);
+  border-radius: 100px;
+  font-family: var(--font-mono);
+  font-size: var(--size-micro);
+  color: var(--ink-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.cloud-pill__dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--ink-faint);
+  transition: background var(--t) var(--ease), box-shadow var(--t) var(--ease);
+}
+.cloud-pill__text { white-space: nowrap; }
+/* status states: firebase-config sets text to "SYNCED" | "LOADING..." |
+   "SAVING..." | "OFFLINE" | "RULES DENIED". We colour by text content
+   using attribute selectors implemented in JS-friendly way: */
+.cloud-pill[data-state="synced"]  .cloud-pill__dot { background: var(--signal); box-shadow: 0 0 6px var(--signal); }
+.cloud-pill[data-state="loading"] .cloud-pill__dot { background: var(--warn); }
+.cloud-pill[data-state="saving"]  .cloud-pill__dot { background: var(--warn); }
+.cloud-pill[data-state="offline"] .cloud-pill__dot { background: var(--ink-faint); }
+.cloud-pill[data-state="error"]   .cloud-pill__dot { background: var(--down); box-shadow: 0 0 6px var(--down); }
+.cloud-pill.err .cloud-pill__dot  { background: var(--down); box-shadow: 0 0 6px var(--down); }
+
+.topbar__tools {
+  display: flex; align-items: center;
+  gap: var(--sp-m);
+}
+
+/* Language ID/EN toggle */
+.lang-toggle {
+  display: flex; align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: var(--size-small);
+  color: var(--ink-faint);
+}
+.lang-toggle button {
+  font: inherit; color: inherit;
+  padding: 2px 4px;
+  border-radius: var(--r-sm);
+  transition: color var(--t) var(--ease);
+}
+.lang-toggle button[aria-pressed="true"] { color: var(--signal); }
+.lang-toggle button:hover { color: var(--ink); }
+.lang-toggle span { color: var(--rule-bright); }
+
+/* Theme toggle */
+.theme-toggle {
+  font-family: var(--font-mono);
+  font-size: var(--size-small);
+  color: var(--ink-dim);
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  transition: color var(--t) var(--ease), background var(--t) var(--ease);
+}
+.theme-toggle:hover { color: var(--signal); background: var(--bg-elev-2); }
+
+.avatar {
+  cursor: pointer;
+}
+.avatar:hover { border-color: var(--signal); }
+
+/* ============================================================
+   PAGE
+   ============================================================ */
+
+.page {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: var(--sp-2xl) var(--sp-l) var(--sp-3xl);
+}
+
+/* ============================================================
+   TAB PANELS
+   ============================================================ */
+
+.tab-panel { display: none; }
+.tab-panel[data-active="true"] { display: block; }
+
+/* ============================================================
+   PLACEHOLDER (Phase 2 stub content)
+   Removed as each tab is implemented in Phases 3–5.
+   ============================================================ */
+
+.placeholder {
+  padding: var(--sp-3xl) var(--sp-l);
+  text-align: center;
+  display: grid; gap: var(--sp-m);
+  place-items: center;
+  border: 1px dashed var(--rule-bright);
+  border-radius: var(--r-lg);
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.025), transparent 80%);
+}
+.placeholder__num {
+  font-family: var(--font-mono);
+  font-size: var(--size-micro);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--signal);
+  padding: 4px 10px;
+  border: 1px solid rgba(52, 211, 153, 0.30);
+  border-radius: 100px;
+  background: rgba(52, 211, 153, 0.05);
+}
+.placeholder h2 {
+  font-family: var(--font-serif);
+  font-variation-settings: 'opsz' 144, 'wght' 500, 'SOFT' 50;
+  font-size: clamp(28px, 4vw, 40px);
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  font-weight: 500;
+}
+.placeholder p {
+  max-width: 56ch;
+  color: var(--ink-dim);
+  line-height: 1.6;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 760px) {
+  .topbar { padding: var(--sp-s) var(--sp-m); gap: var(--sp-s); }
+  .tabs { gap: 0; margin-left: 0; }
+  .tab { padding: 6px 10px; font-size: var(--size-small); }
+  .brand__name { display: none; }
+  .cloud-pill { display: none; } /* keep status accessible via topbar console */
+  .lang-toggle, .theme-toggle { display: none; } /* move to drawer in a later phase */
+  .page { padding: var(--sp-xl) var(--sp-m) var(--sp-2xl); }
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: var(--sp-l) var(--sp-l) var(--sp-m);
+  }
+  .login-card__hello { font-size: 36px; }
+}
