@@ -2,7 +2,9 @@
 
 **Date:** 2026-05-28
 **Author:** Kenrockender (with Claude)
-**Status:** Approved (brainstorming phase)
+**Status:** SUPERSEDED — pivoted to app-first. Visual direction here
+(amber accent, strict-mono "kaku" aesthetic) is also out of date.
+**Successor:** `2026-05-28-app-redesign-design.md`
 **Scope:** Design system + `index.html` only. `app.html` is a follow-up spec.
 
 ---

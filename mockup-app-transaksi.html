@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark" data-lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PORTFOLIO.SYS — Transaksi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Fraunces:opsz,wght,SOFT@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   SHARED TOKENS — same as HOME
+   ========================================================= */
+:root[data-theme="dark"] {
+  --bg: #0c0d0b; --bg-elev: #14150f; --bg-elev-2: #1a1c13; --bg-sunk: #07080a;
+  --rule: #23241d; --rule-bright: #353629;
+  --ink: #ecebe4; --ink-dim: #8e8d80; --ink-faint: #54534a;
+  --signal: #34d399; --signal-deep: #059669;
+  --up: #a3e635; --down: #f87171; --warn: #fbbf24;
+  --shadow: 0 1px 0 rgba(255,255,255,0.02), 0 12px 32px rgba(0,0,0,0.4);
+}
+:root[data-theme="light"] {
+  --bg: #f6f3eb; --bg-elev: #ffffff; --bg-elev-2: #fbf8f0; --bg-sunk: #ede9dd;
+  --rule: #d6d1c0; --rule-bright: #b8b29a;
+  --ink: #14120c; --ink-dim: #595547; --ink-faint: #8a8472;
+  --signal: #15803d; --signal-deep: #14532d;
+  --up: #3f6212; --down: #b91c1c; --warn: #a16207;
+  --shadow: 0 1px 0 rgba(0,0,0,0.02), 0 8px 24px rgba(0,0,0,0.08);
+}
+:root {
+  --sp-xs: 4px; --sp-s: 8px; --sp-m: 16px; --sp-l: 24px;
+  --sp-xl: 40px; --sp-2xl: 64px; --sp-3xl: 96px;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --t-fast: 120ms; --t: 200ms; --t-slow: 600ms;
+  --r-sm: 4px; --r: 8px; --r-lg: 14px;
+  --size-micro: 11px; --size-small: 13px; --size-body: 15px;
+  --size-lead: 18px; --size-h3: 24px; --size-h2: 32px; --size-h1: 56px;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-serif: 'Fraunces', Georgia, serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-sans); font-size: var(--size-body);
+  line-height: 1.55; font-feature-settings: 'tnum';
+  -webkit-font-smoothing: antialiased; min-height: 100vh;
+  background-image:
+    radial-gradient(1px 1px at 25% 35%, rgba(52, 211, 153, 0.025), transparent 50%),
+    radial-gradient(1px 1px at 75% 65%, rgba(52, 211, 153, 0.015), transparent 50%);
+  background-attachment: fixed;
+}
+::selection { background: var(--signal); color: var(--bg); }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+input { font: inherit; color: inherit; background: none; border: none; outline: none; }
+:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--signal); border-radius: var(--r-sm); }
+.num { font-variant-numeric: tabular-nums; }
+
+/* PRIMITIVES (shared) */
+.card { background: var(--bg-elev); border: 1px solid var(--rule); border-radius: var(--r); transition: border-color var(--t) var(--ease); }
+.card:hover { border-color: var(--rule-bright); }
+.label { font-family: var(--font-mono); font-size: var(--size-micro); color: var(--ink-faint); letter-spacing: 0.08em; text-transform: uppercase; }
+.tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--font-mono); font-size: var(--size-micro);
+  padding: 2px 8px; border-radius: 100px;
+  background: rgba(52, 211, 153, 0.1); color: var(--signal);
+  letter-spacing: 0.04em; border: 1px solid rgba(52, 211, 153, 0.2);
+}
+.tag--live::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--signal); border-radius: 50%; animation: blink 1.4s step-end infinite; }
+@keyframes blink { 0%,60% { opacity: 1; } 61%,100% { opacity: 0.2; } }
+
+.btn {
+  display: inline-flex; align-items: center; gap: var(--sp-s);
+  padding: 9px 16px;
+  font-size: var(--size-small); font-weight: 500;
+  border-radius: var(--r);
+  background: var(--bg-elev-2);
+  border: 1px solid var(--rule);
+  color: var(--ink);
+  transition: border-color var(--t) var(--ease), background var(--t) var(--ease);
+}
+.btn:hover { border-color: var(--rule-bright); background: var(--bg-elev); }
+.btn--primary { background: var(--signal); color: var(--bg); border-color: var(--signal); font-weight: 600; }
+.btn--primary:hover { background: var(--signal-deep); border-color: var(--signal-deep); }
+.btn--ghost { background: transparent; border-color: transparent; color: var(--ink-dim); }
+.btn--ghost:hover { color: var(--ink); border-color: var(--rule); }
+.btn .kbd { display: inline-block; padding: 1px 6px; font-family: var(--font-mono); font-size: 11px; background: var(--bg-sunk); border: 1px solid var(--rule); border-radius: 3px; color: var(--ink-dim); }
+
+/* TYPOGRAPHY */
+.serif {
+  font-family: var(--font-serif);
+  font-variation-settings: 'opsz' 96, 'wght' 500, 'SOFT' 50;
+  letter-spacing: -0.02em;
+}
+.serif-display {
+  font-family: var(--font-serif);
+  font-variation-settings: 'opsz' 144, 'wght' 400, 'SOFT' 50;
+  letter-spacing: -0.025em;
+}
+
+/* TOPBAR */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; gap: var(--sp-l);
+  padding: var(--sp-m) var(--sp-l);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--rule);
+}
+.brand { display: flex; align-items: center; gap: var(--sp-s); font-family: var(--font-mono); font-size: var(--size-small); font-weight: 500; letter-spacing: 0.04em; }
+.brand__mark { display: inline-grid; place-items: center; width: 28px; height: 28px; background: var(--signal); color: var(--bg); font-size: 13px; font-weight: 700; border-radius: var(--r-sm); font-family: var(--font-mono); }
+.tabs { display: flex; gap: 4px; margin-left: var(--sp-l); }
+.tab { padding: 8px 16px; font-size: var(--size-small); color: var(--ink-dim); border-radius: var(--r-sm); font-weight: 500; transition: color var(--t) var(--ease), background var(--t) var(--ease); }
+.tab:hover { color: var(--ink); }
+.tab[aria-current="page"] { color: var(--ink); background: var(--bg-elev-2); }
+.topbar__spacer { flex: 1; }
+.topbar__tools { display: flex; align-items: center; gap: var(--sp-m); }
+.tools__lang { display: flex; gap: 6px; font-family: var(--font-mono); font-size: var(--size-small); color: var(--ink-faint); }
+.tools__lang button[aria-pressed="true"] { color: var(--signal); }
+.tools__lang span { color: var(--rule-bright); }
+.tools__theme { font-family: var(--font-mono); font-size: var(--size-small); color: var(--ink-dim); padding: 6px 10px; border-radius: var(--r-sm); transition: color var(--t) var(--ease), background var(--t) var(--ease); }
+.tools__theme:hover { color: var(--signal); background: var(--bg-elev-2); }
+.avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--bg-elev-2); border: 1px solid var(--rule-bright); display: grid; place-items: center; font-family: var(--font-serif); font-size: 14px; color: var(--ink); }
+
+/* MOCKUP BANNER */
+.mockup-banner {
+  background: var(--signal); color: var(--bg);
+  padding: 6px var(--sp-l);
+  font-family: var(--font-mono); font-size: var(--size-micro); letter-spacing: 0.16em;
+  text-transform: uppercase; font-weight: 500;
+  text-align: center;
+  display: flex; align-items: center; justify-content: center; gap: var(--sp-l); flex-wrap: wrap;
+}
+.mockup-banner a { text-decoration: underline; opacity: 0.8; }
+
+/* PAGE */
+.page {
+  max-width: 1320px; margin: 0 auto;
+  padding: var(--sp-2xl) var(--sp-l) var(--sp-3xl);
+  display: grid; gap: var(--sp-xl);
+}
+
+/* =========================================================
+   PAGE HEADER — title + period + add
+   ========================================================= */
+.page-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--sp-l);
+  align-items: end;
+}
+.page-head h1 {
+  font-family: var(--font-serif);
+  font-variation-settings: 'opsz' 144, 'wght' 500, 'SOFT' 50;
+  font-size: var(--size-h2);
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: var(--sp-xs);
+}
+.page-head__sub {
+  font-size: var(--size-small);
+  color: var(--ink-dim);
+}
+.page-head__actions { display: flex; gap: var(--sp-s); align-items: center; }
+
+/* =========================================================
+   SUMMARY STRIP
+   ========================================================= */
+.summary {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(4, 1fr);
+  gap: var(--sp-m);
+}
+@media (max-width: 900px) { .summary { grid-template-columns: repeat(2, 1fr); } }
+
+.sum {
+  padding: var(--sp-l);
+  display: flex; flex-direction: column; gap: var(--sp-xs);
+}
+.sum--main { background: linear-gradient(135deg, rgba(52, 211, 153, 0.06), transparent 60%); }
+.sum__label {
+  font-family: var(--font-mono);
+  font-size: var(--size-micro);
+  color: var(--ink-faint);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.sum__val {
+  font-family: var(--font-serif);
+  font-variation-settings: 'opsz' 144, 'wght' 500;
+  font-size: var(--size-h2);
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  margin: 6px 0 4px;
+}
+.sum__val.is-down { color: var(--down); }
+.sum__val.is-mute { color: var(--ink-dim); }
+.sum__meta {
+  font-family: var(--font-mono);
+  font-size: var(--size-small);
+  color: var(--ink-dim);
+  font-variant-numeric: tabular-nums;
+}
+.sum__meta .up { color: var(--up); }
+.sum__meta .down { color: var(--down); }
+
+/* =========================================================
+   QUICK ADD (persistent at top)
+   ========================================================= */
+.quickadd {
+  padding: var(--sp-m) var(--sp-l);
+  display: flex; align-items: center; gap: var(--sp-m);
+  background: var(--bg-elev);
+}
+.quickadd__input {
+  flex: 1;
+  display: flex; align-items: center; gap: var(--sp-s);
+  background: var(--bg-sunk);
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  padding: 12px var(--sp-m);
+  font-family: var(--font-mono);
+  font-size: var(--size-body);
+  transition: border-color var(--t) var(--ease);
+}
+.quickadd__input:focus-within { border-color: var(--signal); }
+.quickadd__input::before { content: '›'; color: var(--signal); font-weight: 600; font-size: 18px; line-height: 1; }
+.quickadd__input input { flex: 1; }
+.quickadd__input input::placeholder { color: var(--ink-faint); }
+.quickadd__hint { font-family: var(--font-mono); font-size: var(--size-micro); color: var(--ink-faint); letter-spacing: 0.04em; }
+
+/* =========================================================
+   MODE TOGGLE + FILTER
+   ========================================================= */
+.modebar {
+  display: flex; align-items: center; gap: var(--sp-m); flex-wrap: wrap;
+}
+.modes {
+  display: inline-flex; gap: 2px;
+  background: var(--bg-elev-2);
+  padding: 3px; border-radius: var(--r);
+  border: 1px solid var(--rule);
+}
+.mode {
+  padding: 7px 14px;
+  font-size: var(--size-small); font-weight: 500;
+  color: var(--ink-dim);
+  border-radius: var(--r-sm);
+  transition: color var(--t) var(--ease), background var(--t) var(--ease);
+}
+.mode:hover { color: var(--ink); }
+.mode[aria-pressed="true"] { background: var(--bg-elev); color: var(--ink); }
+.mode .count { color: var(--ink-faint); font-family: var(--font-mono); font-size: 11px; margin-left: 6px; }
+.mode[aria-pressed="true"] .count { color: var(--signal); }
+
+.modebar__sp { flex: 1; }
+
+.search {
+  display: flex; align-items: center; gap: var(--sp-s);
+  background: var(--bg-elev);
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  padding: 7px 12px;
+  width: 280px;
+}
+.search:focus-within { border-color: var(--rule-bright); }
+.search input { flex: 1; font-size: var(--size-small); }
+.search input::placeholder { color: var(--ink-faint); }
+.search__icon { color: var(--ink-faint); font-size: 14px; }
+
+.filterchips { display: inline-flex; gap: 6px; }
+.chip {
+  padding: 6px 12px;
+  background: var(--bg-elev); border: 1px solid var(--rule);
+  border-radius: 100px;
+  font-size: var(--size-micro);
+  color: var(--ink-dim);
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  transition: color var(--t) var(--ease), border-color var(--t) var(--ease);
+}
+.chip:hover { color: var(--ink); border-color: var(--rule-bright); }
+.chip--on { color: var(--signal); border-color: var(--signal); background: rgba(52, 211, 153, 0.06); }
+.chip__x { color: var(--ink-faint); margin-left: 4px; }
+
+/* =========================================================
+   LEDGER — grouped by day
+   ========================================================= */
+.ledger {
+  display: grid; gap: var(--sp-xl);
+}
+.day { display: grid; gap: var(--sp-s); }
+.day__head {
+  display: flex; align-items: baseline; gap: var(--sp-m);
+  padding: 0 var(--sp-s);
+}
+.day__head h3 {
+  font-family: var(--font-serif);
+  font-variation-settings: 'opsz' 96, 'wght' 500;
+  font-size: var(--size-lead);
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.day__head__date {
+  font-family: var(--font-mono);
+  font-size: var(--size-small);
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+.day__head__net {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: var(--size-small);
+  color: var(--ink-dim);
+  font-variant-numeric: tabular-nums;
+}
+.day__head__net b { color: var(--ink); font-weight: 500; }
+
+.day__rows {
+  display: grid; gap: 0;
+  background: var(--bg-elev);
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+}
+.row {
+  display: grid;
+  grid-template-columns: 60px 70px 1fr 1fr 1fr 36px;
+  gap: var(--sp-m);
+  padding: 14px var(--sp-l);
+  align-items: center;
+  border-bottom: 1px solid var(--rule);
+  transition: background var(--t) var(--ease);
+  position: relative;
+}
+.row:last-child { border-bottom: none; }
+.row:hover { background: var(--bg-elev-2); }
+.row__time {
+  font-family: var(--font-mono);
+  font-size: var(--size-small);
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+.row__type {
+  display: inline-flex; justify-content: center; align-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--size-micro);
+  padding: 4px 0;
+  border-radius: 100px;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+}
+.row__type.t-buy { background: rgba(163, 230, 53, 0.12); color: var(--up); }
+.row__type.t-sell { background: rgba(248, 113, 113, 0.12); color: var(--down); }
+.row__type.t-div { background: rgba(52, 211, 153, 0.12); color: var(--signal); }
+.row__type.t-fee { background: var(--bg-elev-2); color: var(--ink-dim); }
+.row__type.t-in { background: rgba(163, 230, 53, 0.12); color: var(--up); }
+.row__type.t-out { background: rgba(248, 113, 113, 0.12); color: var(--down); }
+.row__type.t-tax { background: rgba(251, 191, 36, 0.12); color: var(--warn); }
+
+.row__what {
+  display: flex; flex-direction: column; gap: 2px;
+}
+.row__what__main { font-size: var(--size-body); color: var(--ink); }
+.row__what__main b { font-family: var(--font-mono); font-weight: 500; }
+.row__what__sub {
+  font-family: var(--font-mono);
+  font-size: var(--size-micro);
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+
+.row__qty {
+  font-family: var(--font-mono);
+  font-size: var(--size-small);
+  color: var(--ink-dim);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.row__qty .x { color: var(--ink-faint); margin: 0 4px; }
+
+.row__amt {
+  font-family: var(--font-serif);
+  font-variation-settings: 'opsz' 96, 'wght' 500;
+  font-size: var(--size-lead);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  letter-spacing: -0.01em;
+}
+.row__amt.is-pos { color: var(--up); }
+.row__amt.is-neg { color: var(--down); }
+.row__amt.is-mute { color: var(--ink-dim); }
+
+.row__menu {
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  color: var(--ink-faint);
+  border-radius: var(--r-sm);
+  opacity: 0;
+  transition: opacity var(--t) var(--ease), background var(--t) var(--ease), color var(--t) var(--ease);
+}
+.row:hover .row__menu { opacity: 1; }
+.row__menu:hover { background: var(--bg-elev); color: var(--ink); }
+
+@media (max-width: 760px) {
+  .row { grid-template-columns: 1fr auto; row-gap: 6px; }
+  .row__time, .row__type, .row__qty, .row__menu { display: none; }
+}
+
+/* =========================================================
+   END / load more
+   ========================================================= */
+.endline {
+  text-align: center;
+  padding: var(--sp-xl) 0;
+  font-family: var(--font-mono);
+  font-size: var(--size-small);
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+.endline a { color: var(--signal); text-decoration: underline; text-underline-offset: 4px; }
+
+/* REVEAL */
+.reveal { opacity: 0; transform: translateY(8px); transition: opacity var(--t-slow) var(--ease), transform var(--t-slow) var(--ease); }
+.reveal.in { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+
+<div class="mockup-banner">
+  <span>App Mockup · TRANSAKSI tab · 2026.05.28</span>
+  <a href="mockup-app.html">← back to HOME</a>
+  <a href="mockup.html">landing mockup</a>
+</div>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="brand">
+    <span class="brand__mark">P</span>
+    <span>portfolio.sys</span>
+  </div>
+  <nav class="tabs">
+    <a class="tab" href="mockup-app.html">Home</a>
+    <a class="tab" href="mockup-app-transaksi.html" aria-current="page">Transaksi</a>
+    <a class="tab" href="mockup-app-analisis.html">Analisis</a>
+  </nav>
+  <div class="topbar__spacer"></div>
+  <div class="topbar__tools">
+    <div class="tools__lang">
+      <button data-lang-btn="id" aria-pressed="true">ID</button>
+      <span>|</span>
+      <button data-lang-btn="en" aria-pressed="false">EN</button>
+    </div>
+    <button class="tools__theme" id="themeBtn">☾  Dark</button>
+    <div class="avatar">K</div>
+  </div>
+</header>
+
+<main class="page">
+
+  <!-- PAGE HEAD -->
+  <section class="page-head">
+    <div>
+      <h1 data-i18n="ph.title">Catatan transaksi & arus kas.</h1>
+      <div class="page-head__sub">
+        <span data-i18n="ph.sub1">Mei 2026 · 23 transaksi · 4 arus kas masuk-keluar ·</span>
+        <span style="color: var(--signal);" data-i18n="ph.sub2">semua tersinkron</span>
+      </div>
+    </div>
+    <div class="page-head__actions">
+      <button class="btn btn--ghost">↑↓ <span data-i18n="ph.import">Impor CSV</span></button>
+      <button class="btn btn--ghost">↓ <span data-i18n="ph.export">Ekspor</span></button>
+      <button class="btn btn--primary">+ <span data-i18n="ph.add">Tambah</span></button>
+    </div>
+  </section>
+
+  <!-- QUICK-ADD (persistent) -->
+  <section class="card quickadd">
+    <div class="quickadd__input">
+      <input type="text" id="qaInput" placeholder="beli 10 BBCA @ 9.425  ·  dividen BMRI 250.000  ·  expense makan siang 35.000  ·  ..." />
+    </div>
+    <span class="quickadd__hint"><span data-i18n="qa.shortcut">tekan</span> <span class="kbd" style="padding:1px 6px;font-family:var(--font-mono);font-size:11px;background:var(--bg-sunk);border:1px solid var(--rule);border-radius:3px;color:var(--ink-dim);">T</span></span>
+    <button class="btn btn--primary" data-i18n="qa.save">Simpan</button>
+  </section>
+
+  <!-- SUMMARY -->
+  <section class="summary">
+    <div class="card sum sum--main">
+      <span class="sum__label" data-i18n="sum.net">Net bulan ini</span>
+      <span class="sum__val is-down num">−Rp 3.485.700</span>
+      <span class="sum__meta"><span class="down">−2,1%</span> <span data-i18n="sum.vs">vs target Rp -1,7 jt</span></span>
+    </div>
+    <div class="card sum">
+      <span class="sum__label" data-i18n="sum.buy">Beli</span>
+      <span class="sum__val num">Rp 12,4 jt</span>
+      <span class="sum__meta">8 transaksi</span>
+    </div>
+    <div class="card sum">
+      <span class="sum__label" data-i18n="sum.sell">Jual</span>
+      <span class="sum__val num">Rp 8,9 jt</span>
+      <span class="sum__meta">5 transaksi</span>
+    </div>
+    <div class="card sum">
+      <span class="sum__label" data-i18n="sum.div">Dividen</span>
+      <span class="sum__val num" style="color: var(--signal);">+Rp 245k</span>
+      <span class="sum__meta">3 emiten · BMRI, ASII, UNVR</span>
+    </div>
+    <div class="card sum">
+      <span class="sum__label" data-i18n="sum.fee">Biaya & pajak</span>
+      <span class="sum__val is-mute num">Rp 32k</span>
+      <span class="sum__meta">broker + PPh final</span>
+    </div>
+  </section>
+
+  <!-- MODE TOGGLE + FILTER -->
+  <section class="modebar">
+    <div class="modes" role="tablist">
+      <button class="mode" aria-pressed="true" data-i18n="mode.all">Semua <span class="count">27</span></button>
+      <button class="mode" aria-pressed="false" data-i18n="mode.tx">Transaksi <span class="count">23</span></button>
+      <button class="mode" aria-pressed="false" data-i18n="mode.cf">Arus kas <span class="count">4</span></button>
+    </div>
+    <div class="filterchips">
+      <button class="chip chip--on">BBCA <span class="chip__x">×</span></button>
+      <button class="chip"><span data-i18n="chip.type">Tipe ▾</span></button>
+      <button class="chip"><span data-i18n="chip.broker">Broker ▾</span></button>
+      <button class="chip"><span data-i18n="chip.range">7 hari ▾</span></button>
+    </div>
+    <div class="modebar__sp"></div>
+    <div class="search">
+      <span class="search__icon">⌕</span>
+      <input type="text" placeholder="Cari ticker, broker, catatan..." />
+    </div>
+  </section>
+
+  <!-- LEDGER -->
+  <section class="ledger">
+
+    <!-- HARI INI -->
+    <div class="day reveal">
+      <div class="day__head">
+        <h3 data-i18n="d.today">Hari ini</h3>
+        <span class="day__head__date">Rabu, 28 Mei 2026</span>
+        <span class="day__head__net"><span data-i18n="d.net">Net:</span> <b style="color: var(--down);">−Rp 93.960</b></span>
+      </div>
+      <div class="day__rows">
+
+        <div class="row">
+          <span class="row__time">17:42</span>
+          <span class="row__type t-buy">BUY</span>
+          <span class="row__what"><span class="row__what__main"><b>BBCA.JK</b> · Bank Central Asia</span><span class="row__what__sub">Stockbit · regular</span></span>
+          <span class="row__qty">10 <span class="x">×</span> Rp 9.425</span>
+          <span class="row__amt is-neg">−Rp 94.250</span>
+          <span class="row__menu">⋯</span>
+        </div>
+
+        <div class="row">
+          <span class="row__time">14:30</span>
+          <span class="row__type t-sell">SELL</span>
+          <span class="row__what"><span class="row__what__main"><b>GOTO.JK</b> · GoTo Gojek Tokopedia</span><span class="row__what__sub">Stockbit · market order</span></span>
+          <span class="row__qty">5 <span class="x">×</span> Rp 58</span>
+          <span class="row__amt is-pos">+Rp 290</span>
+          <span class="row__menu">⋯</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- KEMARIN -->
+    <div class="day reveal">
+      <div class="day__head">
+        <h3 data-i18n="d.yest">Kemarin</h3>
+        <span class="day__head__date">Selasa, 27 Mei 2026</span>
+        <span class="day__head__net"><span data-i18n="d.net">Net:</span> <b style="color: var(--signal);">+Rp 120.300</b></span>
+      </div>
+      <div class="day__rows">
+
+        <div class="row">
+          <span class="row__time">09:15</span>
+          <span class="row__type t-div">DIV</span>
+          <span class="row__what"><span class="row__what__main"><b>BMRI.JK</b> · Bank Mandiri</span><span class="row__what__sub">Dividen tunai · auto-credited</span></span>
+          <span class="row__qty">2.075 <span class="x">×</span> Rp 60</span>
+          <span class="row__amt is-pos">+Rp 124.500</span>
+          <span class="row__menu">⋯</span>
+        </div>
+
+        <div class="row">
+          <span class="row__time">09:15</span>
+          <span class="row__type t-fee">FEE</span>
+          <span class="row__what"><span class="row__what__main">Biaya broker</span><span class="row__what__sub">Stockbit · BBCA buy fee 0,15%</span></span>
+          <span class="row__qty">—</span>
+          <span class="row__amt is-mute">−Rp 4.200</span>
+          <span class="row__menu">⋯</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 3 HARI LALU -->
+    <div class="day reveal">
+      <div class="day__head">
+        <h3>Senin</h3>
+        <span class="day__head__date">26 Mei · 3 hari lalu</span>
+        <span class="day__head__net"><span data-i18n="d.net">Net:</span> <b style="color: var(--down);">−Rp 1.084.250</b></span>
+      </div>
+      <div class="day__rows">
+
+        <div class="row">
+          <span class="row__time">11:08</span>
+          <span class="row__type t-buy">BUY</span>
+          <span class="row__what"><span class="row__what__main"><b>BTC</b> · Bitcoin</span><span class="row__what__sub">Indodax · Rp 1.084 jt / BTC</span></span>
+          <span class="row__qty">0,001 <span class="x">×</span> Rp 1.084 jt</span>
+          <span class="row__amt is-neg">−Rp 1.084.000</span>
+          <span class="row__menu">⋯</span>
+        </div>
+
+        <div class="row">
+          <span class="row__time">11:08</span>
+          <span class="row__type t-fee">FEE</span>
+          <span class="row__what"><span class="row__what__main">Trading fee</span><span class="row__what__sub">Indodax · 0,3% taker</span></span>
+          <span class="row__qty">—</span>
+          <span class="row__amt is-mute">−Rp 3.252</span>
+          <span class="row__menu">⋯</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 4 HARI LALU — termasuk arus kas -->
+    <div class="day reveal">
+      <div class="day__head">
+        <h3>Minggu</h3>
+        <span class="day__head__date">25 Mei · 4 hari lalu</span>
+        <span class="day__head__net"><span data-i18n="d.net">Net:</span> <b style="color: var(--signal);">+Rp 8.350.000</b></span>
+      </div>
+      <div class="day__rows">
+
+        <div class="row">
+          <span class="row__time">08:00</span>
+          <span class="row__type t-in">IN</span>
+          <span class="row__what"><span class="row__what__main">Gaji bulanan</span><span class="row__what__sub">Arus kas · transfer BCA</span></span>
+          <span class="row__qty">—</span>
+          <span class="row__amt is-pos">+Rp 12.000.000</span>
+          <span class="row__menu">⋯</span>
+        </div>
+
+        <div class="row">
+          <span class="row__time">12:30</span>
+          <span class="row__type t-out">OUT</span>
+          <span class="row__what"><span class="row__what__main">Sewa kos</span><span class="row__what__sub">Arus kas · keluar tetap</span></span>
+          <span class="row__qty">—</span>
+          <span class="row__amt is-neg">−Rp 3.500.000</span>
+          <span class="row__menu">⋯</span>
+        </div>
+
+        <div class="row">
+          <span class="row__time">19:45</span>
+          <span class="row__type t-out">OUT</span>
+          <span class="row__what"><span class="row__what__main">Belanja groceries</span><span class="row__what__sub">Arus kas · variabel · Indomaret</span></span>
+          <span class="row__qty">—</span>
+          <span class="row__amt is-neg">−Rp 150.000</span>
+          <span class="row__menu">⋯</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- MINGGU LALU -->
+    <div class="day reveal">
+      <div class="day__head">
+        <h3 data-i18n="d.lastweek">Minggu lalu</h3>
+        <span class="day__head__date">19–22 Mei · 4 transaksi</span>
+        <span class="day__head__net"><span data-i18n="d.net">Net:</span> <b style="color: var(--down);">−Rp 6.428.000</b></span>
+      </div>
+      <div class="day__rows">
+
+        <div class="row">
+          <span class="row__time">22 Mei</span>
+          <span class="row__type t-buy">BUY</span>
+          <span class="row__what"><span class="row__what__main"><b>TLKM.JK</b> · Telkom Indonesia</span><span class="row__what__sub">Stockbit · DCA bulanan</span></span>
+          <span class="row__qty">500 <span class="x">×</span> Rp 3.200</span>
+          <span class="row__amt is-neg">−Rp 1.600.000</span>
+          <span class="row__menu">⋯</span>
+        </div>
+
+        <div class="row">
+          <span class="row__time">21 Mei</span>
+          <span class="row__type t-buy">BUY</span>
+          <span class="row__what"><span class="row__what__main"><b>Emas Antam</b> · 2 gr</span><span class="row__what__sub">Pluang · scheduled</span></span>
+          <span class="row__qty">2 gr <span class="x">×</span> Rp 1.634.500</span>
+          <span class="row__amt is-neg">−Rp 3.269.000</span>
+          <span class="row__menu">⋯</span>
+        </div>
+
+        <div class="row">
+          <span class="row__time">20 Mei</span>
+          <span class="row__type t-tax">TAX</span>
+          <span class="row__what"><span class="row__what__main">PPh Final 0,1%</span><span class="row__what__sub">Realized gain dari penjualan GOTO 2-19 Mei</span></span>
+          <span class="row__qty">—</span>
+          <span class="row__amt is-mute">−Rp 12.000</span>
+          <span class="row__menu">⋯</span>
+        </div>
+
+        <div class="row">
+          <span class="row__time">19 Mei</span>
+          <span class="row__type t-sell">SELL</span>
+          <span class="row__what"><span class="row__what__main"><b>UNVR.JK</b> · Unilever</span><span class="row__what__sub">Stockbit · rebalance dari analisis</span></span>
+          <span class="row__qty">200 <span class="x">×</span> Rp 2.100</span>
+          <span class="row__amt is-pos">+Rp 420.000</span>
+          <span class="row__menu">⋯</span>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
+  <div class="endline">
+    <span data-i18n="end.shown">Menampilkan 13 dari 27 transaksi bulan ini.</span>
+    <a href="#" data-i18n="end.more">Tampilkan lebih banyak →</a>
+  </div>
+
+</main>
+
+<script>
+const I18N = {
+  id: {
+    'ph.title':'Catatan transaksi & arus kas.',
+    'ph.sub1':'Mei 2026 · 23 transaksi · 4 arus kas masuk-keluar ·',
+    'ph.sub2':'semua tersinkron',
+    'ph.import':'Impor CSV','ph.export':'Ekspor','ph.add':'Tambah',
+    'qa.save':'Simpan','qa.shortcut':'tekan',
+    'sum.net':'Net bulan ini','sum.buy':'Beli','sum.sell':'Jual','sum.div':'Dividen','sum.fee':'Biaya & pajak','sum.vs':'vs target Rp -1,7 jt',
+    'mode.all':'Semua','mode.tx':'Transaksi','mode.cf':'Arus kas',
+    'chip.type':'Tipe ▾','chip.broker':'Broker ▾','chip.range':'7 hari ▾',
+    'd.today':'Hari ini','d.yest':'Kemarin','d.lastweek':'Minggu lalu','d.net':'Net:',
+    'end.shown':'Menampilkan 13 dari 27 transaksi bulan ini.','end.more':'Tampilkan lebih banyak →',
+  },
+  en: {
+    'ph.title':'Transactions & cashflow log.',
+    'ph.sub1':'May 2026 · 23 transactions · 4 cashflow entries ·',
+    'ph.sub2':'all synced',
+    'ph.import':'Import CSV','ph.export':'Export','ph.add':'Add',
+    'qa.save':'Save','qa.shortcut':'press',
+    'sum.net':'Net this month','sum.buy':'Buy','sum.sell':'Sell','sum.div':'Dividends','sum.fee':'Fees & tax','sum.vs':'vs target -Rp 1.7M',
+    'mode.all':'All','mode.tx':'Trades','mode.cf':'Cashflow',
+    'chip.type':'Type ▾','chip.broker':'Broker ▾','chip.range':'7 days ▾',
+    'd.today':'Today','d.yest':'Yesterday','d.lastweek':'Last week','d.net':'Net:',
+    'end.shown':'Showing 13 of 27 transactions this month.','end.more':'Show more →',
+  }
+};
+
+function applyI18n(lang) {
+  document.documentElement.setAttribute('lang', lang);
+  document.documentElement.setAttribute('data-lang', lang);
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const val = I18N[lang][key];
+    if (val !== undefined) el.textContent = val;
+  });
+  document.querySelectorAll('[data-lang-btn]').forEach(b => {
+    b.setAttribute('aria-pressed', b.getAttribute('data-lang-btn') === lang ? 'true' : 'false');
+  });
+}
+document.querySelectorAll('[data-lang-btn]').forEach(b => {
+  b.addEventListener('click', () => {
+    const lang = b.getAttribute('data-lang-btn');
+    localStorage.setItem('portfolio.lang', lang);
+    applyI18n(lang);
+  });
+});
+applyI18n(localStorage.getItem('portfolio.lang') || 'id');
+
+const themeBtn = document.getElementById('themeBtn');
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  themeBtn.textContent = t === 'dark' ? '☾  Dark' : '☼  Light';
+}
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('portfolio.theme', next);
+  applyTheme(next);
+});
+applyTheme(localStorage.getItem('portfolio.theme') || 'dark');
+
+const qa = document.getElementById('qaInput');
+document.addEventListener('keydown', (e) => {
+  if ((e.key === 't' || e.key === 'T') && document.activeElement !== qa && !e.metaKey && !e.ctrlKey) {
+    const tag = (document.activeElement && document.activeElement.tagName || '').toLowerCase();
+    if (tag !== 'input' && tag !== 'textarea') { e.preventDefault(); qa.focus(); }
+  }
+  if (e.key === 'Escape' && document.activeElement === qa) qa.blur();
+});
+
+// Mode toggle
+document.querySelectorAll('.mode').forEach(m => m.addEventListener('click', () => {
+  document.querySelectorAll('.mode').forEach(x => x.setAttribute('aria-pressed', 'false'));
+  m.setAttribute('aria-pressed', 'true');
+}));
+
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+}, { rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

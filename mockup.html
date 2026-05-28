@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark" data-lang="id" data-accent="green">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PORTFOLIO.SYS — Mockup Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Fraunces:opsz,wght,SOFT@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   TOKENS — single source of truth
+   ========================================================= */
+:root[data-theme="dark"] {
+  --bg:          #0a0a0a;
+  --bg-elev:     #111111;
+  --bg-sunk:     #050505;
+  --rule:        #1f1f1f;
+  --rule-bright: #2a2a2a;
+  --ink:         #e8e6df;
+  --ink-dim:     #8a8780;
+  --ink-faint:   #4a4843;
+  --down:        #f87171;
+  --warn:        #fbbf24;
+}
+:root[data-theme="light"] {
+  --bg:          #f5f1ea;
+  --bg-elev:     #ffffff;
+  --bg-sunk:     #ede8de;
+  --rule:        #d8d2c4;
+  --rule-bright: #c5beac;
+  --ink:         #0f0e0c;
+  --ink-dim:     #5a5650;
+  --ink-faint:   #8a857a;
+  --down:        #b91c1c;
+  --warn:        #a16207;
+}
+
+/* Accent × theme combined — unambiguous cascade */
+:root[data-theme="dark"][data-accent="amber"]  { --signal: #ffb000; --up: #4ade80; }
+:root[data-theme="dark"][data-accent="green"]  { --signal: #34d399; --up: #a3e635; }
+:root[data-theme="dark"][data-accent="blue"]   { --signal: #60a5fa; --up: #4ade80; }
+:root[data-theme="light"][data-accent="amber"] { --signal: #b07000; --up: #166534; }
+:root[data-theme="light"][data-accent="green"] { --signal: #15803d; --up: #3f6212; }
+:root[data-theme="light"][data-accent="blue"]  { --signal: #1d4ed8; --up: #166534; }
+
+:root {
+  --sp-xs: 4px;  --sp-s: 8px;  --sp-m: 16px;  --sp-l: 24px;
+  --sp-xl: 40px; --sp-2xl: 64px; --sp-3xl: 120px;
+
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --t-fast: 120ms; --t: 200ms; --t-slow: 600ms;
+
+  --r: 2px;
+
+  --size-micro: 11px; --size-small: 13px; --size-body: 15px;
+  --size-lead: 19px;  --size-h3: 28px; --size-h2: 44px; --size-h1: 72px;
+  --size-manifesto: clamp(56px, 12vw, 140px);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: var(--size-body);
+  font-weight: 400;
+  line-height: 1.55;
+  font-feature-settings: 'tnum', 'ss01';
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: var(--signal); color: var(--bg); }
+
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--signal);
+  border-radius: var(--r);
+}
+
+/* =========================================================
+   PRIMITIVES
+   ========================================================= */
+
+/* PANE */
+.pane {
+  background: var(--bg-elev);
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  transition: border-color var(--t) var(--ease);
+}
+.pane:hover { border-color: var(--rule-bright); }
+
+.pane--data > .pane__head {
+  display: flex; align-items: center; gap: var(--sp-m);
+  padding: var(--sp-s) var(--sp-m);
+  border-bottom: 1px solid var(--rule);
+  font-size: var(--size-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.pane__head__title { color: var(--ink); font-weight: 500; }
+.pane__head__spacer { flex: 1; }
+.pane__head__dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--up);
+  box-shadow: 0 0 6px var(--up);
+}
+.pane__head__time { font-variant-numeric: tabular-nums; }
+
+.pane__body { padding: var(--sp-m); }
+
+/* BTN-BRACKET */
+.btn {
+  display: inline-flex; align-items: center; gap: var(--sp-s);
+  padding: var(--sp-s) 0;
+  font-size: var(--size-small);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  position: relative;
+  color: var(--ink);
+  transition: color var(--t) var(--ease);
+}
+.btn::before, .btn::after {
+  color: var(--ink-dim);
+  transition: color var(--t) var(--ease);
+}
+.btn::before { content: '[ '; }
+.btn::after  { content: ' ]'; }
+.btn:hover { color: var(--signal); }
+.btn:hover::before, .btn:hover::after { color: var(--signal); }
+.btn--solid {
+  color: var(--signal);
+}
+.btn--solid::before, .btn--solid::after { color: var(--signal); }
+.btn--solid::after { content: ' →]'; }
+
+/* RULE */
+.rule {
+  border-top: 1px solid var(--rule);
+  display: flex; align-items: center; gap: var(--sp-m);
+  margin: var(--sp-3xl) 0 var(--sp-xl);
+  padding-top: var(--sp-m);
+  font-size: var(--size-micro);
+  color: var(--ink-dim);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.rule__num { color: var(--signal); font-weight: 500; }
+
+/* NUMERIC */
+.num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+  transition: color var(--t-fast) var(--ease);
+}
+.num.flash-up    { color: var(--up); }
+.num.flash-down  { color: var(--down); }
+.num--up    { color: var(--up); }
+.num--down  { color: var(--down); }
+
+/* TAG */
+.tag {
+  display: inline-block;
+  font-size: var(--size-micro);
+  padding: 1px 6px;
+  border: 1px solid var(--rule-bright);
+  border-radius: var(--r);
+  color: var(--ink-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.tag--signal { color: var(--signal); border-color: var(--signal); }
+.tag--live::before {
+  content: '';
+  display: inline-block; width: 5px; height: 5px;
+  background: var(--up); border-radius: 50%;
+  margin-right: 5px;
+  vertical-align: middle;
+  animation: blink 1.4s step-end infinite;
+}
+@keyframes blink { 0%, 60% { opacity: 1; } 61%, 100% { opacity: 0.2; } }
+
+/* =========================================================
+   LAYOUT — TOP BAR
+   ========================================================= */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; gap: var(--sp-l);
+  padding: var(--sp-m) var(--sp-l);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--rule);
+  font-size: var(--size-small);
+}
+.topbar__brand {
+  display: flex; align-items: center; gap: var(--sp-s);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.topbar__brand__mark {
+  display: inline-grid; place-items: center;
+  width: 24px; height: 24px;
+  border: 1px solid var(--signal);
+  color: var(--signal);
+  font-size: 11px; font-weight: 600;
+  border-radius: var(--r);
+}
+.topbar__nav {
+  display: flex; gap: var(--sp-l);
+  margin-left: var(--sp-xl);
+  color: var(--ink-dim);
+  font-size: var(--size-small);
+  letter-spacing: 0.04em;
+}
+.topbar__nav a { transition: color var(--t) var(--ease); }
+.topbar__nav a:hover { color: var(--ink); }
+.topbar__spacer { flex: 1; }
+.topbar__tools { display: flex; align-items: center; gap: var(--sp-l); }
+.topbar__lang {
+  display: flex; gap: var(--sp-s);
+  font-size: var(--size-small);
+  color: var(--ink-faint);
+  letter-spacing: 0.08em;
+}
+.topbar__lang button[aria-pressed="true"] { color: var(--signal); }
+.topbar__theme {
+  font-size: var(--size-small);
+  color: var(--ink-dim);
+  padding: 4px 8px;
+  border: 1px solid var(--rule-bright);
+  border-radius: var(--r);
+  transition: color var(--t) var(--ease), border-color var(--t) var(--ease);
+}
+.topbar__theme:hover { color: var(--signal); border-color: var(--signal); }
+
+/* =========================================================
+   PAGE FRAME
+   ========================================================= */
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--sp-l);
+}
+
+/* =========================================================
+   HERO
+   ========================================================= */
+.hero {
+  padding: var(--sp-2xl) 0 var(--sp-xl);
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  gap: var(--sp-2xl);
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; gap: var(--sp-xl); }
+}
+
+.hero__buildstamp {
+  font-size: var(--size-micro);
+  color: var(--ink-faint);
+  letter-spacing: 0.12em;
+  margin-bottom: var(--sp-xl);
+  display: flex; align-items: center; gap: var(--sp-s);
+}
+.hero__buildstamp__sep { color: var(--rule-bright); }
+
+.hero__headline {
+  font-size: clamp(36px, 5.4vw, 64px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--ink);
+  margin-bottom: var(--sp-l);
+}
+.hero__headline .accent { color: var(--signal); }
+.hero__headline .cursor {
+  display: inline-block;
+  width: 0.5em; height: 0.9em;
+  background: var(--signal);
+  vertical-align: -0.05em;
+  margin-left: 2px;
+  animation: blink 1s step-end infinite;
+}
+
+.hero__sub {
+  font-size: var(--size-lead);
+  color: var(--ink-dim);
+  max-width: 38ch;
+  margin-bottom: var(--sp-xl);
+  line-height: 1.5;
+}
+
+.hero__actions {
+  display: flex; gap: var(--sp-xl); align-items: center;
+  margin-bottom: var(--sp-l);
+}
+
+.hero__disclosure {
+  font-size: var(--size-micro);
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+.hero__disclosure span { color: var(--ink-dim); margin: 0 6px; }
+
+/* TERMINAL PANE */
+.term {
+  background: var(--bg-sunk);
+}
+.term__body {
+  padding: var(--sp-m) var(--sp-l);
+  font-size: var(--size-small);
+  line-height: 1.6;
+}
+.term__prompt {
+  color: var(--ink-dim);
+  margin-bottom: var(--sp-m);
+}
+.term__prompt b { color: var(--signal); font-weight: 500; }
+.term__line { color: var(--ink-dim); margin-bottom: 2px; font-size: var(--size-small); }
+
+.term__table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--sp-m) 0;
+  font-size: var(--size-small);
+}
+.term__table th, .term__table td {
+  text-align: left;
+  padding: 4px 0;
+  font-weight: 400;
+}
+.term__table th {
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: var(--size-micro);
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: var(--sp-s);
+}
+.term__table td { padding: 6px 0; }
+.term__table tr:not(:last-child) td { border-bottom: 1px dashed var(--rule); }
+.term__table td.r { text-align: right; font-variant-numeric: tabular-nums; }
+.term__table td.r-pct { text-align: right; font-variant-numeric: tabular-nums; min-width: 70px; }
+.term__table tr.totals td {
+  border-top: 1px solid var(--rule-bright);
+  border-bottom: none !important;
+  padding-top: var(--sp-m);
+  color: var(--ink);
+  font-weight: 500;
+}
+.term__arrow { display: inline-block; width: 1em; text-align: center; }
+.arr-up { color: var(--up); }
+.arr-down { color: var(--down); }
+.arr-flat { color: var(--ink-faint); }
+
+.term__caret {
+  display: inline-block;
+  width: 8px; height: 14px;
+  background: var(--signal);
+  vertical-align: -2px;
+  animation: blink 1.1s step-end infinite;
+  margin-left: 4px;
+}
+
+/* TICKER RAIL */
+.ticker {
+  margin: var(--sp-xl) 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(90deg, var(--bg), var(--bg-elev), var(--bg));
+}
+.ticker__track {
+  display: flex;
+  gap: var(--sp-2xl);
+  padding: var(--sp-m) 0;
+  white-space: nowrap;
+  font-size: var(--size-small);
+  animation: marquee 60s linear infinite;
+  width: max-content;
+}
+.ticker:hover .ticker__track { animation-play-state: paused; }
+.ticker__item { display: flex; align-items: center; gap: var(--sp-s); }
+.ticker__label { color: var(--ink-faint); letter-spacing: 0.06em; }
+.ticker__val { font-variant-numeric: tabular-nums; }
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* =========================================================
+   MANIFESTO
+   ========================================================= */
+.manifesto {
+  margin: var(--sp-3xl) 0;
+  padding: var(--sp-2xl) var(--sp-xl);
+  position: relative;
+}
+.manifesto::before, .manifesto::after {
+  position: absolute;
+  width: 24px; height: 24px;
+  color: var(--signal);
+  font-size: 24px;
+  font-family: 'IBM Plex Mono', monospace;
+  line-height: 1;
+}
+.manifesto::before {
+  content: '┌';
+  top: 0; left: 0;
+}
+.manifesto::after {
+  content: '└';
+  bottom: 0; left: 0;
+}
+.manifesto__num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: var(--size-micro);
+  color: var(--ink-faint);
+  letter-spacing: 0.16em;
+  margin-bottom: var(--sp-xl);
+  text-transform: uppercase;
+}
+.manifesto__big {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: 'opsz' 144, 'wght' 400, 'SOFT' 50;
+  font-size: var(--size-manifesto);
+  line-height: 0.92;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  margin-bottom: var(--sp-2xl);
+  max-width: 18ch;
+}
+.manifesto__big em {
+  font-style: italic;
+  font-variation-settings: 'opsz' 144, 'wght' 400, 'SOFT' 100;
+  color: var(--signal);
+}
+.manifesto__body {
+  font-size: var(--size-lead);
+  line-height: 1.6;
+  color: var(--ink-dim);
+  max-width: 50ch;
+}
+
+/* =========================================================
+   FEATURES (man-page)
+   ========================================================= */
+.features {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-m);
+}
+@media (max-width: 760px) { .features { grid-template-columns: 1fr; } }
+
+.manp {
+  padding: var(--sp-l);
+}
+.manp__name {
+  font-size: var(--size-small);
+  color: var(--signal);
+  letter-spacing: 0.06em;
+  margin-bottom: var(--sp-m);
+  font-weight: 500;
+}
+.manp__row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: var(--sp-m);
+  font-size: var(--size-small);
+  padding: var(--sp-s) 0;
+  border-top: 1px dashed var(--rule);
+}
+.manp__row:first-of-type { border-top: none; }
+.manp__row dt {
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: var(--size-micro);
+  padding-top: 2px;
+}
+.manp__row dd {
+  color: var(--ink);
+  line-height: 1.55;
+}
+.manp__row dd .sub { color: var(--ink-dim); display: block; margin-top: 2px; font-size: var(--size-micro); }
+
+/* =========================================================
+   PROOF
+   ========================================================= */
+.proof {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: var(--sp-m);
+}
+@media (max-width: 900px) { .proof { grid-template-columns: 1fr; } }
+
+.chart {
+  padding: 0;
+  min-height: 320px;
+}
+.chart__body { padding: var(--sp-l); }
+.chart svg { display: block; width: 100%; height: auto; }
+
+.kpis {
+  display: grid;
+  grid-template-rows: repeat(4, 1fr);
+  gap: var(--sp-m);
+}
+.kpi {
+  padding: var(--sp-l);
+}
+.kpi__label {
+  font-size: var(--size-micro);
+  color: var(--ink-faint);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: var(--sp-s);
+}
+.kpi__val {
+  font-size: var(--size-h3);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.kpi__delta {
+  font-size: var(--size-small);
+  font-variant-numeric: tabular-nums;
+  margin-top: 4px;
+}
+
+/* =========================================================
+   PRICING
+   ========================================================= */
+.price {
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  background: var(--bg-elev);
+  overflow: hidden;
+}
+.price__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--size-small);
+}
+.price__table th, .price__table td {
+  padding: var(--sp-m) var(--sp-l);
+  text-align: left;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+.price__table tr:last-child td { border-bottom: none; }
+.price__table th { font-weight: 500; }
+.price__plan { width: 22%; }
+.price__plan__name {
+  font-size: var(--size-lead);
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.price__plan__recommended { color: var(--signal); }
+.price__plan__cost {
+  font-size: var(--size-h3);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  margin: var(--sp-s) 0 var(--sp-m);
+}
+.price__plan__cost small { color: var(--ink-faint); font-size: var(--size-micro); font-weight: 400; }
+.price__row__label {
+  color: var(--ink-dim);
+  letter-spacing: 0.02em;
+}
+.price__cell { color: var(--ink); }
+.price__cell--mute { color: var(--ink-faint); }
+.price__check { color: var(--signal); }
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+.footer {
+  margin-top: var(--sp-3xl);
+  border-top: 1px solid var(--rule);
+  padding: var(--sp-xl) 0 var(--sp-2xl);
+  font-size: var(--size-small);
+}
+.footer__grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: var(--sp-xl);
+  margin-bottom: var(--sp-xl);
+}
+@media (max-width: 760px) { .footer__grid { grid-template-columns: 1fr 1fr; } }
+.footer__col h4 {
+  font-size: var(--size-micro);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: var(--sp-m);
+}
+.footer__col ul { list-style: none; display: flex; flex-direction: column; gap: var(--sp-s); }
+.footer__col a { color: var(--ink-dim); transition: color var(--t) var(--ease); }
+.footer__col a:hover { color: var(--ink); }
+.footer__about p { color: var(--ink-dim); max-width: 40ch; line-height: 1.6; }
+
+.footer__stamp {
+  font-size: var(--size-micro);
+  color: var(--ink-faint);
+  letter-spacing: 0.12em;
+  border-top: 1px solid var(--rule);
+  padding-top: var(--sp-m);
+  display: flex; flex-wrap: wrap; gap: var(--sp-m);
+}
+.footer__stamp span { color: var(--rule-bright); }
+
+/* =========================================================
+   MOCKUP BANNER
+   ========================================================= */
+.mockup-banner {
+  background: var(--signal);
+  color: var(--bg);
+  padding: 6px var(--sp-l);
+  font-size: var(--size-micro);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+  text-align: center;
+  display: flex; align-items: center; justify-content: center; gap: var(--sp-l);
+  flex-wrap: wrap;
+}
+.accent-switch {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-weight: 500;
+}
+.accent-switch__label { opacity: 0.7; }
+.accent-switch button {
+  font: inherit;
+  background: transparent;
+  border: 1px solid currentColor;
+  color: var(--bg);
+  padding: 2px 8px;
+  border-radius: var(--r);
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity var(--t) var(--ease), background var(--t) var(--ease);
+}
+.accent-switch button:hover { opacity: 1; }
+.accent-switch button[aria-pressed="true"] {
+  opacity: 1;
+  background: var(--bg);
+  color: var(--signal);
+}
+
+/* =========================================================
+   SCROLL-IN
+   ========================================================= */
+.reveal { opacity: 0; transform: translateY(8px); transition: opacity var(--t-slow) var(--ease), transform var(--t-slow) var(--ease); }
+.reveal.in { opacity: 1; transform: none; }
+
+</style>
+</head>
+<body>
+
+<div class="mockup-banner">
+  <span>DESIGN MOCKUP · 2026.05.28 · PORTFOLIO.SYS v4.2</span>
+  <span class="accent-switch">
+    <span class="accent-switch__label">ACCENT:</span>
+    <button data-accent-btn="amber" aria-pressed="true">AMBER</button>
+    <button data-accent-btn="green" aria-pressed="false">GREEN</button>
+    <button data-accent-btn="blue"  aria-pressed="false">BLUE</button>
+  </span>
+</div>
+
+<!-- =========================================================
+     TOP BAR
+     ========================================================= -->
+<header class="topbar">
+  <div class="topbar__brand">
+    <span class="topbar__brand__mark">P</span>
+    <span>PORTFOLIO.SYS</span>
+  </div>
+  <nav class="topbar__nav">
+    <a href="#features" data-i18n="nav.features">Fitur</a>
+    <a href="#proof"    data-i18n="nav.proof">Bukti</a>
+    <a href="#pricing"  data-i18n="nav.pricing">Harga</a>
+    <a href="#docs"     data-i18n="nav.docs">Docs</a>
+  </nav>
+  <div class="topbar__spacer"></div>
+  <div class="topbar__tools">
+    <div class="topbar__lang">
+      <button data-lang-btn="id" aria-pressed="true">ID</button>
+      <span style="color: var(--rule-bright);">|</span>
+      <button data-lang-btn="en" aria-pressed="false">EN</button>
+    </div>
+    <button class="topbar__theme" id="themeBtn" aria-label="Toggle theme">☾  DARK</button>
+    <a class="btn btn--solid" href="app.html" data-i18n="nav.start">MULAI</a>
+  </div>
+</header>
+
+<main class="page">
+
+  <!-- =========================================================
+       §02 HERO
+       ========================================================= -->
+  <section class="hero">
+    <div class="hero__left">
+      <div class="hero__buildstamp">
+        <span>PORTFOLIO.SYS</span>
+        <span class="hero__buildstamp__sep">/</span>
+        <span>v4.2</span>
+        <span class="hero__buildstamp__sep">·</span>
+        <span>BUILD 2026.05.28</span>
+        <span class="hero__buildstamp__sep">·</span>
+        <span class="tag tag--live">LIVE</span>
+      </div>
+
+      <h1 class="hero__headline">
+        <span data-i18n="hero.headline">Sebuah sistem operasi untuk portofolio personal Anda<span class="accent">.</span></span>
+      </h1>
+
+      <p class="hero__sub" data-i18n="hero.sub">
+        Pantau, analisis, dan optimalkan 12 jenis aset dari satu terminal. Real-time. Lokal. Anda yang pegang kunci.
+      </p>
+
+      <div class="hero__actions">
+        <a class="btn btn--solid" href="app.html"><span data-i18n="hero.cta1">MULAI GRATIS</span></a>
+        <a class="btn" href="#proof"><span data-i18n="hero.cta2">LIHAT TERMINAL</span></a>
+      </div>
+
+      <div class="hero__disclosure">
+        <span data-i18n="hero.discl1">Tidak perlu kartu kredit</span>·
+        <span data-i18n="hero.discl2">open source</span>·
+        <span data-i18n="hero.discl3">jalan di browser</span>
+      </div>
+    </div>
+
+    <div class="hero__right">
+      <div class="pane pane--data term">
+        <div class="pane__head">
+          <span class="pane__head__title">portfolio.sys --status</span>
+          <span class="pane__head__spacer"></span>
+          <span class="pane__head__dot"></span>
+          <span data-i18n="term.connected">CONNECTED · IDX · CRYPTO · GOLD · CASH</span>
+          <span class="pane__head__time" id="syncTime">17:42:03 WIB</span>
+        </div>
+        <div class="term__body">
+          <div class="term__prompt">$ <b>portfolio.sys</b> --status --watch</div>
+          <div class="term__line" data-i18n="term.l1">  → connecting to 4 data sources ……… ok</div>
+          <div class="term__line" data-i18n="term.l2">  → fetching positions (12 assets) … ok</div>
+          <div class="term__line" data-i18n="term.l3">  → reconciling FX (IDR / USD)   …… ok</div>
+
+          <table class="term__table" id="holdings">
+            <thead>
+              <tr>
+                <th>Asset</th>
+                <th class="r">Last</th>
+                <th class="r-pct">Δ Day</th>
+                <th class="r-pct">Weight</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-row="BBCA"  data-price="9425"    data-weight="12.4"><td>BBCA.JK</td>  <td class="r num">9,425</td>     <td class="r-pct num">+1.21%</td><td class="r-pct">12.4%</td><td class="term__arrow arr-up">▲</td></tr>
+              <tr data-row="BBRI"  data-price="5100"    data-weight="8.1"><td>BBRI.JK</td>   <td class="r num">5,100</td>     <td class="r-pct num">−0.78%</td><td class="r-pct">8.1%</td><td class="term__arrow arr-down">▼</td></tr>
+              <tr data-row="TLKM"  data-price="3210"    data-weight="6.7"><td>TLKM.JK</td>   <td class="r num">3,210</td>     <td class="r-pct num">+0.31%</td><td class="r-pct">6.7%</td><td class="term__arrow arr-up">▲</td></tr>
+              <tr data-row="GOTO"  data-price="58"      data-weight="2.2"><td>GOTO.JK</td>   <td class="r num">58</td>        <td class="r-pct num">+3.57%</td><td class="r-pct">2.2%</td><td class="term__arrow arr-up">▲</td></tr>
+              <tr data-row="BTC"   data-price="1084200000" data-weight="9.0"><td>BTC-IDR</td><td class="r num">1.084,2 jt</td><td class="r-pct num">+0.92%</td><td class="r-pct">9.0%</td><td class="term__arrow arr-up">▲</td></tr>
+              <tr data-row="EMAS"  data-price="1634500" data-weight="4.3"><td>EMAS-IDR</td>  <td class="r num">1.634.500</td> <td class="r-pct num">+0.04%</td><td class="r-pct">4.3%</td><td class="term__arrow arr-flat">▪</td></tr>
+              <tr class="totals"><td data-i18n="term.total">TOTAL</td><td class="r"><span class="num">Rp 487,2 jt</span></td><td class="r-pct num">+0.87%</td><td class="r-pct">100.0%</td><td class="term__arrow arr-up">▲</td></tr>
+            </tbody>
+          </table>
+
+          <div class="term__prompt">$ <span class="term__caret"></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       IDX / GLOBAL TICKER RAIL
+       ========================================================= -->
+  <section class="ticker" aria-label="Live market rail">
+    <div class="ticker__track" id="tickerTrack">
+      <!-- repeated twice for seamless loop -->
+    </div>
+  </section>
+
+  <!-- =========================================================
+       §03 MANIFESTO
+       ========================================================= -->
+  <section class="manifesto reveal">
+    <div class="manifesto__num">§ 03 / MANIFESTO</div>
+    <h2 class="manifesto__big">
+      <span data-i18n="manif.headline">Anda punya<br>portofolio.<br>Sekarang ketahui<br>apa <em>artinya</em>.</span>
+    </h2>
+    <p class="manifesto__body" data-i18n="manif.body">
+      Bukan grafik. Bukan dashboard. Sistem operasi untuk uang Anda — yang membaca data dan memberi tahu kapan Anda terlalu agresif, kurang terdiversifikasi, atau membayar pajak yang tidak perlu.
+    </p>
+  </section>
+
+  <!-- =========================================================
+       §04 FEATURES (man-page)
+       ========================================================= -->
+  <div class="rule"><span class="rule__num">§ 04</span><span data-i18n="rule.features">WHAT IT KNOWS / KEMAMPUAN</span></div>
+
+  <section class="features" id="features">
+
+    <article class="pane manp reveal">
+      <div class="manp__name">portfolio.sys --track</div>
+      <div class="manp__row"><dt>NAME</dt><dd data-i18n="f1.name">Lacak posisi multi-aset secara real-time</dd></div>
+      <div class="manp__row"><dt>SYNOPSIS</dt><dd>--track [stocks|crypto|gold|p2p|deposit|fund|...]</dd></div>
+      <div class="manp__row"><dt>DESC</dt><dd data-i18n="f1.desc">Saham IDX, kripto, emas, reksa dana, P2P, deposito, properti, dan custom. Tidak ada batasan kategori.</dd></div>
+      <div class="manp__row"><dt>SOURCES</dt><dd>IDX · Stockbit · Bibit · Pluang · Binance · Pintu · Tokocrypto</dd></div>
+    </article>
+
+    <article class="pane manp reveal">
+      <div class="manp__name">portfolio.sys --analyze</div>
+      <div class="manp__row"><dt>NAME</dt><dd data-i18n="f2.name">Analisis risiko & diversifikasi otomatis</dd></div>
+      <div class="manp__row"><dt>SYNOPSIS</dt><dd>--analyze --risk --sharpe --drawdown</dd></div>
+      <div class="manp__row"><dt>DESC</dt><dd data-i18n="f2.desc">Volatility, Sharpe, max drawdown, korelasi antar-aset. Diversifikasi diukur, bukan ditebak.</dd></div>
+      <div class="manp__row"><dt>SCOPE</dt><dd>Per-aset · Per-kategori · Total portofolio</dd></div>
+    </article>
+
+    <article class="pane manp reveal">
+      <div class="manp__name">portfolio.sys --rebalance</div>
+      <div class="manp__row"><dt>NAME</dt><dd data-i18n="f3.name">Rebalance saran berbasis target</dd></div>
+      <div class="manp__row"><dt>SYNOPSIS</dt><dd>--rebalance --target=conservative|balanced|aggressive</dd></div>
+      <div class="manp__row"><dt>DESC</dt><dd data-i18n="f3.desc">Bandingkan komposisi sekarang dengan target Anda. Saran beli/jual yang spesifik, dengan estimasi biaya transaksi.</dd></div>
+      <div class="manp__row"><dt>FREQ</dt><dd>Manual · Mingguan · Bulanan · Kuartalan</dd></div>
+    </article>
+
+    <article class="pane manp reveal">
+      <div class="manp__name">portfolio.sys --tax</div>
+      <div class="manp__row"><dt>NAME</dt><dd data-i18n="f4.name">Lacak pajak realized & unrealized</dd></div>
+      <div class="manp__row"><dt>SYNOPSIS</dt><dd>--tax --year=2026 --jurisdiction=ID</dd></div>
+      <div class="manp__row"><dt>DESC</dt><dd data-i18n="f4.desc">Hitung PPh atas dividen, capital gain, dan transaksi efek. Export ke format SPT.</dd></div>
+      <div class="manp__row"><dt>JURIS</dt><dd>Indonesia (PPh Final 0,1%) · Custom rules</dd></div>
+    </article>
+
+    <article class="pane manp reveal">
+      <div class="manp__name">portfolio.sys --ml</div>
+      <div class="manp__row"><dt>NAME</dt><dd data-i18n="f5.name">Model ML untuk deteksi pola</dd></div>
+      <div class="manp__row"><dt>SYNOPSIS</dt><dd>--ml --predict --regime --anomaly</dd></div>
+      <div class="manp__row"><dt>DESC</dt><dd data-i18n="f5.desc">Regime detection, anomaly flagging, prediksi rentang harga 1–30 hari. Output dengan confidence interval, bukan klaim ramalan.</dd></div>
+      <div class="manp__row"><dt>MODELS</dt><dd>LSTM · ARIMA · Isolation Forest · Custom</dd></div>
+    </article>
+
+    <article class="pane manp reveal">
+      <div class="manp__name">portfolio.sys --ai</div>
+      <div class="manp__row"><dt>NAME</dt><dd data-i18n="f6.name">Tanya AI tentang portofolio Anda</dd></div>
+      <div class="manp__row"><dt>SYNOPSIS</dt><dd>--ai "kenapa BBCA turun minggu ini?"</dd></div>
+      <div class="manp__row"><dt>DESC</dt><dd data-i18n="f6.desc">Powered by Gemini. Memahami posisi Anda, membaca berita, menjawab dalam Bahasa. Tidak ada saran beli/jual.</dd></div>
+      <div class="manp__row"><dt>PRIVACY</dt><dd>Data Anda tidak dipakai untuk training. <span class="tag tag--signal">LOCAL ONLY</span></dd></div>
+    </article>
+
+  </section>
+
+  <!-- =========================================================
+       §05 PROOF
+       ========================================================= -->
+  <div class="rule"><span class="rule__num">§ 05</span><span data-i18n="rule.proof">PROOF / BUKTI</span></div>
+
+  <section class="proof" id="proof">
+    <div class="pane pane--data chart">
+      <div class="pane__head">
+        <span class="pane__head__title">portfolio.sys --equity --range=12M</span>
+        <span class="pane__head__spacer"></span>
+        <span data-i18n="chart.range">12 BULAN · IDR</span>
+      </div>
+      <div class="chart__body">
+        <svg viewBox="0 0 800 280" preserveAspectRatio="none" aria-label="Equity curve">
+          <!-- grid -->
+          <g stroke="currentColor" stroke-width="1" opacity="0.08">
+            <line x1="0" y1="40"  x2="800" y2="40"/>
+            <line x1="0" y1="100" x2="800" y2="100"/>
+            <line x1="0" y1="160" x2="800" y2="160"/>
+            <line x1="0" y1="220" x2="800" y2="220"/>
+          </g>
+          <!-- y labels -->
+          <g fill="currentColor" font-family="IBM Plex Mono" font-size="10" opacity="0.5">
+            <text x="6" y="44">Rp 550 jt</text>
+            <text x="6" y="104">Rp 480 jt</text>
+            <text x="6" y="164">Rp 410 jt</text>
+            <text x="6" y="224">Rp 340 jt</text>
+          </g>
+          <!-- benchmark IHSG dashed -->
+          <polyline points="0,200 80,195 160,205 240,180 320,190 400,175 480,170 560,150 640,160 720,140 800,135"
+                    fill="none" stroke="currentColor" stroke-dasharray="3,4" stroke-width="1.5" opacity="0.4"/>
+          <!-- portfolio line -->
+          <polyline points="0,210 80,180 160,195 240,140 320,150 400,110 480,120 560,75 640,90 720,55 800,40"
+                    fill="none" stroke="var(--signal)" stroke-width="2"/>
+          <!-- annotation point -->
+          <circle cx="800" cy="40" r="4" fill="var(--signal)"/>
+          <line x1="800" y1="40" x2="800" y2="40" stroke="var(--signal)"/>
+          <!-- x labels -->
+          <g fill="currentColor" font-family="IBM Plex Mono" font-size="10" opacity="0.5">
+            <text x="0"   y="262">2025-06</text>
+            <text x="200" y="262">2025-09</text>
+            <text x="400" y="262">2025-12</text>
+            <text x="600" y="262">2026-03</text>
+            <text x="730" y="262">2026-05</text>
+          </g>
+          <!-- legend -->
+          <g font-family="IBM Plex Mono" font-size="11">
+            <rect x="600" y="6" width="10" height="2" fill="var(--signal)"/>
+            <text x="616" y="11" fill="currentColor">PORTFOLIO</text>
+            <line x1="700" y1="7" x2="710" y2="7" stroke="currentColor" stroke-dasharray="2,3" opacity="0.6"/>
+            <text x="716" y="11" fill="currentColor" opacity="0.6">IHSG</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="pane kpi">
+        <div class="kpi__label" data-i18n="kpi.equity">EQUITY</div>
+        <div class="kpi__val">Rp 487,2 jt</div>
+        <div class="kpi__delta num--up">+12,4% YTD</div>
+      </div>
+      <div class="pane kpi">
+        <div class="kpi__label" data-i18n="kpi.alpha">ALPHA / IHSG</div>
+        <div class="kpi__val">+5,8%</div>
+        <div class="kpi__delta num--up">out-performing</div>
+      </div>
+      <div class="pane kpi">
+        <div class="kpi__label" data-i18n="kpi.sharpe">SHARPE 12M</div>
+        <div class="kpi__val">1,42</div>
+        <div class="kpi__delta" style="color: var(--ink-dim);">risk-adjusted</div>
+      </div>
+      <div class="pane kpi">
+        <div class="kpi__label" data-i18n="kpi.dd">MAX DRAWDOWN</div>
+        <div class="kpi__val">−7,1%</div>
+        <div class="kpi__delta" style="color: var(--ink-dim);">peak → trough</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       §06 PRICING
+       ========================================================= -->
+  <div class="rule"><span class="rule__num">§ 06</span><span data-i18n="rule.pricing">PRICING / HARGA</span></div>
+
+  <section class="price" id="pricing">
+    <table class="price__table">
+      <thead>
+        <tr>
+          <th></th>
+          <th class="price__plan">
+            <div class="price__plan__name">GRATIS</div>
+            <div class="price__plan__cost">Rp 0 <small>/ bulan</small></div>
+            <a class="btn" href="app.html"><span data-i18n="pric.cta1">MULAI</span></a>
+          </th>
+          <th class="price__plan">
+            <div class="price__plan__name price__plan__recommended">PRO <span class="tag tag--signal">DIPILIH</span></div>
+            <div class="price__plan__cost">Rp 99.000 <small>/ bulan</small></div>
+            <a class="btn btn--solid" href="app.html"><span data-i18n="pric.cta2">UPGRADE</span></a>
+          </th>
+          <th class="price__plan">
+            <div class="price__plan__name">QUANT</div>
+            <div class="price__plan__cost">Rp 299.000 <small>/ bulan</small></div>
+            <a class="btn" href="app.html"><span data-i18n="pric.cta3">HUBUNGI</span></a>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="price__row__label" data-i18n="pric.r1">Aset terlacak</td>
+          <td class="price__cell">50 posisi</td>
+          <td class="price__cell">Tak terbatas</td>
+          <td class="price__cell">Tak terbatas</td>
+        </tr>
+        <tr>
+          <td class="price__row__label" data-i18n="pric.r2">Update real-time</td>
+          <td class="price__cell">15 menit</td>
+          <td class="price__cell">1 detik</td>
+          <td class="price__cell">Tick-by-tick</td>
+        </tr>
+        <tr>
+          <td class="price__row__label" data-i18n="pric.r3">Analisis risiko & Sharpe</td>
+          <td class="price__cell--mute">—</td>
+          <td class="price__cell price__check">✓</td>
+          <td class="price__cell price__check">✓</td>
+        </tr>
+        <tr>
+          <td class="price__row__label" data-i18n="pric.r4">Saran rebalance</td>
+          <td class="price__cell--mute">—</td>
+          <td class="price__cell price__check">✓</td>
+          <td class="price__cell price__check">✓</td>
+        </tr>
+        <tr>
+          <td class="price__row__label" data-i18n="pric.r5">Model ML kustom</td>
+          <td class="price__cell--mute">—</td>
+          <td class="price__cell--mute">—</td>
+          <td class="price__cell price__check">✓</td>
+        </tr>
+        <tr>
+          <td class="price__row__label" data-i18n="pric.r6">AI assistant (Gemini)</td>
+          <td class="price__cell">5 pesan / hari</td>
+          <td class="price__cell">100 pesan / hari</td>
+          <td class="price__cell">Tak terbatas</td>
+        </tr>
+        <tr>
+          <td class="price__row__label" data-i18n="pric.r7">API access</td>
+          <td class="price__cell--mute">—</td>
+          <td class="price__cell--mute">—</td>
+          <td class="price__cell price__check">✓</td>
+        </tr>
+        <tr>
+          <td class="price__row__label" data-i18n="pric.r8">Export SPT pajak</td>
+          <td class="price__cell--mute">—</td>
+          <td class="price__cell price__check">✓</td>
+          <td class="price__cell price__check">✓</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- =========================================================
+       FOOTER
+       ========================================================= -->
+  <footer class="footer">
+    <div class="footer__grid">
+      <div class="footer__col footer__about">
+        <div class="topbar__brand" style="margin-bottom: var(--sp-m);">
+          <span class="topbar__brand__mark">P</span>
+          <span>PORTFOLIO.SYS</span>
+        </div>
+        <p data-i18n="foot.about">
+          Sistem operasi untuk portofolio personal Anda. Dibuat di Jakarta, untuk investor yang membaca laporan keuangan sebelum membeli.
+        </p>
+      </div>
+      <div class="footer__col">
+        <h4 data-i18n="foot.h1">Produk</h4>
+        <ul>
+          <li><a href="#features" data-i18n="foot.l1">Fitur</a></li>
+          <li><a href="#pricing"  data-i18n="foot.l2">Harga</a></li>
+          <li><a href="app.html"  data-i18n="foot.l3">Mulai</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4 data-i18n="foot.h2">Sumber</h4>
+        <ul>
+          <li><a href="#" data-i18n="foot.l4">Dokumentasi</a></li>
+          <li><a href="#" data-i18n="foot.l5">Changelog</a></li>
+          <li><a href="#" data-i18n="foot.l6">Status</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4 data-i18n="foot.h3">Legal</h4>
+        <ul>
+          <li><a href="#" data-i18n="foot.l7">Kebijakan</a></li>
+          <li><a href="#" data-i18n="foot.l8">Disclaimer</a></li>
+          <li><a href="#" data-i18n="foot.l9">Lisensi</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__stamp">
+      <span>© 2026 PORTFOLIO.SYS</span><span>·</span>
+      <span>BUILD 2026.05.28</span><span>·</span>
+      <span>commit 636bb7d</span><span>·</span>
+      <span data-i18n="foot.disc">BUKAN SARAN INVESTASI</span>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+/* =========================================================
+   i18n
+   ========================================================= */
+const I18N = {
+  id: {
+    'nav.features':'Fitur','nav.proof':'Bukti','nav.pricing':'Harga','nav.docs':'Docs','nav.start':'MULAI',
+    'hero.headline':'Sebuah sistem operasi untuk portofolio personal Anda.',
+    'hero.sub':'Pantau, analisis, dan optimalkan 12 jenis aset dari satu terminal. Real-time. Lokal. Anda yang pegang kunci.',
+    'hero.cta1':'MULAI GRATIS','hero.cta2':'LIHAT TERMINAL',
+    'hero.discl1':'Tidak perlu kartu kredit','hero.discl2':'open source','hero.discl3':'jalan di browser',
+    'term.connected':'CONNECTED · IDX · CRYPTO · GOLD · CASH',
+    'term.l1':'  → connecting to 4 data sources ……… ok',
+    'term.l2':'  → fetching positions (12 assets) … ok',
+    'term.l3':'  → reconciling FX (IDR / USD)   …… ok',
+    'term.total':'TOTAL',
+    'manif.headline':'Anda punya<br>portofolio.<br>Sekarang ketahui<br>apa <em>artinya</em>.',
+    'manif.body':'Bukan grafik. Bukan dashboard. Sistem operasi untuk uang Anda — yang membaca data dan memberi tahu kapan Anda terlalu agresif, kurang terdiversifikasi, atau membayar pajak yang tidak perlu.',
+    'rule.features':'KEMAMPUAN / WHAT IT KNOWS','rule.proof':'BUKTI / PROOF','rule.pricing':'HARGA / PRICING',
+    'f1.name':'Lacak posisi multi-aset secara real-time',
+    'f1.desc':'Saham IDX, kripto, emas, reksa dana, P2P, deposito, properti, dan custom. Tidak ada batasan kategori.',
+    'f2.name':'Analisis risiko & diversifikasi otomatis',
+    'f2.desc':'Volatility, Sharpe, max drawdown, korelasi antar-aset. Diversifikasi diukur, bukan ditebak.',
+    'f3.name':'Rebalance saran berbasis target',
+    'f3.desc':'Bandingkan komposisi sekarang dengan target Anda. Saran beli/jual yang spesifik, dengan estimasi biaya transaksi.',
+    'f4.name':'Lacak pajak realized & unrealized',
+    'f4.desc':'Hitung PPh atas dividen, capital gain, dan transaksi efek. Export ke format SPT.',
+    'f5.name':'Model ML untuk deteksi pola',
+    'f5.desc':'Regime detection, anomaly flagging, prediksi rentang harga 1–30 hari. Output dengan confidence interval, bukan klaim ramalan.',
+    'f6.name':'Tanya AI tentang portofolio Anda',
+    'f6.desc':'Powered by Gemini. Memahami posisi Anda, membaca berita, menjawab dalam Bahasa. Tidak ada saran beli/jual.',
+    'chart.range':'12 BULAN · IDR',
+    'kpi.equity':'EQUITY','kpi.alpha':'ALPHA / IHSG','kpi.sharpe':'SHARPE 12M','kpi.dd':'MAX DRAWDOWN',
+    'pric.cta1':'MULAI','pric.cta2':'UPGRADE','pric.cta3':'HUBUNGI',
+    'pric.r1':'Aset terlacak','pric.r2':'Update real-time','pric.r3':'Analisis risiko & Sharpe','pric.r4':'Saran rebalance',
+    'pric.r5':'Model ML kustom','pric.r6':'AI assistant (Gemini)','pric.r7':'API access','pric.r8':'Export SPT pajak',
+    'foot.about':'Sistem operasi untuk portofolio personal Anda. Dibuat di Jakarta, untuk investor yang membaca laporan keuangan sebelum membeli.',
+    'foot.h1':'Produk','foot.h2':'Sumber','foot.h3':'Legal',
+    'foot.l1':'Fitur','foot.l2':'Harga','foot.l3':'Mulai',
+    'foot.l4':'Dokumentasi','foot.l5':'Changelog','foot.l6':'Status',
+    'foot.l7':'Kebijakan','foot.l8':'Disclaimer','foot.l9':'Lisensi',
+    'foot.disc':'BUKAN SARAN INVESTASI',
+  },
+  en: {
+    'nav.features':'Features','nav.proof':'Proof','nav.pricing':'Pricing','nav.docs':'Docs','nav.start':'START',
+    'hero.headline':'An operating system for your personal portfolio.',
+    'hero.sub':'Track, analyse, and optimise 12 asset classes from a single terminal. Real-time. Local. You hold the keys.',
+    'hero.cta1':'START FREE','hero.cta2':'SEE THE TERMINAL',
+    'hero.discl1':'No credit card','hero.discl2':'open source','hero.discl3':'runs in the browser',
+    'term.connected':'CONNECTED · IDX · CRYPTO · GOLD · CASH',
+    'term.l1':'  → connecting to 4 data sources ……… ok',
+    'term.l2':'  → fetching positions (12 assets) … ok',
+    'term.l3':'  → reconciling FX (IDR / USD)   …… ok',
+    'term.total':'TOTAL',
+    'manif.headline':'You have<br>a portfolio.<br>Now know what<br>it <em>means</em>.',
+    'manif.body':'Not a chart. Not a dashboard. An operating system for your money — one that reads the data and tells you when you are over-concentrated, under-diversified, or paying tax you don\'t owe.',
+    'rule.features':'WHAT IT KNOWS','rule.proof':'PROOF','rule.pricing':'PRICING',
+    'f1.name':'Track multi-asset positions in real time',
+    'f1.desc':'IDX stocks, crypto, gold, mutual funds, P2P, deposits, real estate, custom. No category caps.',
+    'f2.name':'Automatic risk & diversification analysis',
+    'f2.desc':'Volatility, Sharpe, max drawdown, asset correlation. Diversification measured, not guessed.',
+    'f3.name':'Rebalance recommendations against a target',
+    'f3.desc':'Compare current allocation to your target. Specific buy/sell suggestions with estimated trading cost.',
+    'f4.name':'Track realized & unrealized tax',
+    'f4.desc':'Compute income tax on dividends, capital gains, securities trades. Export to local tax format.',
+    'f5.name':'ML models for pattern detection',
+    'f5.desc':'Regime detection, anomaly flagging, 1–30 day price-range prediction. Output with confidence intervals, not forecasting claims.',
+    'f6.name':'Ask AI about your portfolio',
+    'f6.desc':'Powered by Gemini. Understands your positions, reads news, answers in your language. No buy/sell advice.',
+    'chart.range':'12 MONTHS · IDR',
+    'kpi.equity':'EQUITY','kpi.alpha':'ALPHA / IHSG','kpi.sharpe':'SHARPE 12M','kpi.dd':'MAX DRAWDOWN',
+    'pric.cta1':'START','pric.cta2':'UPGRADE','pric.cta3':'CONTACT',
+    'pric.r1':'Assets tracked','pric.r2':'Real-time updates','pric.r3':'Risk & Sharpe analysis','pric.r4':'Rebalance suggestions',
+    'pric.r5':'Custom ML models','pric.r6':'AI assistant (Gemini)','pric.r7':'API access','pric.r8':'Tax export',
+    'foot.about':'An operating system for your personal portfolio. Built in Jakarta, for investors who read the financials before they buy.',
+    'foot.h1':'Product','foot.h2':'Resources','foot.h3':'Legal',
+    'foot.l1':'Features','foot.l2':'Pricing','foot.l3':'Start',
+    'foot.l4':'Docs','foot.l5':'Changelog','foot.l6':'Status',
+    'foot.l7':'Privacy','foot.l8':'Disclaimer','foot.l9':'License',
+    'foot.disc':'NOT INVESTMENT ADVICE',
+  }
+};
+
+function applyI18n(lang) {
+  document.documentElement.setAttribute('lang', lang);
+  document.documentElement.setAttribute('data-lang', lang);
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const val = I18N[lang][key];
+    if (val !== undefined) el.innerHTML = val;
+  });
+  document.querySelectorAll('[data-lang-btn]').forEach(b => {
+    b.setAttribute('aria-pressed', b.getAttribute('data-lang-btn') === lang ? 'true' : 'false');
+  });
+}
+
+document.querySelectorAll('[data-lang-btn]').forEach(b => {
+  b.addEventListener('click', () => {
+    const lang = b.getAttribute('data-lang-btn');
+    localStorage.setItem('portfolio.lang', lang);
+    applyI18n(lang);
+  });
+});
+const storedLang = localStorage.getItem('portfolio.lang') || 'id';
+applyI18n(storedLang);
+
+/* =========================================================
+   THEME
+   ========================================================= */
+const themeBtn = document.getElementById('themeBtn');
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  themeBtn.textContent = theme === 'dark' ? '☾  DARK' : '☼  LIGHT';
+}
+themeBtn.addEventListener('click', () => {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('portfolio.theme', next);
+  applyTheme(next);
+});
+const storedTheme = localStorage.getItem('portfolio.theme')
+  || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+applyTheme(storedTheme);
+
+/* =========================================================
+   ACCENT SWITCHER (mockup-only)
+   ========================================================= */
+function applyAccent(a) {
+  document.documentElement.setAttribute('data-accent', a);
+  document.querySelectorAll('[data-accent-btn]').forEach(b => {
+    b.setAttribute('aria-pressed', b.getAttribute('data-accent-btn') === a ? 'true' : 'false');
+  });
+}
+document.querySelectorAll('[data-accent-btn]').forEach(b => {
+  b.addEventListener('click', () => {
+    const a = b.getAttribute('data-accent-btn');
+    localStorage.setItem('portfolio.accent', a);
+    applyAccent(a);
+  });
+});
+applyAccent(localStorage.getItem('portfolio.accent') || 'amber');
+
+/* =========================================================
+   LIVE TERMINAL — price walk
+   ========================================================= */
+const rows = document.querySelectorAll('#holdings tr[data-row]');
+const fmt = (n) => {
+  if (n >= 1e9) return (n/1e9).toLocaleString('id-ID', {maximumFractionDigits: 1}) + ' M';
+  if (n >= 1e6) return (n/1e6).toLocaleString('id-ID', {maximumFractionDigits: 1}) + ' jt';
+  return n.toLocaleString('id-ID');
+};
+let lastPrices = {};
+rows.forEach(r => lastPrices[r.dataset.row] = parseFloat(r.dataset.price));
+
+function tick() {
+  rows.forEach(r => {
+    const key = r.dataset.row;
+    const prev = lastPrices[key];
+    const drift = (Math.random() - 0.5) * 0.012;
+    const next = Math.max(1, prev * (1 + drift));
+    lastPrices[key] = next;
+
+    const priceCell = r.children[1].querySelector('.num');
+    const pctCell   = r.children[2].querySelector('.num');
+    const arrowCell = r.children[4];
+
+    priceCell.textContent = fmt(Math.round(next));
+    const pct = drift * 100;
+    pctCell.textContent = (pct >= 0 ? '+' : '−') + Math.abs(pct).toFixed(2) + '%';
+
+    if (drift > 0.0008)      { arrowCell.textContent = '▲'; arrowCell.className = 'term__arrow arr-up'; flash(priceCell, 'up'); flash(pctCell, 'up'); }
+    else if (drift < -0.0008){ arrowCell.textContent = '▼'; arrowCell.className = 'term__arrow arr-down'; flash(priceCell, 'down'); flash(pctCell, 'down'); }
+    else                     { arrowCell.textContent = '▪'; arrowCell.className = 'term__arrow arr-flat'; }
+  });
+  const t = new Date();
+  document.getElementById('syncTime').textContent =
+    String(t.getHours()).padStart(2,'0') + ':' +
+    String(t.getMinutes()).padStart(2,'0') + ':' +
+    String(t.getSeconds()).padStart(2,'0') + ' WIB';
+}
+function flash(el, dir) {
+  el.classList.remove('flash-up','flash-down');
+  void el.offsetWidth;
+  el.classList.add(dir === 'up' ? 'flash-up' : 'flash-down');
+  setTimeout(() => el.classList.remove('flash-up','flash-down'), 280);
+}
+let tickHandle = setInterval(tick, 1500);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) clearInterval(tickHandle);
+  else tickHandle = setInterval(tick, 1500);
+});
+
+/* =========================================================
+   TICKER RAIL
+   ========================================================= */
+const tickerItems = [
+  ['IHSG',      '7.184,32', '+0.42%', 'up'],
+  ['USD / IDR', '16.210',   '+0.08%', 'up'],
+  ['GOLD / oz', '$2,654',   '+0.31%', 'up'],
+  ['BTC',       '$69,400',  '+0.92%', 'up'],
+  ['BBCA',      '9.425',    '+1.21%', 'up'],
+  ['BBRI',      '5.100',    '−0.78%', 'down'],
+  ['TLKM',      '3.210',    '+0.31%', 'up'],
+  ['ASII',      '4.520',    '−0.22%', 'down'],
+  ['UNVR',      '2.110',    '+0.47%', 'up'],
+  ['GOTO',      '58',       '+3.57%', 'up'],
+  ['ETH',       '$3,720',   '+0.55%', 'up'],
+  ['BRENT',     '$82.30',   '−0.12%', 'down'],
+];
+const track = document.getElementById('tickerTrack');
+function renderTicker() {
+  const html = tickerItems.map(([label, val, pct, dir]) => `
+    <div class="ticker__item">
+      <span class="ticker__label">${label}</span>
+      <span class="ticker__val">${val}</span>
+      <span class="num--${dir}">${pct}</span>
+    </div>
+  `).join('');
+  track.innerHTML = html + html;
+}
+renderTicker();
+
+/* =========================================================
+   REVEAL ON SCROLL
+   ========================================================= */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('in');
+      io.unobserve(e.target);
+    }
+  });
+}, { rootMargin: '0px 0px -60px 0px' });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+</script>
+</body>
+</html>
