@@ -165,11 +165,153 @@
 <main class="page">
 
   <!-- ── HOME tab ── -->
-  <section class="tab-panel" id="tab-home" data-tab="home" data-active="true" role="tabpanel" aria-labelledby="tab-home-link">
-    <div class="placeholder">
-      <div class="placeholder__num">Phase 3</div>
-      <h2 class="serif" data-i18n="ph.home">Home tab — coming next</h2>
-      <p data-i18n="ph.home-desc">Greeting + total + sparkline + market rail + quick-add + holdings preview + activity feed + diversifikasi.</p>
+  <section class="tab-panel" id="tab-home" data-tab="home" data-active="true" role="tabpanel">
+    <div class="home">
+
+      <!-- HERO: greeting + total + sparkline -->
+      <section class="home__hero">
+        <div>
+          <div class="greeting">
+            <span data-greeting-prefix data-i18n="greet.sore">Selamat sore,</span>
+            <span class="greeting__name" data-user-name>—</span>
+          </div>
+          <div class="home__hero__sub serif-display" data-i18n="home.sub">Portofoliomu hari ini.</div>
+          <div class="total">
+            <div class="total__main num" data-total>Rp 0</div>
+            <div class="total__delta">
+              <span class="total__delta__main"><span class="total__delta__arrow" data-total-arrow>▲</span> <span data-total-delta class="num">—</span></span>
+              <span class="total__delta__sep">·</span>
+              <span class="total__delta__meta"><span data-total-pct class="num">—</span> <span data-i18n="home.today">hari ini</span></span>
+              <span class="total__delta__sep">·</span>
+              <span class="tag tag--live"><span data-i18n="sys.live">live</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card home__sparkline">
+          <div class="home__sparkline__head">
+            <span class="label" data-i18n="home.equity">Equity</span>
+            <div class="range-pills" role="tablist" data-range-pills>
+              <button data-range="1D" aria-pressed="false">1D</button>
+              <button data-range="7D" aria-pressed="true">7D</button>
+              <button data-range="1M" aria-pressed="false">1M</button>
+              <button data-range="1Y" aria-pressed="false">1Y</button>
+            </div>
+          </div>
+          <svg data-sparkline viewBox="0 0 320 120" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="var(--signal)" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="var(--signal)" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path data-sparkline-area fill="url(#sparkGrad)"></path>
+            <path data-sparkline-line fill="none" stroke="var(--signal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <circle data-sparkline-tip r="3" fill="var(--signal)"></circle>
+          </svg>
+        </div>
+      </section>
+
+      <!-- MARKET RAIL -->
+      <section class="reveal">
+        <div class="section-title">
+          <h2 data-i18n="home.mkt">Apa kabar pasar hari ini?</h2>
+          <a href="#analisis" class="more" data-i18n="home.mkt-more">Buka analisis →</a>
+        </div>
+        <div class="market-rail">
+          <div class="card market" data-market="ihsg">
+            <div class="market__label"><span class="market__label__dot"></span> IHSG</div>
+            <div class="market__val num">—</div>
+            <div class="market__delta num">—</div>
+          </div>
+          <div class="card market" data-market="usdidr">
+            <div class="market__label"><span class="market__label__dot"></span> USD / IDR</div>
+            <div class="market__val num">—</div>
+            <div class="market__delta num">—</div>
+          </div>
+          <div class="card market" data-market="gold">
+            <div class="market__label"><span class="market__label__dot"></span> <span data-i18n="home.gold">Emas / gram</span></div>
+            <div class="market__val num">—</div>
+            <div class="market__delta num">—</div>
+          </div>
+          <div class="card market" data-market="btc">
+            <div class="market__label"><span class="market__label__dot"></span> BTC</div>
+            <div class="market__val num">—</div>
+            <div class="market__delta num">—</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- QUICK-ADD -->
+      <section class="reveal">
+        <div class="card quickadd">
+          <div class="quickadd__head">
+            <h3 class="serif" data-i18n="qa.title">Catat sesuatu</h3>
+            <span class="quickadd__head__hint">
+              <span data-i18n="qa.shortcut">tekan</span>
+              <span class="kbd">T</span>
+              <span data-i18n="qa.tofocus">untuk fokus</span>
+            </span>
+          </div>
+          <div class="quickadd__input">
+            <input id="qaInput" type="text" autocomplete="off" data-i18n-placeholder="qa.placeholder" />
+            <button class="btn btn--primary" id="qaSubmit" data-i18n="btn.save">Simpan</button>
+          </div>
+          <div class="quickadd__hints">
+            <span data-i18n="qa.examples">Contoh:</span>
+            <code>beli 100 BBCA @ 9.425</code>
+            <code>jual 5 GOTO</code>
+            <code>div BMRI 250.000</code>
+            <code>expense 35.000 makan siang</code>
+          </div>
+          <div class="quickadd__result" data-qa-result hidden></div>
+        </div>
+      </section>
+
+      <!-- HOLDINGS PREVIEW -->
+      <section class="reveal">
+        <div class="section-title">
+          <h2 data-i18n="home.pos">Posisi terbesar</h2>
+          <a href="#analisis" class="more" data-pos-more>Semua aset →</a>
+        </div>
+        <div class="card holdings-wrap">
+          <div class="holdings" data-holdings>
+            <div class="holdings__empty" data-i18n="home.empty">Belum ada posisi. Login dengan Google untuk memuat portfolio kamu.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ACTIVITY -->
+      <section class="reveal">
+        <div class="section-title">
+          <h2 data-i18n="home.act">Aktivitas terbaru</h2>
+          <a href="#transaksi" class="more" data-i18n="home.act-more">Semua transaksi →</a>
+        </div>
+        <div class="card">
+          <div class="activity" data-activity>
+            <div class="activity__empty" data-i18n="home.act-empty">Belum ada aktivitas.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DIVERSIFIKASI -->
+      <section class="reveal">
+        <div class="section-title">
+          <h2 data-i18n="home.div">Cara uangmu tersebar</h2>
+          <a href="#analisis" class="more" data-i18n="home.div-more">Detail analisis →</a>
+        </div>
+        <div class="card">
+          <div class="div-grid">
+            <div class="div-bars" data-div-bars></div>
+            <div class="div-target">
+              <h4 class="serif" data-div-head>—</h4>
+              <p data-div-body>—</p>
+              <div class="div-target__insight" data-div-insight hidden></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   </section>
 
@@ -290,6 +432,48 @@
     initCloud();
   } else {
     window.addEventListener('firebase-ready', initCloud, { once: true });
+  }
+</script>
+
+<!-- HOME tab: data wiring (state.js + storage.js + locale-aware render) -->
+<script type="module" src="js/home.js"></script>
+
+<!-- Extend i18n dict with HOME tab keys -->
+<script>
+  if (window.psys && window.psys.i18n) {
+    window.psys.i18n.extend({
+      id: {
+        'home.sub':       'Portofoliomu hari ini.',
+        'home.today':     'hari ini',
+        'home.equity':    'Equity',
+        'home.mkt':       'Apa kabar pasar hari ini?',
+        'home.mkt-more':  'Buka analisis →',
+        'home.gold':      'Emas / gram',
+        'home.pos':       'Posisi terbesar',
+        'home.act':       'Aktivitas terbaru',
+        'home.act-more':  'Semua transaksi →',
+        'home.act-empty': 'Belum ada aktivitas.',
+        'home.div':       'Cara uangmu tersebar',
+        'home.div-more':  'Detail analisis →',
+        'home.empty':     'Belum ada posisi. Login dengan Google untuk memuat portfolio kamu.',
+      },
+      en: {
+        'home.sub':       'Here is your portfolio today.',
+        'home.today':     'today',
+        'home.equity':    'Equity',
+        'home.mkt':       'How is the market today?',
+        'home.mkt-more':  'Open analysis →',
+        'home.gold':      'Gold / gram',
+        'home.pos':       'Largest positions',
+        'home.act':       'Recent activity',
+        'home.act-more':  'All transactions →',
+        'home.act-empty': 'No activity yet.',
+        'home.div':       'How your money is spread',
+        'home.div-more':  'Detail analysis →',
+        'home.empty':     'No positions yet. Sign in with Google to load your portfolio.',
+      }
+    });
+    window.psys.i18n.applyI18n();
   }
 </script>
 
