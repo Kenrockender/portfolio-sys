@@ -10,7 +10,7 @@
 (function () {
   'use strict';
 
-  var TABS = ['home', 'transaksi', 'analisis'];
+  var TABS = ['home', 'aset', 'transaksi', 'analisis'];
 
   function tabFromHash() {
     var h = (location.hash || '').replace(/^#/, '').toLowerCase();

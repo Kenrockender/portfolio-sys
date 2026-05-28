@@ -272,7 +272,7 @@ function renderAllocation() {
     return;
   }
 
-  // donut
+  // donut with hover-capable segments
   var circumference = 2 * Math.PI * 80;
   var offset = 0;
   var donutSvg = '<circle cx="100" cy="100" r="80" fill="none" stroke="var(--bg-sunk)" stroke-width="22"/>';
@@ -282,23 +282,42 @@ function renderAllocation() {
     if (pct <= 0) continue;
     var len = circumference * pct;
     var color = ALLOC_COLORS[s.key][0];
-    donutSvg += '<circle cx="100" cy="100" r="80" fill="none" stroke="' + color + '" stroke-width="22" '
+    donutSvg += '<circle data-seg="' + s.key + '" cx="100" cy="100" r="80" fill="none" stroke="' + color + '" stroke-width="22" '
               + 'stroke-dasharray="' + len.toFixed(2) + ' ' + (circumference - len).toFixed(2) + '" '
-              + 'stroke-dashoffset="' + (-offset).toFixed(2) + '"/>';
+              + 'stroke-dashoffset="' + (-offset).toFixed(2) + '" '
+              + 'style="cursor: pointer; transition: stroke-width var(--t-fast) var(--ease);"/>';
     offset += len;
   }
   svg.innerHTML = donutSvg;
 
-  // Center: show total portfolio value in compact form (more useful than
-  // a class count). Auto-scale font so long strings still fit inside the
-  // 200×200 donut hole.
-  if (big) {
-    big.textContent = fmtIDR(grand, { compact: true });
-    var len = big.textContent.length;
-    big.style.fontSize = len > 11 ? '17px' : (len > 8 ? '20px' : '24px');
+  // Total label (above the chart, in .alloc__header)
+  if (big) big.textContent = fmtIDR(grand, { compact: true });
+
+  // Wire hover on segments → update centre "hover" display
+  var hoverEl = document.querySelector('[data-an-donut-hover]');
+  var hoverNameEl = hoverEl && hoverEl.querySelector('.alloc__chart-center__hover__name');
+  var hoverPctEl  = hoverEl && hoverEl.querySelector('.alloc__chart-center__hover__pct');
+  function defaultHoverText() {
+    if (hoverNameEl) hoverNameEl.textContent = lang() === 'id' ? 'arahkan kursor' : 'hover for detail';
+    if (hoverPctEl)  hoverPctEl.textContent = '';
   }
-  var subEl = document.querySelector('.alloc__chart-center__sub');
-  if (subEl) subEl.textContent = lang() === 'id' ? 'total portofolio' : 'total portfolio';
+  defaultHoverText();
+  svg.querySelectorAll('circle[data-seg]').forEach(function (arc) {
+    arc.addEventListener('mouseenter', function () {
+      arc.setAttribute('stroke-width', '26');
+      var key = arc.getAttribute('data-seg');
+      var seg = segs.find(function (s) { return s.key === key; });
+      if (!seg || !hoverEl) return;
+      var pct = (seg.val / grand) * 100;
+      var name = ALLOC_COLORS[key][lang() === 'id' ? 1 : 2];
+      if (hoverNameEl) hoverNameEl.textContent = name;
+      if (hoverPctEl)  hoverPctEl.textContent = pct.toFixed(1) + '% · ' + fmtIDR(seg.val, { compact: true });
+    });
+    arc.addEventListener('mouseleave', function () {
+      arc.setAttribute('stroke-width', '22');
+      defaultHoverText();
+    });
+  });
 
   var targets = (S.rebalTargets || { stocks: 30, crypto: 40, gold: 15, savings: 15 });
   legend.innerHTML = segs.map(function (s) {

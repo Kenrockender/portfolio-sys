@@ -415,7 +415,10 @@ function renderHoldings() {
   }
 
   const moreEl = document.querySelector('[data-pos-more]');
-  if (moreEl) moreEl.textContent = (getLang() === 'id' ? 'Semua ' : 'All ') + all.length + (getLang() === 'id' ? ' aset →' : ' assets →');
+  if (moreEl) {
+    moreEl.textContent = (getLang() === 'id' ? 'Semua ' : 'All ') + all.length + (getLang() === 'id' ? ' aset →' : ' assets →');
+    moreEl.setAttribute('href', '#aset');
+  }
 }
 
 function miniSparklineSvg(dir) {
@@ -569,8 +572,9 @@ if (document.readyState === 'loading') {
   init();
 }
 
-// Expose for debugging
+// Expose for debugging + share the ticker-logo map with holdings.js
 if (typeof window !== 'undefined') {
   window.psys = window.psys || {};
   window.psys.home = { rerender };
+  window.psys.logos = TICKER_LOGO;
 }

@@ -142,6 +142,7 @@
 
   <nav class="tabs" role="tablist" aria-label="Sections">
     <a class="tab" href="#home"     data-tab="home"     role="tab" aria-current="page" data-i18n="nav.home">Home</a>
+    <a class="tab" href="#aset"     data-tab="aset"     role="tab" data-i18n="nav.aset">Aset</a>
     <a class="tab" href="#transaksi" data-tab="transaksi" role="tab" data-i18n="nav.tx">Transaksi</a>
     <a class="tab" href="#analisis"  data-tab="analisis"  role="tab" data-i18n="nav.an">Analisis</a>
   </nav>
@@ -324,6 +325,71 @@
     </div>
   </section>
 
+  <!-- ── ASET (HOLDINGS) tab ── -->
+  <section class="tab-panel" id="tab-aset" data-tab="aset" role="tabpanel">
+    <div class="hd">
+
+      <section class="page-head">
+        <div>
+          <h1 class="serif-display" data-i18n="hd.title">Semua aset.</h1>
+          <div class="page-head__sub" data-hd-sub>…</div>
+        </div>
+      </section>
+
+      <!-- Summary strip -->
+      <section class="summary hd-summary" data-hd-summary>
+        <div class="card sum sum--main">
+          <span class="sum__label" data-i18n="hd.sum.total">Total nilai</span>
+          <span class="sum__val num" data-hd-total>…</span>
+          <span class="sum__meta" data-hd-total-meta>…</span>
+        </div>
+        <div class="card sum">
+          <span class="sum__label" data-i18n="hd.sum.cost">Cost basis</span>
+          <span class="sum__val num" data-hd-cost>…</span>
+          <span class="sum__meta" data-hd-cost-meta>…</span>
+        </div>
+        <div class="card sum">
+          <span class="sum__label" data-i18n="hd.sum.pnl">P&amp;L</span>
+          <span class="sum__val num" data-hd-pnl>…</span>
+          <span class="sum__meta" data-hd-pnl-meta>…</span>
+        </div>
+        <div class="card sum">
+          <span class="sum__label" data-i18n="hd.sum.count">Jumlah</span>
+          <span class="sum__val num" data-hd-count>…</span>
+          <span class="sum__meta" data-hd-count-meta>…</span>
+        </div>
+      </section>
+
+      <!-- Filter pills -->
+      <section class="hd-controls">
+        <div class="hd-filters" role="tablist">
+          <button class="hd-pill" data-hd-cat="all" aria-pressed="true"><span data-i18n="hd.cat.all">Semua</span> <span class="count" data-hd-count-all>0</span></button>
+          <button class="hd-pill" data-hd-cat="crypto" aria-pressed="false"><span data-i18n="hd.cat.crypto">Crypto</span> <span class="count" data-hd-count-crypto>0</span></button>
+          <button class="hd-pill" data-hd-cat="stocks" aria-pressed="false"><span data-i18n="hd.cat.stocks">Saham</span> <span class="count" data-hd-count-stocks>0</span></button>
+          <button class="hd-pill" data-hd-cat="gold" aria-pressed="false"><span data-i18n="hd.cat.gold">Emas</span> <span class="count" data-hd-count-gold>0</span></button>
+          <button class="hd-pill" data-hd-cat="savings" aria-pressed="false"><span data-i18n="hd.cat.savings">Tabungan</span> <span class="count" data-hd-count-savings>0</span></button>
+        </div>
+        <div class="modebar__sp"></div>
+        <div class="hd-sort">
+          <span class="label" data-i18n="hd.sort.label">Urutkan:</span>
+          <select data-hd-sort>
+            <option value="value-desc">Nilai (besar → kecil)</option>
+            <option value="value-asc">Nilai (kecil → besar)</option>
+            <option value="pnl-desc">P&amp;L (besar → kecil)</option>
+            <option value="pnl-asc">P&amp;L (kecil → besar)</option>
+            <option value="ret-desc">Return % (besar → kecil)</option>
+            <option value="name">Nama (A → Z)</option>
+            <option value="platform">Platform / broker</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Groups -->
+      <section class="hd-groups" data-hd-groups></section>
+
+    </div>
+  </section>
+
   <!-- ── TRANSAKSI tab ── -->
   <section class="tab-panel" id="tab-transaksi" data-tab="transaksi" role="tabpanel">
     <div class="tx">
@@ -334,8 +400,7 @@
           <h1 class="serif-display" data-i18n="tx.title">Catatan transaksi &amp; arus kas.</h1>
           <div class="page-head__sub">
             <span data-tx-month>…</span> ·
-            <span data-tx-count>0 transaksi</span> ·
-            <span class="signal" data-i18n="tx.synced">semua tersinkron</span>
+            <span data-tx-count>0 transaksi</span>
           </div>
         </div>
         <div class="page-head__actions">
@@ -396,9 +461,9 @@
       <!-- Mode toggle + filter + search -->
       <section class="modebar">
         <div class="modes" role="tablist">
-          <button class="mode" data-tx-mode="all" aria-pressed="true"><span data-i18n="tx.mode.all">Semua</span> <span class="count" data-count-all>0</span></button>
-          <button class="mode" data-tx-mode="trades" aria-pressed="false"><span data-i18n="tx.mode.trades">Transaksi</span> <span class="count" data-count-trades>0</span></button>
-          <button class="mode" data-tx-mode="cashflow" aria-pressed="false"><span data-i18n="tx.mode.cf">Arus kas</span> <span class="count" data-count-cf>0</span></button>
+          <button class="mode" data-tx-mode="all" aria-pressed="true" title="Semua catatan"><span data-i18n="tx.mode.all">Semua</span> <span class="count" data-count-all>0</span></button>
+          <button class="mode" data-tx-mode="trades" aria-pressed="false" data-i18n-title="tx.mode.trades.tip" title="Beli, jual, dividen, biaya broker, pajak"><span data-i18n="tx.mode.trades">Investasi</span> <span class="count" data-count-trades>0</span></button>
+          <button class="mode" data-tx-mode="cashflow" aria-pressed="false" data-i18n-title="tx.mode.cf.tip" title="Income & expense — uang masuk/keluar di luar investasi"><span data-i18n="tx.mode.cf">Arus kas</span> <span class="count" data-count-cf>0</span></button>
         </div>
         <div class="modebar__sp"></div>
         <div class="search">
@@ -480,11 +545,17 @@
       <!-- Allocation + Risk -->
       <section class="alloc-grid reveal">
         <div class="card alloc">
+          <div class="alloc__header">
+            <span class="label" data-i18n="an.donut.label">Total portofolio</span>
+            <span class="alloc__total num" data-an-donut-big>…</span>
+          </div>
           <div class="alloc__chart">
             <svg viewBox="0 0 200 200" data-an-donut></svg>
             <div class="alloc__chart-center">
-              <div class="alloc__chart-center__big" data-an-donut-big>…</div>
-              <div class="alloc__chart-center__sub" data-i18n="an.donut.sub">kelas aset</div>
+              <div class="alloc__chart-center__hover" data-an-donut-hover>
+                <div class="alloc__chart-center__hover__name" data-i18n="an.donut.hover">arahkan kursor</div>
+                <div class="alloc__chart-center__hover__pct"></div>
+              </div>
             </div>
           </div>
           <div class="alloc__legend" data-an-donut-legend></div>
@@ -629,9 +700,10 @@
   }
 </script>
 
-<!-- Tab data wiring: HOME, quick-add parser, TRANSAKSI, ANALISIS -->
+<!-- Tab data wiring: HOME, quick-add parser, ASET, TRANSAKSI, ANALISIS -->
 <script type="module" src="js/home.js"></script>
 <script type="module" src="js/quickadd.js"></script>
+<script type="module" src="js/holdings.js"></script>
 <script type="module" src="js/transaksi.js"></script>
 <script type="module" src="js/analisis.js"></script>
 <!-- Quick-add UI (shared) … classic script, no imports -->
@@ -655,9 +727,25 @@
         'home.div':       'Cara uangmu tersebar',
         'home.div-more':  'Detail analisis →',
         'home.empty':     'Belum ada posisi. Login dengan Google untuk memuat portfolio kamu.',
+        /* ASET tab */
+        'hd.title':         'Semua aset.',
+        'hd.sum.total':     'Total nilai',
+        'hd.sum.cost':      'Cost basis',
+        'hd.sum.pnl':       'P&L',
+        'hd.sum.count':     'Jumlah',
+        'hd.cat.all':       'Semua',
+        'hd.cat.crypto':    'Crypto',
+        'hd.cat.stocks':    'Saham',
+        'hd.cat.gold':      'Emas',
+        'hd.cat.savings':   'Tabungan',
+        'hd.sort.label':    'Urutkan:',
+        /* ANALISIS donut */
+        'an.donut.label':   'Total portofolio',
+        'an.donut.hover':   'arahkan kursor',
         /* TRANSAKSI tab */
         'tx.title':       'Catatan transaksi & arus kas.',
         'tx.synced':      'semua tersinkron',
+        'tx.mode.trades': 'Investasi',
         'tx.search.placeholder': 'Cari ticker, broker, catatan…',
         'tx.sum.net':     'Net 90 hari',
         'tx.sum.buy':     'Beli',
@@ -665,8 +753,9 @@
         'tx.sum.div':     'Dividen',
         'tx.sum.fee':     'Biaya & pajak',
         'tx.mode.all':    'Semua',
-        'tx.mode.trades': 'Transaksi',
         'tx.mode.cf':     'Arus kas',
+        'tx.mode.trades.tip': 'Beli, jual, dividen, biaya broker, pajak',
+        'tx.mode.cf.tip':     'Income & expense · uang masuk/keluar di luar investasi',
         /* ANALISIS tab */
         'an.title':         'Bagaimana performanya?',
         'an.insight.label': 'Insight · powered by Gemini',
@@ -718,8 +807,24 @@
         'tx.sum.div':     'Dividends',
         'tx.sum.fee':     'Fees & tax',
         'tx.mode.all':    'All',
-        'tx.mode.trades': 'Trades',
+        'tx.mode.trades': 'Investments',
         'tx.mode.cf':     'Cashflow',
+        'tx.mode.trades.tip': 'Buy, sell, dividends, broker fees, tax',
+        'tx.mode.cf.tip':     'Income & expense · money in/out outside trades',
+        /* ASET tab — EN */
+        'hd.title':         'All assets.',
+        'hd.sum.total':     'Total value',
+        'hd.sum.cost':      'Cost basis',
+        'hd.sum.pnl':       'P&L',
+        'hd.sum.count':     'Count',
+        'hd.cat.all':       'All',
+        'hd.cat.crypto':    'Crypto',
+        'hd.cat.stocks':    'Stocks',
+        'hd.cat.gold':      'Gold',
+        'hd.cat.savings':   'Savings',
+        'hd.sort.label':    'Sort by:',
+        'an.donut.label':   'Total portfolio',
+        'an.donut.hover':   'hover for detail',
         /* ANALISIS tab */
         'an.title':         'How is it performing?',
         'an.insight.label': 'Insight · powered by Gemini',

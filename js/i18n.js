@@ -15,6 +15,7 @@
     id: {
       /* nav + topbar */
       'nav.home':       'Home',
+      'nav.aset':       'Aset',
       'nav.tx':         'Transaksi',
       'nav.an':         'Analisis',
       'nav.start':      'Mulai',
@@ -66,6 +67,7 @@
     },
     en: {
       'nav.home':       'Home',
+      'nav.aset':       'Assets',
       'nav.tx':         'Transactions',
       'nav.an':         'Analysis',
       'nav.start':      'Start',
@@ -166,6 +168,13 @@
       var pk = p.getAttribute('data-i18n-placeholder');
       var pv = t(pk);
       if (pv !== pk) p.setAttribute('placeholder', pv);
+    }
+    var elsTitle = root.querySelectorAll('[data-i18n-title]');
+    for (var ti = 0; ti < elsTitle.length; ti++) {
+      var te = elsTitle[ti];
+      var tk = te.getAttribute('data-i18n-title');
+      var tv = t(tk);
+      if (tv !== tk) te.setAttribute('title', tv);
     }
     // sync lang buttons
     var btns = (root.querySelectorAll ? root : document).querySelectorAll('[data-lang-btn]');
