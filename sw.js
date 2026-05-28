@@ -16,7 +16,8 @@
 // v9 = Phase 9.1: tx-summary selector bug, defensive DATA arrays, real ticker logos.
 // v10 = Phase 9.2: donut centre shows total value; signal feed computed from data.
 // v11 = Phase 9.3: ASET tab, donut hover detail, tooltips, label cleanup.
-const CACHE_NAME = 'portfolio-sys-v11';
+// v12 = Phase 9.4: asset CRUD editor (add / edit / delete per category).
+const CACHE_NAME = 'portfolio-sys-v12';
 const RUNTIME_CACHE = 'portfolio-runtime-v2';
 const API_CACHE = 'portfolio-api-v1';
 const API_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
@@ -37,6 +38,7 @@ const PRECACHE_URLS = [
   '/js/transaksi.js',
   '/js/analisis.js',
   '/js/holdings.js',
+  '/js/asset-editor.js',
   '/js/shell.js',
   // Existing data/logic modules
   '/js/api.js',

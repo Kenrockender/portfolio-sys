@@ -188,8 +188,9 @@ function rowHtml(r) {
   var logo = rowLogoSvg(r);
   var pnlDir = r.pnl > 0 ? 'up' : r.pnl < 0 ? 'down' : 'mute';
   var hasPnl = r.cost > 0;
+  var id = (r.raw && r.raw.id) || '';
   return ''
-    + '<div class="hd-row">'
+    + '<div class="hd-row" data-hd-edit="' + esc(r.kind) + ':' + esc(id) + '" title="' + esc(lang() === 'id' ? 'Klik untuk edit' : 'Click to edit') + '">'
     + '  <div class="hd-row__icon hd-row__icon--' + esc(logo.variant) + '">' + logo.svg + '</div>'
     + '  <div class="hd-row__name">'
     + '    <div class="hd-row__name__main">'
@@ -243,10 +244,22 @@ function renderGroups() {
       + '    <h3>' + esc(CATEGORY_LABEL[k][lang() === 'id' ? 'id' : 'en']) + '</h3>'
       + '    <span class="hd-group__head__meta">' + groupRows.length + (lang() === 'id' ? ' aset' : ' assets') + '</span>'
       + '    <span class="hd-group__head__total">' + esc(lang() === 'id' ? 'Total: ' : 'Total: ') + '<b>' + esc(fmtIDR(total, { compact: true })) + '</b></span>'
+      + '    <button class="hd-group__add" data-hd-add="' + esc(k) + '" title="' + esc(lang() === 'id' ? 'Tambah aset' : 'Add asset') + '">+ ' + esc(lang() === 'id' ? 'Tambah' : 'Add') + '</button>'
       + '  </div>'
       + '  <div class="hd-group__rows">' + groupRows.map(rowHtml).join('') + '</div>'
       + '</div>';
   });
+
+  // If a single category is selected and has no entries, show a single
+  // empty group with an Add CTA.
+  if (state.cat !== 'all' && (!groups[state.cat] || !groups[state.cat].length)) {
+    html = ''
+      + '<div class="hd__empty" style="display: flex; flex-direction: column; gap: var(--sp-m); align-items: center;">'
+      + '<span>' + esc(lang() === 'id' ? 'Belum ada aset di kategori ini.' : 'No assets in this category yet.') + '</span>'
+      + '<button class="btn btn--primary" data-hd-add="' + esc(state.cat) + '">+ ' + esc(lang() === 'id' ? 'Tambah ' : 'Add ') + esc(CATEGORY_LABEL[state.cat][lang() === 'id' ? 'id' : 'en']) + '</button>'
+      + '</div>';
+  }
+
   root.innerHTML = html;
 }
 
@@ -277,10 +290,42 @@ function wireSort() {
   });
 }
 
+function findItem(kind, id) {
+  var arr = ({ crypto: DATA.crypto, stocks: DATA.stocks, gold: DATA.gold, savings: DATA.savings })[kind];
+  if (!arr) return null;
+  return arr.find(function (x) { return x.id === id; }) || null;
+}
+
+function wireRowActions() {
+  // Delegated click: row → edit, +Tambah/group-add → add new
+  document.addEventListener('click', function (e) {
+    // +Tambah button (group head or empty-state CTA)
+    var addBtn = e.target.closest('[data-hd-add]');
+    if (addBtn) {
+      e.preventDefault();
+      var kind = addBtn.getAttribute('data-hd-add');
+      if (window.psys && window.psys.assetEditor) window.psys.assetEditor.open(kind, null);
+      return;
+    }
+    // Row click → open editor
+    var row = e.target.closest('[data-hd-edit]');
+    if (row) {
+      e.preventDefault();
+      var payload = row.getAttribute('data-hd-edit') || '';
+      var parts = payload.split(':');
+      var kind2 = parts[0], id = parts[1];
+      if (!kind2 || !id) return;
+      var item = findItem(kind2, id);
+      if (item && window.psys && window.psys.assetEditor) window.psys.assetEditor.open(kind2, item);
+    }
+  });
+}
+
 function init() {
   if (i18n) i18n.applyI18n();
   wireFilters();
   wireSort();
+  wireRowActions();
   rerender();
 
   window.addEventListener('portfolio:update', rerender);

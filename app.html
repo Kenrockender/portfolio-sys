@@ -704,6 +704,7 @@
 <script type="module" src="js/home.js"></script>
 <script type="module" src="js/quickadd.js"></script>
 <script type="module" src="js/holdings.js"></script>
+<script type="module" src="js/asset-editor.js"></script>
 <script type="module" src="js/transaksi.js"></script>
 <script type="module" src="js/analisis.js"></script>
 <!-- Quick-add UI (shared) … classic script, no imports -->
@@ -878,50 +879,26 @@
   </div>
 </div>
 
-<!-- Tambah Aset (slim custom asset) -->
-<div class="modal" id="addAssetModal" role="dialog" aria-modal="true" aria-labelledby="addAssetTitle">
+<!-- Asset editor (add / edit / delete) — populated dynamically by js/asset-editor.js -->
+<div class="modal" id="assetModal" role="dialog" aria-modal="true" aria-labelledby="assetModalTitle">
   <div class="modal__backdrop"></div>
   <div class="modal__card modal__card--lg">
     <div class="modal__head">
-      <div class="modal__head__icon is-signal">+</div>
+      <div class="modal__head__icon is-signal">✎</div>
       <div>
-        <div class="modal__title" id="addAssetTitle" data-i18n="modal.asset.title">Tambah aset kustom</div>
-        <div class="modal__sub" data-i18n="modal.asset.sub">Untuk aset yang nggak ke-cover quick-add (properti, P2P, custom).</div>
+        <div class="modal__title" id="assetModalTitle">…</div>
+        <div class="modal__sub">…</div>
       </div>
       <button class="modal__close" data-modal-close aria-label="Close">✕</button>
     </div>
-    <div class="modal__body">
-      <div class="modal__field">
-        <label data-i18n="modal.asset.name">Nama aset</label>
-        <input type="text" placeholder="Misal: Apartemen Kemang">
-      </div>
-      <div class="modal__field modal__field--row">
-        <div class="modal__field">
-          <label data-i18n="modal.asset.value">Nilai sekarang (IDR)</label>
-          <input type="text" placeholder="2500000000">
-        </div>
-        <div class="modal__field">
-          <label data-i18n="modal.asset.category">Kategori</label>
-          <select>
-            <option value="property">Properti</option>
-            <option value="p2p">P2P Lending</option>
-            <option value="reksa">Reksa Dana</option>
-            <option value="bond">Obligasi</option>
-            <option value="custom">Custom</option>
-          </select>
-        </div>
-      </div>
-      <div class="modal__field">
-        <label data-i18n="modal.asset.note">Catatan (opsional)</label>
-        <textarea rows="2" placeholder="Misal: alamat, broker, no kontrak…"></textarea>
-      </div>
+    <div class="modal__body" data-asset-form>
+      <!-- fields injected dynamically by js/asset-editor.js -->
     </div>
     <div class="modal__actions">
+      <button class="btn btn--danger" data-asset-delete hidden data-i18n="btn.delete">Hapus</button>
+      <span style="flex: 1;"></span>
       <button class="btn" data-modal-close data-i18n="btn.cancel">Batal</button>
-      <button class="btn btn--primary" data-modal-close data-i18n="btn.save">Simpan</button>
-    </div>
-    <div class="modal__sub" style="text-align:center; opacity: 0.6;">
-      <span data-i18n="modal.asset.todo">Penyimpanan aset kustom diaktifkan di rilis berikut. Sementara, log via quick-add.</span>
+      <button class="btn btn--primary" data-asset-save data-i18n="btn.save">Simpan</button>
     </div>
   </div>
 </div>
