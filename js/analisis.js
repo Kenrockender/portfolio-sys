@@ -35,8 +35,20 @@ function historyFor(period) {
   if (!hist.length) return [];
   if (period === 'ALL') return hist;
   var days = PERIOD_DAYS[period] || 365;
-  var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - days);
-  return hist.filter(function (h) { return new Date(h.date) >= cutoff; });
+  // Use last history entry's date as reference so the filter still
+  // returns data when the latest snapshot is older than "now".
+  var lastDate = new Date(hist[hist.length - 1].date);
+  var now      = new Date();
+  var ref      = lastDate < now ? lastDate : now;
+  var cutoff   = new Date(ref); cutoff.setDate(cutoff.getDate() - days);
+  var sliced   = hist.filter(function (h) { return new Date(h.date) >= cutoff; });
+  // Fallback: if the date filter is too aggressive, fall back to a
+  // reasonable last-N slice so the chart never goes blank.
+  if (sliced.length < 2) {
+    var nMin = { '1M': 5, '3M': 13, '6M': 26, '1Y': 52, '3Y': 156, ALL: hist.length }[period] || 12;
+    sliced = hist.slice(-Math.min(hist.length, nMin));
+  }
+  return sliced;
 }
 
 /* ---- METRICS ---- */
@@ -114,7 +126,7 @@ function renderHealth() {
       label:  lang() === 'id' ? 'Max drawdown' : 'Max drawdown',
       val:    fmtPct(m.drawdown, 1),
       cls:    'down',
-      meta:   m.ddDate ? new Date(m.ddDate).toLocaleDateString(lang() === 'id' ? 'id-ID' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : '—',
+      meta:   m.ddDate ? new Date(m.ddDate).toLocaleDateString(lang() === 'id' ? 'id-ID' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : '…',
       bar:    Math.abs(m.drawdown) < 5 ? 'b-good' : Math.abs(m.drawdown) < 12 ? 'b-ok' : 'b-warn',
     },
     {
@@ -150,8 +162,8 @@ function renderPerf() {
 
   if (hist.length < 2) {
     if (rangeEl) rangeEl.textContent = lang() === 'id' ? 'Tidak ada riwayat cukup' : 'Not enough history';
-    if (portEl) portEl.textContent = '—';
-    if (benchEl) benchEl.textContent = '—';
+    if (portEl) portEl.textContent = '…';
+    if (benchEl) benchEl.textContent = '…';
     return;
   }
 
@@ -224,7 +236,7 @@ function renderPerf() {
   if (rangeEl) {
     var d1 = new Date(hist[0].date), d2 = new Date(hist[hist.length - 1].date);
     rangeEl.textContent = d1.toLocaleDateString(lang() === 'id' ? 'id-ID' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' })
-                       + ' — '
+                       + ' → '
                        + d2.toLocaleDateString(lang() === 'id' ? 'id-ID' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' });
   }
   if (portEl)  portEl.textContent  = fmtPct(((hist[hist.length - 1].value - hist[0].value) / hist[0].value) * 100, 1);
@@ -255,7 +267,7 @@ function renderAllocation() {
 
   if (grand <= 0) {
     svg.innerHTML = '<circle cx="100" cy="100" r="80" fill="none" stroke="var(--bg-sunk)" stroke-width="22"/>';
-    legend.innerHTML = '<div class="alloc__leg-row"><span class="dot" style="background: var(--ink-faint);"></span><span>' + esc(lang() === 'id' ? 'Belum ada data' : 'No data yet') + '</span><span class="pct">—</span></div>';
+    legend.innerHTML = '<div class="alloc__leg-row"><span class="dot" style="background: var(--ink-faint);"></span><span>' + esc(lang() === 'id' ? 'Belum ada data' : 'No data yet') + '</span><span class="pct">…</span></div>';
     if (big) big.textContent = '0';
     return;
   }
@@ -339,7 +351,7 @@ function renderRisk() {
     {
       label: lang() === 'id' ? 'VaR 95% (1 hari)' : 'VaR 95% (1-day)',
       val:   fmtIDR(var95, { compact: true }),
-      hint:  grand > 0 ? (Math.abs(var95 / grand) * 100).toFixed(1) + '% ' + (lang() === 'id' ? 'dari equity' : 'of equity') : '—',
+      hint:  grand > 0 ? (Math.abs(var95 / grand) * 100).toFixed(1) + '% ' + (lang() === 'id' ? 'dari equity' : 'of equity') : '…',
       hintClass: '',
     },
     {
@@ -423,10 +435,10 @@ function renderRebalance() {
     var targetIdr = (target / 100) * grand;
     var change   = targetIdr - d.idr;
     var why      = (d.diff > 0)
-      ? (lang() === 'id' ? labelById[d.key] + ' kamu ' + actualV.toFixed(1) + '% — di atas target ' + target + '%. Excess ' + fmtIDR(Math.abs(change), { compact: true }) + '.'
-                          : 'Your ' + labelById[d.key] + ' is ' + actualV.toFixed(1) + '% — above target ' + target + '%. Excess ' + fmtIDR(Math.abs(change), { compact: true }) + '.')
-      : (lang() === 'id' ? labelById[d.key] + ' kamu cuma ' + actualV.toFixed(1) + '% — target ' + target + '%. Defisit ' + fmtIDR(Math.abs(change), { compact: true }) + '.'
-                          : 'Your ' + labelById[d.key] + ' is only ' + actualV.toFixed(1) + '% — target ' + target + '%. Deficit ' + fmtIDR(Math.abs(change), { compact: true }) + '.');
+      ? (lang() === 'id' ? labelById[d.key] + ' kamu ' + actualV.toFixed(1) + '%, di atas target ' + target + '%. Excess ' + fmtIDR(Math.abs(change), { compact: true }) + '.'
+                          : 'Your ' + labelById[d.key] + ' is ' + actualV.toFixed(1) + '%, above target ' + target + '%. Excess ' + fmtIDR(Math.abs(change), { compact: true }) + '.')
+      : (lang() === 'id' ? labelById[d.key] + ' cuma ' + actualV.toFixed(1) + '%, target ' + target + '%. Defisit ' + fmtIDR(Math.abs(change), { compact: true }) + '.'
+                          : 'Your ' + labelById[d.key] + ' is only ' + actualV.toFixed(1) + '%, target ' + target + '%. Deficit ' + fmtIDR(Math.abs(change), { compact: true }) + '.');
     var cost = Math.round(Math.abs(change) * 0.0015);
     return ''
       + '<div class="rb-row">'
@@ -451,7 +463,7 @@ function renderInsight() {
   var m = computeMetrics(hist);
   var T = totals();
   var grand = T.t || 0;
-  var biggest = '—';
+  var biggest = '…';
   if (grand > 0) {
     var parts = [{ k: 'saham', v: T.k }, { k: 'crypto', v: T.c }, { k: 'tabungan', v: T.sv }, { k: 'emas', v: T.g }];
     parts.sort(function (a, b) { return b.v - a.v; });
@@ -532,7 +544,7 @@ function renderHeatmap() {
       var key2 = y + '-' + String(mi).padStart(2, '0');
       var val = returns[key2];
       if (val === undefined) {
-        html += '<span class="heatmap__cell empty">—</span>';
+        html += '<span class="heatmap__cell empty"></span>';
       } else {
         var abs = Math.abs(val);
         var bucket = abs < 1 ? 1 : abs < 2.5 ? 2 : abs < 4 ? 3 : 4;
@@ -612,7 +624,7 @@ function wireRebalanceLog() {
       var input = document.querySelector('#tab-transaksi .quickadd__input input');
       if (input) {
         var key = btn.getAttribute('data-an-rb-log');
-        input.value = (lang() === 'id' ? '# Rebalance ' : '# Rebalance ') + key + ' — ' + (lang() === 'id' ? 'isi action di sini' : 'fill action here');
+        input.value = (lang() === 'id' ? '# Rebalance ' : '# Rebalance ') + key + ' · ' + (lang() === 'id' ? 'isi action di sini' : 'fill action here');
         input.focus();
         input.select();
       }
@@ -629,6 +641,9 @@ function init() {
 
   window.addEventListener('portfolio:update', rerender);
   window.addEventListener('psys:lang-change', rerender);
+  window.addEventListener('psys:tab-change', function (e) {
+    if (e && e.detail && e.detail.tab === 'analisis') rerender();
+  });
 }
 
 if (document.readyState === 'loading') {

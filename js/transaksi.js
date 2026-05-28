@@ -206,7 +206,7 @@ function rowHtml(tx) {
   var amtStr = (amt > 0 ? '+' : amt < 0 ? '−' : '') + fmtIDR(Math.abs(amt), { compact: Math.abs(amt) >= 1e7 });
   var qtyStr = (tx.qty && tx.price)
     ? esc(tx.qty.toLocaleString(lang() === 'id' ? 'id-ID' : 'en-US', { maximumFractionDigits: 4 })) + ' <span class="x">×</span> Rp ' + esc(Math.round(tx.price).toLocaleString('id-ID'))
-    : '—';
+    : '';
   var what = esc(tx.detail || (tx.name || ''));
   return ''
     + '<div class="row" data-tx-id="' + esc(tx.id || '') + '">'
@@ -340,6 +340,9 @@ function init() {
 
   window.addEventListener('portfolio:update', rerender);
   window.addEventListener('psys:lang-change', rerender);
+  window.addEventListener('psys:tab-change',  function (e) {
+    if (e && e.detail && e.detail.tab === 'transaksi') rerender();
+  });
   window.addEventListener('psys:quickadd',   function () {
     rerender();
     // flag the newest row as just-added so CSS animates

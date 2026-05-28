@@ -31,7 +31,7 @@ function renderGreeting() {
   if (nameEl) {
     const display = (document.getElementById('userDisplayName')?.textContent || '').trim();
     const first = display ? display.split(/[\s@]/)[0] : '';
-    nameEl.textContent = first ? first + '.' : '—';
+    nameEl.textContent = first ? first + '.' : '…';
   }
 }
 
@@ -107,66 +107,84 @@ function wireRangePills() {
   });
 }
 
-/* ---- MARKET RAIL ---- */
-function setMarketCard(key, val, deltaStr, dir, valFmt) {
+/* ---- MARKET RAIL ----
+   Dot states (CSS in app.css):
+     default green = live data
+     .is-stale gray = closing / cached / fallback
+     .is-down red   = stale + error                                       */
+
+function setMarketCard(key, opts) {
   const card = document.querySelector(`[data-market="${key}"]`);
   if (!card) return;
   const valEl = card.querySelector('.market__val');
   const dEl   = card.querySelector('.market__delta');
   const dot   = card.querySelector('.market__label__dot');
-  if (valEl) valEl.textContent = valFmt || val;
-  if (dEl)   dEl.textContent   = deltaStr;
+  if (valEl) valEl.textContent = opts.value;
+  if (dEl)   dEl.textContent   = opts.delta;
   if (dot) {
-    dot.classList.remove('is-down', 'is-flat');
-    if (dir === 'down') dot.classList.add('is-down');
-    else if (dir === 'flat') dot.classList.add('is-flat');
+    dot.classList.remove('is-stale', 'is-down');
+    if (opts.live === false) dot.classList.add('is-stale');
   }
   if (dEl) {
-    dEl.classList.remove('up', 'down');
-    if (dir === 'up')   dEl.classList.add('up');
-    if (dir === 'down') dEl.classList.add('down');
+    dEl.classList.remove('up', 'down', 'mute');
+    if (opts.tone === 'up')   dEl.classList.add('up');
+    if (opts.tone === 'down') dEl.classList.add('down');
+    if (opts.tone === 'mute') dEl.classList.add('mute');
   }
 }
 
+// Last known IHSG closing — used when live data not available
+// (idx weekly close, refresh manually as needed).
+const IHSG_CLOSING = { value: 7184.32, date: '2026-05-23' };
+
+function fmtClosingDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString(getLang() === 'id' ? 'id-ID' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
 function renderMarketRail() {
-  // IHSG — try stockPrices['^IHSG'] then DATA.stocks find ticker ^IHSG seedPrice
+  // IHSG
   const ihsgLive = S.stockPrices && S.stockPrices['^IHSG'];
   const ihsgSeed = (DATA.stocks || []).find(h => h.ticker === '^IHSG');
-  const ihsg = ihsgLive || (ihsgSeed ? ihsgSeed.seedPrice : 0);
-  if (ihsg) {
-    const seed = ihsgSeed ? ihsgSeed.seedPrice : ihsg;
-    const pct = seed > 0 ? ((ihsg - seed) / seed) * 100 : 0;
-    setMarketCard('ihsg',
-      ihsg,
-      fmtPct(pct),
-      pct > 0.05 ? 'up' : pct < -0.05 ? 'down' : 'flat',
-      ihsg.toLocaleString(getLang() === 'id' ? 'id-ID' : 'en-US', { maximumFractionDigits: 2 }));
-  } else {
-    setMarketCard('ihsg', 0, '—', 'flat', '—');
-  }
+  const isLive   = !!ihsgLive;
+  let   ihsg     = ihsgLive || (ihsgSeed ? ihsgSeed.seedPrice : null) || IHSG_CLOSING.value;
+  const seed     = ihsgSeed ? ihsgSeed.seedPrice : ihsg;
+  const ihsgPct  = seed > 0 ? ((ihsg - seed) / seed) * 100 : 0;
+  setMarketCard('ihsg', {
+    value: ihsg.toLocaleString(getLang() === 'id' ? 'id-ID' : 'en-US', { maximumFractionDigits: 2 }),
+    delta: isLive
+      ? fmtPct(ihsgPct) + (getLang() === 'id' ? ' · live' : ' · live')
+      : (getLang() === 'id' ? 'closing ' : 'closing ') + fmtClosingDate(IHSG_CLOSING.date),
+    tone:  isLive ? (ihsgPct > 0.05 ? 'up' : ihsgPct < -0.05 ? 'down' : 'mute') : 'mute',
+    live:  isLive,
+  });
 
   // USD / IDR
   const usdidr = S.usdIdr || 0;
-  if (usdidr) {
-    setMarketCard('usdidr', usdidr, getLang() === 'id' ? 'kurs harian' : 'daily rate', 'flat',
-      usdidr.toLocaleString(getLang() === 'id' ? 'id-ID' : 'en-US'));
-  }
+  setMarketCard('usdidr', {
+    value: usdidr ? usdidr.toLocaleString(getLang() === 'id' ? 'id-ID' : 'en-US') : '…',
+    delta: getLang() === 'id' ? 'kurs harian' : 'daily rate',
+    tone:  'mute',
+    live:  usdidr > 0,
+  });
 
   // Gold per gram
   const gold = S.goldGramIdr || 0;
-  if (gold) {
-    setMarketCard('gold', gold, getLang() === 'id' ? 'per gram (IDR)' : 'per gram (IDR)', 'flat',
-      'Rp ' + gold.toLocaleString(getLang() === 'id' ? 'id-ID' : 'en-US'));
-  }
+  setMarketCard('gold', {
+    value: gold ? 'Rp ' + gold.toLocaleString(getLang() === 'id' ? 'id-ID' : 'en-US') : '…',
+    delta: getLang() === 'id' ? 'per gram (IDR)' : 'per gram (IDR)',
+    tone:  'mute',
+    live:  gold > 0,
+  });
 
   // BTC
   const btc = S.btcIdr || 0;
-  if (btc) {
-    setMarketCard('btc', btc,
-      getLang() === 'id' ? 'IDR / koin' : 'IDR / coin',
-      'flat',
-      fmtIDR(btc, { compact: true }));
-  }
+  setMarketCard('btc', {
+    value: btc ? fmtIDR(btc, { compact: true }) : '…',
+    delta: getLang() === 'id' ? 'IDR / koin' : 'IDR / coin',
+    tone:  'mute',
+    live:  btc > 0,
+  });
 }
 
 /* ---- HOLDINGS PREVIEW ---- */
@@ -191,9 +209,32 @@ function nameOf(item) {
   if (item._kind === 'savings') return { ticker: item.name || 'Savings', desc: (item.bank || '').toUpperCase() };
   return { ticker: '?', desc: '' };
 }
-function iconLetter(item) {
-  const n = nameOf(item);
-  return (n.ticker || '?')[0].toUpperCase();
+// Category icons — small inline SVG, one per asset class.
+// 24×24 viewBox, draws within parent .holding__icon (36×36 container).
+const CATEGORY_ICON = {
+  crypto: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+    <path d="M12 2 L20 7 L20 17 L12 22 L4 17 L4 7 Z"/>
+    <circle cx="12" cy="12" r="3.5"/>
+  </svg>`,
+  stocks: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+    <line x1="5"  y1="20" x2="5"  y2="14"/>
+    <line x1="12" y1="20" x2="12" y2="9"/>
+    <line x1="19" y1="20" x2="19" y2="4"/>
+  </svg>`,
+  gold: `<svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+    <rect x="3" y="9" width="18" height="9" rx="1.5"/>
+    <rect x="6" y="6" width="12" height="3" rx="1" opacity="0.55"/>
+  </svg>`,
+  savings: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+    <path d="M3 9 L12 4 L21 9"/>
+    <line x1="5"  y1="11" x2="5"  y2="18"/>
+    <line x1="12" y1="11" x2="12" y2="18"/>
+    <line x1="19" y1="11" x2="19" y2="18"/>
+    <line x1="3"  y1="20" x2="21" y2="20"/>
+  </svg>`,
+};
+function categoryIconSvg(item) {
+  return CATEGORY_ICON[item._kind] || CATEGORY_ICON.stocks;
 }
 function detailOf(item) {
   if (item._kind === 'crypto')  return (item.amount || 0).toLocaleString(getLang() === 'id' ? 'id-ID' : 'en-US', { maximumFractionDigits: 4 }) + ' × ' + Math.round(cryptoPrice(item)).toLocaleString('id-ID');
@@ -263,7 +304,7 @@ function renderHoldings() {
       const dArrow = delta > 0 ? '▲' : delta < 0 ? '▼' : '▪';
       return `
         <div class="holding">
-          <div class="holding__icon">${iconLetter(item)}</div>
+          <div class="holding__icon holding__icon--${item._kind}">${categoryIconSvg(item)}</div>
           <div class="holding__name">
             <span class="ticker">${esc(n.ticker)}</span>
             <span class="desc">${esc(n.desc)}</span>
@@ -333,7 +374,7 @@ function renderActivity() {
       <span class="activity__when">${esc(relTime(tx.ts))}</span>
       <span class="activity__type ${actionToType(tx.action)}">${actionLabel(tx.action)}</span>
       <span class="activity__what">${esc(tx.detail || (tx.name || ''))}</span>
-      <span class="activity__amt">—</span>
+      <span class="activity__amt"></span>
       <span class="activity__price">${esc((tx.name || '') + (tx.type ? ' · ' + tx.type : ''))}</span>
     </div>
   `).join('');
@@ -371,8 +412,8 @@ function renderDiversification() {
     ? `Target profil kamu`
     : `Your profile target`;
   if (bodyEl) bodyEl.textContent = getLang() === 'id'
-    ? `Saham ${targets.stocks}%, crypto ${targets.crypto}%, emas ${targets.gold}%, tabungan ${targets.savings}%. Sistem ngebandingin posisi sekarang dengan target — lihat panel di bawah.`
-    : `Stocks ${targets.stocks}%, crypto ${targets.crypto}%, gold ${targets.gold}%, savings ${targets.savings}%. We compare current allocation to this target — see below.`;
+    ? `Saham ${targets.stocks}%, crypto ${targets.crypto}%, emas ${targets.gold}%, tabungan ${targets.savings}%. Sistem ngebandingin posisi sekarang dengan target. Lihat panel di bawah.`
+    : `Stocks ${targets.stocks}%, crypto ${targets.crypto}%, gold ${targets.gold}%, savings ${targets.savings}%. We compare current allocation to this target. See panel below.`;
   if (insightEl) {
     // pick most over-weighted vs target
     const actual = grand > 0 ? {
@@ -388,8 +429,8 @@ function renderDiversification() {
         const label = { stocks: getLang() === 'id' ? 'saham' : 'stocks', crypto: 'crypto', gold: getLang() === 'id' ? 'emas' : 'gold', savings: getLang() === 'id' ? 'tabungan' : 'savings' }[worst.k];
         insightEl.hidden = false;
         insightEl.textContent = getLang() === 'id'
-          ? `${cap(label)} kamu ${worst.v.toFixed(1)}% — ${worst.diff > 0 ? 'di atas' : 'di bawah'} target ${worst.target}%. Pertimbangkan rebalance.`
-          : `Your ${label} is at ${worst.v.toFixed(1)}% — ${worst.diff > 0 ? 'above' : 'below'} target ${worst.target}%. Consider rebalancing.`;
+          ? `${cap(label)} kamu ${worst.v.toFixed(1)}%, ${worst.diff > 0 ? 'di atas' : 'di bawah'} target ${worst.target}%. Pertimbangkan rebalance.`
+          : `Your ${label} is at ${worst.v.toFixed(1)}%, ${worst.diff > 0 ? 'above' : 'below'} target ${worst.target}%. Consider rebalancing.`;
       } else {
         insightEl.hidden = true;
       }

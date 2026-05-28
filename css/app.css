@@ -426,8 +426,8 @@
   background: var(--up);
   box-shadow: 0 0 6px var(--up);
 }
-.market__label__dot.is-down { background: var(--down); box-shadow: 0 0 6px var(--down); }
-.market__label__dot.is-flat { background: var(--ink-faint); box-shadow: none; }
+.market__label__dot.is-down  { background: var(--down); box-shadow: 0 0 6px var(--down); }
+.market__label__dot.is-stale { background: var(--ink-faint); box-shadow: none; }
 .market__val {
   font-family: var(--font-serif);
   font-variation-settings: 'opsz' 96, 'wght' 500;
@@ -439,6 +439,7 @@
 .market__delta { font-family: var(--font-mono); font-size: var(--size-small); color: var(--ink-dim); }
 .market__delta.up   { color: var(--up); }
 .market__delta.down { color: var(--down); }
+.market__delta.mute { color: var(--ink-faint); }
 .market__delta__meta { color: var(--ink-faint); }
 
 /* QUICK-ADD (used on Home + Transaksi) */
@@ -537,11 +538,15 @@
   border-radius: var(--r-sm);
   background: var(--bg-elev-2);
   display: grid; place-items: center;
-  font-family: var(--font-mono);
-  font-size: 11px; font-weight: 600;
   color: var(--ink-dim);
   border: 1px solid var(--rule);
+  flex-shrink: 0;
 }
+.holding__icon svg { display: block; }
+.holding__icon--crypto  { background: rgba(139,  92, 246, 0.08); color: #a78bfa; border-color: rgba(139,  92, 246, 0.25); }
+.holding__icon--stocks  { background: rgba( 52, 211, 153, 0.08); color: var(--signal); border-color: rgba( 52, 211, 153, 0.25); }
+.holding__icon--gold    { background: rgba(251, 191,  36, 0.10); color: var(--warn); border-color: rgba(251, 191,  36, 0.25); }
+.holding__icon--savings { background: rgba( 56, 189, 248, 0.08); color: var(--info); border-color: rgba( 56, 189, 248, 0.25); }
 .holding__name { display: flex; flex-direction: column; }
 .holding__name .ticker { font-family: var(--font-mono); font-size: var(--size-small); color: var(--ink); font-weight: 500; }
 .holding__name .desc { font-family: var(--font-sans); font-size: var(--size-micro); color: var(--ink-faint); }

@@ -43,7 +43,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Fraunces:opsz,wght,SOFT@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap">
 
-<!-- Firebase SDK (ESM) — preserved verbatim from previous app shell -->
+<!-- Firebase SDK (ESM) … preserved verbatim from previous app shell -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
   import {
@@ -79,12 +79,12 @@
 
 <!-- ── OFFLINE BANNER ── -->
 <div class="offline-banner" id="offlineBanner" hidden>
-  <span data-i18n="sys.offline">Tidak ada koneksi — harga mungkin tertunda</span>
+  <span data-i18n="sys.offline">Tidak ada koneksi … harga mungkin tertunda</span>
 </div>
 
 <!-- ══ LOGIN OVERLAY ══
      IDs (#loginOverlay, #loginBtn, #loginStatus) are required by
-     firebase/firebase-config.js — do not rename. The visual design is
+     firebase/firebase-config.js … do not rename. The visual design is
      refined further in Phase 6. -->
 <div class="login-overlay" id="loginOverlay" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
   <div class="login-card">
@@ -122,7 +122,7 @@
 
     <ul class="login-card__features">
       <li data-i18n="login.f1">Tersinkron lintas perangkat</li>
-      <li data-i18n="login.f2">Privat — hanya Anda yang melihat</li>
+      <li data-i18n="login.f2">Privat … hanya Anda yang melihat</li>
       <li data-i18n="login.f3">Harga real-time</li>
     </ul>
 
@@ -166,7 +166,7 @@
     <button class="avatar" id="avatarBtn" aria-label="Account" title="Account">
       <span id="userInitial">·</span>
     </button>
-    <!-- Hidden name target — firebase-config writes here -->
+    <!-- Hidden name target … firebase-config writes here -->
     <span id="userDisplayName" hidden></span>
   </div>
 </header>
@@ -182,15 +182,15 @@
         <div>
           <div class="greeting">
             <span data-greeting-prefix data-i18n="greet.sore">Selamat sore,</span>
-            <span class="greeting__name" data-user-name>—</span>
+            <span class="greeting__name" data-user-name>…</span>
           </div>
           <div class="home__hero__sub serif-display" data-i18n="home.sub">Portofoliomu hari ini.</div>
           <div class="total">
             <div class="total__main num" data-total>Rp 0</div>
             <div class="total__delta">
-              <span class="total__delta__main"><span class="total__delta__arrow" data-total-arrow>▲</span> <span data-total-delta class="num">—</span></span>
+              <span class="total__delta__main"><span class="total__delta__arrow" data-total-arrow>▲</span> <span data-total-delta class="num">…</span></span>
               <span class="total__delta__sep">·</span>
-              <span class="total__delta__meta"><span data-total-pct class="num">—</span> <span data-i18n="home.today">hari ini</span></span>
+              <span class="total__delta__meta"><span data-total-pct class="num">…</span> <span data-i18n="home.today">hari ini</span></span>
               <span class="total__delta__sep">·</span>
               <span class="tag tag--live"><span data-i18n="sys.live">live</span></span>
             </div>
@@ -230,23 +230,23 @@
         <div class="market-rail">
           <div class="card market" data-market="ihsg">
             <div class="market__label"><span class="market__label__dot"></span> IHSG</div>
-            <div class="market__val num">—</div>
-            <div class="market__delta num">—</div>
+            <div class="market__val num">…</div>
+            <div class="market__delta num">…</div>
           </div>
           <div class="card market" data-market="usdidr">
             <div class="market__label"><span class="market__label__dot"></span> USD / IDR</div>
-            <div class="market__val num">—</div>
-            <div class="market__delta num">—</div>
+            <div class="market__val num">…</div>
+            <div class="market__delta num">…</div>
           </div>
           <div class="card market" data-market="gold">
             <div class="market__label"><span class="market__label__dot"></span> <span data-i18n="home.gold">Emas / gram</span></div>
-            <div class="market__val num">—</div>
-            <div class="market__delta num">—</div>
+            <div class="market__val num">…</div>
+            <div class="market__delta num">…</div>
           </div>
           <div class="card market" data-market="btc">
             <div class="market__label"><span class="market__label__dot"></span> BTC</div>
-            <div class="market__val num">—</div>
-            <div class="market__delta num">—</div>
+            <div class="market__val num">…</div>
+            <div class="market__delta num">…</div>
           </div>
         </div>
       </section>
@@ -313,8 +313,8 @@
           <div class="div-grid">
             <div class="div-bars" data-div-bars></div>
             <div class="div-target">
-              <h4 class="serif" data-div-head>—</h4>
-              <p data-div-body>—</p>
+              <h4 class="serif" data-div-head>…</h4>
+              <p data-div-body>…</p>
               <div class="div-target__insight" data-div-insight hidden></div>
             </div>
           </div>
@@ -333,7 +333,7 @@
         <div>
           <h1 class="serif-display" data-i18n="tx.title">Catatan transaksi &amp; arus kas.</h1>
           <div class="page-head__sub">
-            <span data-tx-month>—</span> ·
+            <span data-tx-month>…</span> ·
             <span data-tx-count>0 transaksi</span> ·
             <span class="signal" data-i18n="tx.synced">semua tersinkron</span>
           </div>
@@ -368,28 +368,28 @@
       <section class="summary" data-tx-summary>
         <div class="card sum sum--main">
           <span class="sum__label" data-i18n="tx.sum.net">Net bulan ini</span>
-          <span class="sum__val num" data-tx-sum-net>—</span>
-          <span class="sum__meta" data-tx-sum-net-meta>—</span>
+          <span class="sum__val num" data-tx-sum-net>…</span>
+          <span class="sum__meta" data-tx-sum-net-meta>…</span>
         </div>
         <div class="card sum">
           <span class="sum__label" data-i18n="tx.sum.buy">Beli</span>
-          <span class="sum__val num" data-tx-sum-buy>—</span>
-          <span class="sum__meta" data-tx-sum-buy-meta>—</span>
+          <span class="sum__val num" data-tx-sum-buy>…</span>
+          <span class="sum__meta" data-tx-sum-buy-meta>…</span>
         </div>
         <div class="card sum">
           <span class="sum__label" data-i18n="tx.sum.sell">Jual</span>
-          <span class="sum__val num" data-tx-sum-sell>—</span>
-          <span class="sum__meta" data-tx-sum-sell-meta>—</span>
+          <span class="sum__val num" data-tx-sum-sell>…</span>
+          <span class="sum__meta" data-tx-sum-sell-meta>…</span>
         </div>
         <div class="card sum">
           <span class="sum__label" data-i18n="tx.sum.div">Dividen</span>
-          <span class="sum__val num" data-tx-sum-div>—</span>
-          <span class="sum__meta" data-tx-sum-div-meta>—</span>
+          <span class="sum__val num" data-tx-sum-div>…</span>
+          <span class="sum__meta" data-tx-sum-div-meta>…</span>
         </div>
         <div class="card sum">
           <span class="sum__label" data-i18n="tx.sum.fee">Biaya &amp; pajak</span>
-          <span class="sum__val num" data-tx-sum-fee>—</span>
-          <span class="sum__meta" data-tx-sum-fee-meta>—</span>
+          <span class="sum__val num" data-tx-sum-fee>…</span>
+          <span class="sum__meta" data-tx-sum-fee-meta>…</span>
         </div>
       </section>
 
@@ -425,7 +425,7 @@
       <section class="page-head">
         <div>
           <h1 class="serif-display" data-i18n="an.title">Bagaimana performanya?</h1>
-          <div class="page-head__sub" data-an-sub>—</div>
+          <div class="page-head__sub" data-an-sub>…</div>
         </div>
         <div class="period" role="tablist" data-an-period>
           <button data-period="1M" aria-pressed="false">1M</button>
@@ -442,7 +442,7 @@
         <div class="insight__icon">✦</div>
         <div class="insight__body">
           <div class="insight__label" data-i18n="an.insight.label">Insight · powered by Gemini</div>
-          <div class="insight__msg" data-an-insight-msg>—</div>
+          <div class="insight__msg" data-an-insight-msg>…</div>
         </div>
         <div class="insight__actions">
           <button class="btn btn--ghost" data-an-insight-ask data-i18n="an.insight.ask">Tanya lagi</button>
@@ -460,11 +460,11 @@
         <div class="perf-chart__head">
           <div>
             <div class="perf-chart__title" data-i18n="an.perf.title">Equity curve vs benchmark</div>
-            <div class="perf-chart__range" data-an-perf-range>—</div>
+            <div class="perf-chart__range" data-an-perf-range>…</div>
           </div>
           <div class="perf-chart__legend">
-            <span><span class="swatch"></span> <span data-i18n="an.perf.port">Portofolio</span> <span data-an-perf-port>—</span></span>
-            <span><span class="swatch dashed"></span> <span data-i18n="an.perf.bench">Benchmark 6%/yr</span> <span data-an-perf-bench>—</span></span>
+            <span><span class="swatch"></span> <span data-i18n="an.perf.port">Portofolio</span> <span data-an-perf-port>…</span></span>
+            <span><span class="swatch dashed"></span> <span data-i18n="an.perf.bench">Benchmark 6%/yr</span> <span data-an-perf-bench>…</span></span>
           </div>
         </div>
         <svg class="perf-chart__svg" data-an-perf viewBox="0 0 1200 360" preserveAspectRatio="none">
@@ -483,7 +483,7 @@
           <div class="alloc__chart">
             <svg viewBox="0 0 200 200" data-an-donut></svg>
             <div class="alloc__chart-center">
-              <div class="alloc__chart-center__big" data-an-donut-big>—</div>
+              <div class="alloc__chart-center__big" data-an-donut-big>…</div>
               <div class="alloc__chart-center__sub" data-i18n="an.donut.sub">kelas aset</div>
             </div>
           </div>
@@ -499,7 +499,7 @@
       <section class="reveal" id="an-rebalance">
         <div class="section-title">
           <h2 data-i18n="an.rb.title">Saran rebalance</h2>
-          <span class="rb-sub" data-an-rb-sub>—</span>
+          <span class="rb-sub" data-an-rb-sub>…</span>
           <a href="#" class="more" data-i18n="an.rb.edit">Edit target →</a>
         </div>
         <div class="rebalance" data-an-rb></div>
@@ -509,7 +509,7 @@
       <section class="reveal">
         <div class="section-title">
           <h2 data-i18n="an.sig.title">Sinyal &amp; catatan</h2>
-          <span class="rb-sub" data-an-sig-sub>—</span>
+          <span class="rb-sub" data-an-sig-sub>…</span>
         </div>
         <div class="signals" data-an-signals></div>
       </section>
@@ -542,12 +542,12 @@
         'login.hello':   'Selamat datang.',
         'login.sub':     'Sistem operasi untuk portofolio personal Anda.',
         'login.f1':      'Tersinkron lintas perangkat',
-        'login.f2':      'Privat — hanya Anda yang melihat',
+        'login.f2':      'Privat … hanya Anda yang melihat',
         'login.f3':      'Harga real-time',
-        'ph.home':       'Home tab — segera hadir',
+        'ph.home':       'Home tab … segera hadir',
         'ph.home-desc':  'Greeting + total + sparkline + market rail + quick-add + posisi terbesar + aktivitas + diversifikasi.',
         'ph.tx':         'Transaksi tab',
-        'ph.tx-desc':    'Catatan transaksi & arus kas — ledger per hari, summary, mode toggle, filter, quick-add.',
+        'ph.tx-desc':    'Catatan transaksi & arus kas … ledger per hari, summary, mode toggle, filter, quick-add.',
         'ph.an':         'Analisis tab',
         'ph.an-desc':    'AI insight + health + equity chart + alokasi donut + risk + saran rebalance + ML signals + heatmap bulanan.',
       },
@@ -555,12 +555,12 @@
         'login.hello':   'Welcome.',
         'login.sub':     'An operating system for your personal portfolio.',
         'login.f1':      'Synced across devices',
-        'login.f2':      'Private — only you can see it',
+        'login.f2':      'Private … only you can see it',
         'login.f3':      'Real-time prices',
-        'ph.home':       'Home tab — coming next',
+        'ph.home':       'Home tab … coming next',
         'ph.home-desc':  'Greeting + total + sparkline + market rail + quick-add + largest positions + activity + diversification.',
         'ph.tx':         'Transactions tab',
-        'ph.tx-desc':    'Transactions & cashflow log — day-grouped ledger, summary, mode toggle, filter, quick-add.',
+        'ph.tx-desc':    'Transactions & cashflow log … day-grouped ledger, summary, mode toggle, filter, quick-add.',
         'ph.an':         'Analysis tab',
         'ph.an-desc':    'AI insight + health strip + equity chart + allocation donut + risk grid + rebalance suggestions + ML signals + monthly heatmap.',
       }
@@ -617,7 +617,7 @@
   })();
 </script>
 
-<!-- Firebase auth init — must run after firebase-ready event. firebase-config
+<!-- Firebase auth init … must run after firebase-ready event. firebase-config
      consumes #loginOverlay, #loginBtn, #loginStatus, #cloudStatus,
      #cloudStatusText, #userDisplayName (all present above). -->
 <script type="module">
@@ -634,7 +634,7 @@
 <script type="module" src="js/quickadd.js"></script>
 <script type="module" src="js/transaksi.js"></script>
 <script type="module" src="js/analisis.js"></script>
-<!-- Quick-add UI (shared) — classic script, no imports -->
+<!-- Quick-add UI (shared) … classic script, no imports -->
 <script src="js/quickadd-ui.js"></script>
 
 <!-- Extend i18n dict with HOME tab keys -->

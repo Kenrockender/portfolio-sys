@@ -58,7 +58,7 @@ function hint(kind) {
     need_amount:        'Butuh amount. Contoh: expense 35.000 makan siang',
     need_price:         'Butuh harga "@ <harga>" atau "market".',
     bad_qty:            'Kuantitas tidak valid.',
-    bad_ticker:         'Ticker tidak dikenali — coba tambahkan asetnya dulu, atau pakai kode IDX/crypto.',
+    bad_ticker:         'Ticker tidak dikenali. Coba tambahkan asetnya dulu, atau pakai kode IDX/crypto.',
     bad_amount:         'Amount tidak valid.',
     no_market:          'Harga "market" belum tersedia untuk ticker ini.',
   };
@@ -69,7 +69,7 @@ function hint(kind) {
     need_amount:        'Need amount. Try: expense 35000 lunch',
     need_price:         'Need price "@ <price>" or "market".',
     bad_qty:            'Invalid quantity.',
-    bad_ticker:         'Unknown ticker — add the asset first, or use a known IDX/crypto symbol.',
+    bad_ticker:         'Unknown ticker. Add the asset first, or use a known IDX/crypto symbol.',
     bad_amount:         'Invalid amount.',
     no_market:          'Market price not available for this ticker.',
   };

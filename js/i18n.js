@@ -53,7 +53,7 @@
       /* status / system */
       'sys.live':       'live',
       'sys.connected':  'tersambung',
-      'sys.offline':    'Tidak ada koneksi — harga mungkin tertunda',
+      'sys.offline':    'Tidak ada koneksi · harga mungkin tertunda',
       'sys.loading':    'Memuat…',
       'sys.synced':     'semua tersinkron',
       'sys.notadvice':  'BUKAN SARAN INVESTASI',
@@ -99,7 +99,7 @@
 
       'sys.live':       'live',
       'sys.connected':  'connected',
-      'sys.offline':    'No internet — prices may be stale',
+      'sys.offline':    'No internet · prices may be stale',
       'sys.loading':    'Loading…',
       'sys.synced':     'all synced',
       'sys.notadvice':  'NOT INVESTMENT ADVICE',
@@ -189,7 +189,7 @@
   /** Format rupiah. `compact: true` → "Rp 1,2 jt" / "Rp 1.2M" style. */
   function fmtIDR(n, opts) {
     opts = opts || {};
-    if (n === null || n === undefined || isNaN(n)) return '—';
+    if (n === null || n === undefined || isNaN(n)) return '…';
     var loc = localeFor();
     if (opts.compact) {
       var abs = Math.abs(n);
@@ -211,13 +211,13 @@
 
   /** Format a plain number with locale separators. */
   function fmtNum(n, opts) {
-    if (n === null || n === undefined || isNaN(n)) return '—';
+    if (n === null || n === undefined || isNaN(n)) return '…';
     return Number(n).toLocaleString(localeFor(), opts || {});
   }
 
   /** Format a percentage with sign. */
   function fmtPct(n, digits) {
-    if (n === null || n === undefined || isNaN(n)) return '—';
+    if (n === null || n === undefined || isNaN(n)) return '…';
     if (digits === undefined) digits = 2;
     var formatted = Math.abs(n).toLocaleString(localeFor(),
       { minimumFractionDigits: digits, maximumFractionDigits: digits });
@@ -226,7 +226,7 @@
 
   /** Format an absolute delta with sign and "Rp" prefix. */
   function fmtDeltaIDR(n, opts) {
-    if (n === null || n === undefined || isNaN(n)) return '—';
+    if (n === null || n === undefined || isNaN(n)) return '…';
     var prefix = n >= 0 ? '+' : '−';
     return prefix + fmtIDR(Math.abs(n), opts);
   }
