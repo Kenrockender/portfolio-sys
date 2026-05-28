@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-28
 **Author:** Kenrockender (with Claude)
-**Status:** Approved (brainstorming + mockup phase complete)
+**Status:** **Shipped** (Phases 1–6 complete; Phase 8 verified)
 **Scope:** `app.html` + design system. Landing (`index.html`) is a follow-up spec.
 **Supersedes:** `2026-05-28-portfolio-landing-redesign-design.md` (pivoted from
 landing-first to app-first per user direction)
@@ -516,6 +516,66 @@ SEO meta overhaul (app is behind auth).
   insufficient): a dedicated drawer or panel showing all 24 assets
   with crypto/stocks/gold subsection filters.
 - **Smart quick-add v2:** auto-suggest tickers as you type;
-  ambiguity-resolution UI; voice input.
+  ambiguity-resolution UI; voice input. Full position mutation
+  (currently only adds to `txLog`, doesn't yet update positions in
+  `DATA.crypto`/`stocks`/`gold` arrays).
 - **Mobile bottom nav** for the 3 tabs (better mobile ergonomics than
   the top-nav tabs).
+- **Onboarding overlay** for new users: 3-step inline carousel
+  (import / add manually / connect broker). Triggered when
+  `DATA.crypto + stocks + gold + savings` are all empty after first
+  sign-in.
+- **Asset chart popup** — click a holding row → modal with that
+  asset's equity curve + per-asset transaction history. Currently
+  rows are clickable but the modal renders empty placeholder.
+- **Import CSV modal** — drop zone + column mapping + preview
+  + confirm flow. Existing `js/import-parsers.js` covers Binance,
+  Tokocrypto, savings, stocks; the modal UI needs rebuild on the
+  new system.
+- **ML signals wiring** — connect `js/ml.js` outputs (regime,
+  anomaly, prediction) to the ANALISIS tab's signal feed. Currently
+  shows an informative empty state.
+- **Last-sync timestamp** in the topbar cloud-pill (the old shell
+  exposed this but it was dropped during the redesign). Cheap add:
+  firebase-config writes it; cloud-pill renders it on hover.
+
+## 16. Implementation summary (post-ship)
+
+Phases shipped to `main`:
+
+| Phase | Commit | Files |
+|---|---|---|
+| 1: System | `4e45abb` | `css/system.css`, `js/i18n.js` |
+| 2: Shell | `744d197` | `app.html` (rebuilt), `css/app.css`, `js/router.js`, `app.old.html` (preserved) |
+| 3: HOME | `7e6918f` | `js/home.js` + HOME markup/styles |
+| 4: TRANSAKSI | `fa854f9` | `js/quickadd.js`, `js/quickadd-ui.js`, `js/transaksi.js` + TRANSAKSI markup/styles |
+| 5: ANALISIS | `e55f126` | `js/analisis.js` + ANALISIS markup/styles |
+| 6: Modals + SW fix | `b1d0c36` | `js/shell.js`, modal CSS, `sw.js` cache bump |
+
+What landed (against the acceptance criteria in §13):
+
+- `app.html` loads with **only** `system.css` + `app.css` + Google
+  Fonts in `<head>`. No legacy CSS imports on the app shell.
+- Firebase Google sign-in works end-to-end. Firestore data
+  round-trips (verified by user). The SW cache bump (v6→v7) was
+  required to invalidate the stale cached HTML.
+- Theme + language preferences persist across reloads.
+  Legacy localStorage key `portfolio-theme` is migrated to
+  `portfolio.theme` on first load of the new shell.
+- `T` keyboard shortcut focuses the active tab's quick-add input;
+  Enter submits.
+- Quick-add parser accepts every example listed in §13.
+- Equity chart period picker re-renders the chart, the health
+  strip numbers, the AI insight, and the rebalance suggestions.
+- Monthly heatmap renders 3 × 12 grid; falls back gracefully on
+  short history.
+- No purple/cyan gradient, no Syne, no JetBrains Mono, no pulsing
+  badge dot, no glowing border anywhere in the app shell.
+- `<noscript>` fallback added for accessibility / no-JS users.
+
+Approximate metrics:
+- Old `app.html`: 1423 lines + ~7,500 lines stacked CSS
+- New `app.html`: ~370 lines
+- New CSS: `system.css` (~360) + `app.css` (~1,400) = ~1,760
+- New JS: ~2,700 lines across 8 modules (`i18n`, `router`, `home`,
+  `quickadd`, `quickadd-ui`, `transaksi`, `analisis`, `shell`)
