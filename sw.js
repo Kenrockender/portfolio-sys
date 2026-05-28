@@ -10,37 +10,49 @@
  *   - On activate: delete old caches
  */
 
-const CACHE_NAME = 'portfolio-sys-v6';
-const RUNTIME_CACHE = 'portfolio-runtime-v1';
+// Bump on every app-shell change so old caches are evicted.
+// v7 = redesigned app.html (system.css + app.css + new tab/quickadd/analisis modules).
+const CACHE_NAME = 'portfolio-sys-v7';
+const RUNTIME_CACHE = 'portfolio-runtime-v2';
 const API_CACHE = 'portfolio-api-v1';
 const API_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 // All app shell files to pre-cache on install
 const PRECACHE_URLS = [
   '/',
+  '/app.html',
   '/index.html',
-  '/css/styles.css',
-  '/css/mobile.css',
-  '/js/app.js',
+  // New design system + tab modules
+  '/css/system.css',
+  '/css/app.css',
+  '/js/i18n.js',
+  '/js/router.js',
+  '/js/home.js',
+  '/js/quickadd.js',
+  '/js/quickadd-ui.js',
+  '/js/transaksi.js',
+  '/js/analisis.js',
+  // Existing data/logic modules
   '/js/api.js',
-  '/js/charts.js',
   '/js/config.js',
-  '/js/import-parsers.js',
   '/js/state.js',
   '/js/storage.js',
-  '/js/ui.js',
+  '/js/import-parsers.js',
   '/js/parsers/binance.js',
   '/js/parsers/parser-utils.js',
   '/js/parsers/savings.js',
   '/js/parsers/stock.js',
   '/js/parsers/tokocrypto.js',
   '/js/pwa-install.js',
-  '/js/loading-states.js',
-  '/css/pwa-install.css',
-  '/css/loading-states.css',
+  '/js/module-loader.js',
   '/firebase/firebase-config.js',
   '/manifest.json',
   '/favicon.ico',
+  // Legacy CSS still imported by the old index.html until landing redesign
+  '/css/styles.css',
+  '/css/mobile.css',
+  '/css/pwa-install.css',
+  '/css/loading-states.css',
 ];
 
 // Firebase auth & write endpoints must always go to network (no cache)
