@@ -397,50 +397,8 @@ function renderDiversification() {
   }
 }
 
-/* ---- QUICK-ADD (UI only — parser arrives in Phase 4) ---- */
-function wireQuickAdd() {
-  const input = document.getElementById('qaInput');
-  const btn   = document.getElementById('qaSubmit');
-  const result = document.querySelector('[data-qa-result]');
-  if (!input || !btn) return;
-  // Focus on T key (router not in input/textarea)
-  document.addEventListener('keydown', (e) => {
-    if ((e.key === 't' || e.key === 'T') && document.activeElement !== input && !e.metaKey && !e.ctrlKey && !e.altKey) {
-      const tag = (document.activeElement && document.activeElement.tagName || '').toLowerCase();
-      if (tag !== 'input' && tag !== 'textarea' && tag !== 'select') {
-        e.preventDefault();
-        input.focus();
-      }
-    }
-    if (e.key === 'Escape' && document.activeElement === input) input.blur();
-    if (e.key === 'Enter' && document.activeElement === input) {
-      e.preventDefault();
-      btn.click();
-    }
-  });
-  btn.addEventListener('click', () => {
-    const cmd = (input.value || '').trim();
-    if (!cmd) return;
-    if (window.psys && window.psys.quickadd && typeof window.psys.quickadd.run === 'function') {
-      const r = window.psys.quickadd.run(cmd);
-      if (result) {
-        result.hidden = false;
-        result.classList.toggle('is-ok', !!r && r.ok);
-        result.classList.toggle('is-err', !!r && !r.ok);
-        result.textContent = r ? (r.message || '') : '';
-      }
-      if (r && r.ok) { input.value = ''; rerender(); }
-    } else {
-      // Phase 3 placeholder — parser ships in Phase 4
-      if (result) {
-        result.hidden = false;
-        result.classList.add('is-ok'); result.classList.remove('is-err');
-        result.textContent = (getLang() === 'id' ? 'Tercatat (demo): ' : 'Logged (demo): ') + cmd;
-      }
-      input.value = '';
-    }
-  });
-}
+/* QUICK-ADD UI wiring lives in js/quickadd-ui.js (shared between HOME + TRANSAKSI).
+   home.js only re-renders when a successful quickadd fires portfolio:update. */
 
 /* ---- ORCHESTRATION ---- */
 function esc(s) { return (s == null ? '' : String(s)).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -462,7 +420,6 @@ function init() {
   // Apply i18n if available (covers any new keys)
   if (i18n) i18n.applyI18n();
   wireRangePills();
-  wireQuickAdd();
   rerender();
 
   // Re-render on data + locale + theme + auth changes

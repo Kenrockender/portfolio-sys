@@ -254,8 +254,8 @@
             </span>
           </div>
           <div class="quickadd__input">
-            <input id="qaInput" type="text" autocomplete="off" data-i18n-placeholder="qa.placeholder" />
-            <button class="btn btn--primary" id="qaSubmit" data-i18n="btn.save">Simpan</button>
+            <input type="text" autocomplete="off" class="quickadd__input__field" data-i18n-placeholder="qa.placeholder" />
+            <button class="btn btn--primary quickadd__submit" data-i18n="btn.save">Simpan</button>
           </div>
           <div class="quickadd__hints">
             <span data-i18n="qa.examples">Contoh:</span>
@@ -264,7 +264,7 @@
             <code>div BMRI 250.000</code>
             <code>expense 35.000 makan siang</code>
           </div>
-          <div class="quickadd__result" data-qa-result hidden></div>
+          <div class="quickadd__result" hidden></div>
         </div>
       </section>
 
@@ -317,10 +317,94 @@
 
   <!-- ── TRANSAKSI tab ── -->
   <section class="tab-panel" id="tab-transaksi" data-tab="transaksi" role="tabpanel">
-    <div class="placeholder">
-      <div class="placeholder__num">Phase 4</div>
-      <h2 class="serif" data-i18n="ph.tx">Transaksi tab</h2>
-      <p data-i18n="ph.tx-desc">Catatan transaksi & arus kas — ledger grouped by day, summary strip, mode toggle, filter chips, quick-add.</p>
+    <div class="tx">
+
+      <!-- Page head -->
+      <section class="page-head">
+        <div>
+          <h1 class="serif-display" data-i18n="tx.title">Catatan transaksi &amp; arus kas.</h1>
+          <div class="page-head__sub">
+            <span data-tx-month>—</span> ·
+            <span data-tx-count>0 transaksi</span> ·
+            <span class="signal" data-i18n="tx.synced">semua tersinkron</span>
+          </div>
+        </div>
+        <div class="page-head__actions">
+          <button class="btn btn--ghost" data-tx-import>↑↓ <span data-i18n="btn.import">Impor CSV</span></button>
+          <button class="btn btn--ghost" data-tx-export>↓ <span data-i18n="btn.export">Ekspor</span></button>
+          <button class="btn btn--primary" data-tx-add>+ <span data-i18n="btn.add">Tambah</span></button>
+        </div>
+      </section>
+
+      <!-- Persistent quick-add (shared component, wired by quickadd-ui.js) -->
+      <section>
+        <div class="card quickadd quickadd--inline">
+          <div class="quickadd__input">
+            <input type="text" autocomplete="off" class="quickadd__input__field" data-i18n-placeholder="qa.placeholder" />
+            <button class="btn btn--primary quickadd__submit" data-i18n="btn.save">Simpan</button>
+          </div>
+          <div class="quickadd__result" hidden></div>
+          <div class="quickadd__hints quickadd__hints--inline">
+            <span data-i18n="qa.examples">Contoh:</span>
+            <code>beli 100 BBCA @ 9.425</code>
+            <code>jual 5 GOTO market</code>
+            <code>div BMRI 250.000</code>
+            <code>expense 35.000 makan</code>
+            <code>income 12.000.000 gaji</code>
+          </div>
+        </div>
+      </section>
+
+      <!-- Summary strip -->
+      <section class="summary" data-tx-summary>
+        <div class="card sum sum--main">
+          <span class="sum__label" data-i18n="tx.sum.net">Net bulan ini</span>
+          <span class="sum__val num" data-tx-sum-net>—</span>
+          <span class="sum__meta" data-tx-sum-net-meta>—</span>
+        </div>
+        <div class="card sum">
+          <span class="sum__label" data-i18n="tx.sum.buy">Beli</span>
+          <span class="sum__val num" data-tx-sum-buy>—</span>
+          <span class="sum__meta" data-tx-sum-buy-meta>—</span>
+        </div>
+        <div class="card sum">
+          <span class="sum__label" data-i18n="tx.sum.sell">Jual</span>
+          <span class="sum__val num" data-tx-sum-sell>—</span>
+          <span class="sum__meta" data-tx-sum-sell-meta>—</span>
+        </div>
+        <div class="card sum">
+          <span class="sum__label" data-i18n="tx.sum.div">Dividen</span>
+          <span class="sum__val num" data-tx-sum-div>—</span>
+          <span class="sum__meta" data-tx-sum-div-meta>—</span>
+        </div>
+        <div class="card sum">
+          <span class="sum__label" data-i18n="tx.sum.fee">Biaya &amp; pajak</span>
+          <span class="sum__val num" data-tx-sum-fee>—</span>
+          <span class="sum__meta" data-tx-sum-fee-meta>—</span>
+        </div>
+      </section>
+
+      <!-- Mode toggle + filter + search -->
+      <section class="modebar">
+        <div class="modes" role="tablist">
+          <button class="mode" data-tx-mode="all" aria-pressed="true"><span data-i18n="tx.mode.all">Semua</span> <span class="count" data-count-all>0</span></button>
+          <button class="mode" data-tx-mode="trades" aria-pressed="false"><span data-i18n="tx.mode.trades">Transaksi</span> <span class="count" data-count-trades>0</span></button>
+          <button class="mode" data-tx-mode="cashflow" aria-pressed="false"><span data-i18n="tx.mode.cf">Arus kas</span> <span class="count" data-count-cf>0</span></button>
+        </div>
+        <div class="modebar__sp"></div>
+        <div class="search">
+          <span class="search__icon">⌕</span>
+          <input type="text" data-tx-search data-i18n-placeholder="tx.search.placeholder" />
+        </div>
+      </section>
+
+      <!-- Ledger -->
+      <section class="ledger" data-tx-ledger>
+        <!-- populated by transaksi.js -->
+      </section>
+
+      <div class="endline" data-tx-endline></div>
+
     </div>
   </section>
 
@@ -435,8 +519,12 @@
   }
 </script>
 
-<!-- HOME tab: data wiring (state.js + storage.js + locale-aware render) -->
+<!-- Tab data wiring: HOME, quick-add parser, TRANSAKSI -->
 <script type="module" src="js/home.js"></script>
+<script type="module" src="js/quickadd.js"></script>
+<script type="module" src="js/transaksi.js"></script>
+<!-- Quick-add UI (shared) — classic script, no imports -->
+<script src="js/quickadd-ui.js"></script>
 
 <!-- Extend i18n dict with HOME tab keys -->
 <script>
@@ -456,6 +544,18 @@
         'home.div':       'Cara uangmu tersebar',
         'home.div-more':  'Detail analisis →',
         'home.empty':     'Belum ada posisi. Login dengan Google untuk memuat portfolio kamu.',
+        /* TRANSAKSI tab */
+        'tx.title':       'Catatan transaksi & arus kas.',
+        'tx.synced':      'semua tersinkron',
+        'tx.search.placeholder': 'Cari ticker, broker, catatan…',
+        'tx.sum.net':     'Net bulan ini',
+        'tx.sum.buy':     'Beli',
+        'tx.sum.sell':    'Jual',
+        'tx.sum.div':     'Dividen',
+        'tx.sum.fee':     'Biaya & pajak',
+        'tx.mode.all':    'Semua',
+        'tx.mode.trades': 'Transaksi',
+        'tx.mode.cf':     'Arus kas',
       },
       en: {
         'home.sub':       'Here is your portfolio today.',
@@ -471,6 +571,18 @@
         'home.div':       'How your money is spread',
         'home.div-more':  'Detail analysis →',
         'home.empty':     'No positions yet. Sign in with Google to load your portfolio.',
+        /* TRANSAKSI tab */
+        'tx.title':       'Transactions & cashflow log.',
+        'tx.synced':      'all synced',
+        'tx.search.placeholder': 'Search ticker, broker, notes…',
+        'tx.sum.net':     'Net this month',
+        'tx.sum.buy':     'Buy',
+        'tx.sum.sell':    'Sell',
+        'tx.sum.div':     'Dividends',
+        'tx.sum.fee':     'Fees & tax',
+        'tx.mode.all':    'All',
+        'tx.mode.trades': 'Trades',
+        'tx.mode.cf':     'Cashflow',
       }
     });
     window.psys.i18n.applyI18n();
