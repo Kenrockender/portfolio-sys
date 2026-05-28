@@ -591,6 +591,10 @@ function rerender() {
   renderRebalance();
   renderSignals();
   renderHeatmap();
+  // Reveal-in: CSS keeps .reveal sections at opacity 0 until .in is added.
+  document.querySelectorAll('#tab-analisis .reveal:not(.in)').forEach(function (el) {
+    el.classList.add('in');
+  });
 }
 
 function wirePeriod() {

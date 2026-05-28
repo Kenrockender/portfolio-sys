@@ -131,26 +131,40 @@ function counts() {
 }
 
 /* ---- SUMMARY ---- */
+/* Rolling 90-day window anchored to MAX(today, last tx) — so seed
+   data still shows numbers, and a fresh signed-in user sees recent
+   activity rather than a zero summary. */
 function summary() {
   var log = DATA.txLog || [];
-  var month = { buy: 0, sell: 0, div: 0, fee: 0, tax: 0, income: 0, expense: 0, count: 0, cfCount: 0 };
+  var s = { buy: 0, sell: 0, div: 0, fee: 0, tax: 0, income: 0, expense: 0, count: 0, cfCount: 0 };
+  if (!log.length) { s.net = 0; return s; }
+
+  // anchor = whichever is later: today or latest tx
+  var latest = new Date(log[0].ts);
+  for (var k = 0; k < log.length; k++) {
+    var ts = new Date(log[k].ts);
+    if (ts > latest) latest = ts;
+  }
+  var now    = new Date();
+  var anchor = latest > now ? latest : now;
+  var cutoff = new Date(anchor); cutoff.setDate(cutoff.getDate() - 90);
+
   for (var i = 0; i < log.length; i++) {
     var tx = log[i];
-    var d = new Date(tx.ts);
-    if (!isInCurrentMonth(d)) continue;
-    var a = String(tx.action || '').toLowerCase();
+    var d  = new Date(tx.ts);
+    if (d < cutoff) continue;
+    var a   = String(tx.action || '').toLowerCase();
     var amt = Math.abs(Number(tx.amount) || 0);
-    if (a === 'buy')      { month.buy += amt; month.count++; }
-    else if (a === 'sell') { month.sell += amt; month.count++; }
-    else if (a === 'div')  { month.div += amt; month.count++; }
-    else if (a === 'fee')  { month.fee += amt; month.count++; }
-    else if (a === 'tax')  { month.tax += amt; month.count++; }
-    else if (a === 'income')  { month.income += amt; month.cfCount++; }
-    else if (a === 'expense') { month.expense += amt; month.cfCount++; }
+    if (a === 'buy')          { s.buy     += amt; s.count++; }
+    else if (a === 'sell')    { s.sell    += amt; s.count++; }
+    else if (a === 'div')     { s.div     += amt; s.count++; }
+    else if (a === 'fee')     { s.fee     += amt; s.count++; }
+    else if (a === 'tax')     { s.tax     += amt; s.count++; }
+    else if (a === 'income')  { s.income  += amt; s.cfCount++; }
+    else if (a === 'expense') { s.expense += amt; s.cfCount++; }
   }
-  // Net = sells + dividends + income − buys − fees − tax − expenses
-  month.net = month.sell + month.div + month.income - month.buy - month.fee - month.tax - month.expense;
-  return month;
+  s.net = s.sell + s.div + s.income - s.buy - s.fee - s.tax - s.expense;
+  return s;
 }
 
 /* ---- RENDER ---- */
@@ -177,7 +191,9 @@ function renderSummary() {
     var v = document.querySelector(sel);
     if (v) v.textContent = val;
     if (meta) {
-      var m = document.querySelector(sel + '-meta');
+      // selector `[data-foo]` → `[data-foo-meta]`
+      var metaSel = sel.replace(/\]$/, '-meta]');
+      var m = document.querySelector(metaSel);
       if (m) m.textContent = meta;
     }
   }

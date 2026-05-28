@@ -547,6 +547,13 @@
 .holding__icon--stocks  { background: rgba( 52, 211, 153, 0.08); color: var(--signal); border-color: rgba( 52, 211, 153, 0.25); }
 .holding__icon--gold    { background: rgba(251, 191,  36, 0.10); color: var(--warn); border-color: rgba(251, 191,  36, 0.25); }
 .holding__icon--savings { background: rgba( 56, 189, 248, 0.08); color: var(--info); border-color: rgba( 56, 189, 248, 0.25); }
+/* Real ticker logos render edge-to-edge: no tint, no border. */
+.holding__icon--logo {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+.holding__icon--logo svg { width: 36px; height: 36px; border-radius: 50%; }
 .holding__name { display: flex; flex-direction: column; }
 .holding__name .ticker { font-family: var(--font-mono); font-size: var(--size-small); color: var(--ink); font-weight: 500; }
 .holding__name .desc { font-family: var(--font-sans); font-size: var(--size-micro); color: var(--ink-faint); }

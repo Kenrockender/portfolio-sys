@@ -13,7 +13,8 @@
 // Bump on every app-shell change so old caches are evicted.
 // v7 = redesigned app.html (system.css + app.css + new tab/quickadd/analisis modules).
 // v8 = Phase 9 hotfix: equity-chart fallback, IHSG closing, category icons, em-dash sweep.
-const CACHE_NAME = 'portfolio-sys-v8';
+// v9 = Phase 9.1: tx-summary selector bug, defensive DATA arrays, real ticker logos.
+const CACHE_NAME = 'portfolio-sys-v9';
 const RUNTIME_CACHE = 'portfolio-runtime-v2';
 const API_CACHE = 'portfolio-api-v1';
 const API_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes

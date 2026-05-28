@@ -236,6 +236,96 @@ const CATEGORY_ICON = {
 function categoryIconSvg(item) {
   return CATEGORY_ICON[item._kind] || CATEGORY_ICON.stocks;
 }
+
+// Real ticker logos for major crypto + IDX. Falls back to category
+// icon when ticker is unknown. SVG paths drawn at 32x32 viewBox,
+// rendered at 28x28 inside the 36x36 .holding__icon container.
+const TICKER_LOGO = {
+  BTC: `<svg viewBox="0 0 32 32" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="16" fill="#F7931A"/>
+    <path fill="#fff" d="M22.86 13.66c.3-2.04-1.25-3.13-3.36-3.86l.69-2.74-1.67-.42-.66 2.66c-.44-.11-.89-.21-1.34-.32l.67-2.69-1.66-.42-.69 2.74c-.36-.08-.71-.17-1.06-.25l-2.3-.57-.44 1.78s1.24.28 1.21.3c.67.17.79.62.77.97l-.78 3.13c.05.01.11.03.17.06l-.18-.04-1.09 4.38c-.08.21-.29.51-.75.4.02.03-1.21-.3-1.21-.3l-.83 1.9 2.18.54.97.26-.7 2.78 1.66.42.69-2.75c.45.12.88.23 1.31.34l-.69 2.73 1.66.42.7-2.78c2.82.53 4.94.32 5.83-2.23.72-2.05-.04-3.24-1.52-4.01 1.08-.25 1.89-.96 2.11-2.43zm-3.78 5.29c-.51 2.05-3.96.94-5.08.66l.92-3.69c1.12.28 4.7.84 4.16 3.03zm.51-5.32c-.46 1.86-3.34.91-4.27.69l.84-3.36c.93.23 3.92.66 3.43 2.67z"/>
+  </svg>`,
+  ETH: `<svg viewBox="0 0 32 32" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="16" fill="#627EEA"/>
+    <g fill="#fff" fill-rule="nonzero">
+      <path fill-opacity=".602" d="M16.498 4v8.87l7.497 3.35z"/>
+      <path d="M16.498 4L9 16.22l7.498-3.35z"/>
+      <path fill-opacity=".602" d="M16.498 21.968v6.027L24 17.616z"/>
+      <path d="M16.498 27.995v-6.028L9 17.616z"/>
+      <path fill-opacity=".2" d="M16.498 20.573l7.497-4.353-7.497-3.348z"/>
+      <path fill-opacity=".602" d="M9.001 16.22l7.497 4.353v-7.701z"/>
+    </g>
+  </svg>`,
+  XRP: `<svg viewBox="0 0 32 32" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="16" fill="#23292F"/>
+    <path fill="#fff" d="M23.07 8h2.495l-5.19 5.14a6.245 6.245 0 0 1-8.763 0L6.418 8h2.499l3.946 3.91a4.49 4.49 0 0 0 6.26 0L23.07 8zM8.886 24.054H6.39l5.225-5.175a6.245 6.245 0 0 1 8.763 0l5.225 5.175h-2.494l-3.978-3.94a4.49 4.49 0 0 0-6.26 0l-3.978 3.94z"/>
+  </svg>`,
+  SOL: `<svg viewBox="0 0 32 32" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="16" fill="#000"/>
+    <defs><linearGradient id="solg" x1="0" y1="32" x2="32" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#9945FF"/><stop offset="1" stop-color="#14F195"/></linearGradient></defs>
+    <path fill="url(#solg)" d="M8.5 20.5c.2-.2.5-.3.8-.3h14.4c.5 0 .7.6.4 1l-2.5 2.5c-.2.2-.5.3-.8.3H6.4c-.5 0-.7-.6-.4-1l2.5-2.5zm0-9.4c.2-.2.5-.3.8-.3h14.4c.5 0 .7.6.4 1L21.6 14c-.2.2-.5.3-.8.3H6.4c-.5 0-.7-.6-.4-1l2.5-2.2zm15.2 4.7c-.2-.2-.5-.3-.8-.3H8.5c-.5 0-.7.6-.4 1l2.5 2.5c.2.2.5.3.8.3h14.4c.5 0 .7-.6.4-1l-2.5-2.5z"/>
+  </svg>`,
+  BNB: `<svg viewBox="0 0 32 32" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="16" fill="#F3BA2F"/>
+    <path fill="#fff" d="M12.116 14.404L16 10.52l3.886 3.886 2.26-2.26L16 6l-6.144 6.144 2.26 2.26zM6 16l2.26-2.26L10.52 16l-2.26 2.26L6 16zm6.116 1.596L16 21.48l3.886-3.886 2.26 2.259L16 26l-6.144-6.144-.003-.003 2.263-2.257zM21.48 16l2.26-2.26L26 16l-2.26 2.26L21.48 16zm-3.188-.002h.002V16L16 18.294l-2.291-2.29-.004-.004.004-.003.401-.402.195-.195L16 13.706l2.293 2.293z"/>
+  </svg>`,
+  ADA: `<svg viewBox="0 0 32 32" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="16" fill="#0033AD"/>
+    <g fill="#fff">
+      <circle cx="16" cy="16" r="1.4"/>
+      <circle cx="11" cy="16" r=".9"/><circle cx="21" cy="16" r=".9"/>
+      <circle cx="16" cy="11" r=".9"/><circle cx="16" cy="21" r=".9"/>
+      <circle cx="12.5" cy="12.5" r=".7"/><circle cx="19.5" cy="12.5" r=".7"/>
+      <circle cx="12.5" cy="19.5" r=".7"/><circle cx="19.5" cy="19.5" r=".7"/>
+      <circle cx="8" cy="13.5" r=".5"/><circle cx="8" cy="18.5" r=".5"/>
+      <circle cx="24" cy="13.5" r=".5"/><circle cx="24" cy="18.5" r=".5"/>
+      <circle cx="13.5" cy="8" r=".5"/><circle cx="18.5" cy="8" r=".5"/>
+      <circle cx="13.5" cy="24" r=".5"/><circle cx="18.5" cy="24" r=".5"/>
+    </g>
+  </svg>`,
+  DOGE: `<svg viewBox="0 0 32 32" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="16" fill="#C2A633"/>
+    <path fill="#fff" d="M13.5 8.5h5.6c2 0 3.7.6 4.9 1.8 1.3 1.3 1.9 3.1 1.9 5.4v.8c0 2.3-.6 4.1-1.9 5.4-1.2 1.2-2.9 1.8-4.9 1.8H13.5v-5.3h-2v-4.5h2V8.5zm3.7 4.4v6.4h1.7c1 0 1.7-.3 2.2-.8.5-.5.7-1.3.7-2.5v-.2c0-1.1-.2-1.9-.7-2.4-.5-.5-1.2-.8-2.2-.8h-1.7z"/>
+  </svg>`,
+  AVAX: `<svg viewBox="0 0 32 32" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="16" fill="#E84142"/>
+    <path fill="#fff" d="M21.5 22h3.5c.7 0 1-.5.6-1.1L19 9.3c-.3-.5-1-.5-1.3 0l-1.4 2.4c-.2.3-.2.7 0 1l5.6 9.7c.1.4.4.6.6.6zm-7.3-3.4c-.3-.5-1-.5-1.3 0L9.4 25.4c-.3.5 0 1.1.6 1.1h6.9c.7 0 1-.5.6-1.1l-3.3-6.8z"/>
+  </svg>`,
+  // IDX stocks — text-on-tinted-square logos (no real ticker SVGs available)
+  BBCA: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#003D7A"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">BBCA</text></svg>`,
+  BBRI: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#1E5BAA"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">BBRI</text></svg>`,
+  BMRI: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#003B6F"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">BMRI</text></svg>`,
+  TLKM: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#C8202F"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">TLKM</text></svg>`,
+  ASII: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#0066B3"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">ASII</text></svg>`,
+  GOTO: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#00AA13"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">GOTO</text></svg>`,
+  UNVR: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#1F36C7"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">UNVR</text></svg>`,
+  AAPL: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#1d1d1f"/><path fill="#fff" d="M18.5 11.6c-.7-.8-1.7-1.3-2.7-1.3-1.3 0-2 .8-2.9.8-.9 0-1.6-.7-2.7-.7-1.5 0-3.1 1-3.1 3.3 0 2.7 2.2 5.6 4.4 5.6.8 0 1.3-.5 2.3-.5s1.4.5 2.3.5c1 0 2-.6 2.7-1.5.3-.4.5-.7.7-1.1-1.4-.6-1.9-2.5-.7-3.7-.5-.4-.9-.7-1.3-1.4zm-3.5-1.6c.1-.6.4-1.1.9-1.5.5-.4 1.1-.5 1.5-.4-.1.5-.4 1.1-.9 1.5-.5.4-1.1.6-1.5.4z"/></svg>`,
+  MSFT: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#000"/><rect x="7" y="7" width="8.5" height="8.5" fill="#F25022"/><rect x="16.5" y="7" width="8.5" height="8.5" fill="#7FBA00"/><rect x="7" y="16.5" width="8.5" height="8.5" fill="#00A4EF"/><rect x="16.5" y="16.5" width="8.5" height="8.5" fill="#FFB900"/></svg>`,
+  NVDA: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#76B900"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">NVDA</text></svg>`,
+  TSLA: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#CC0000"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">TSLA</text></svg>`,
+  AMZN: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#232F3E"/><text x="16" y="20" text-anchor="middle" fill="#FF9900" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">AMZN</text></svg>`,
+};
+
+function logoSvg(item) {
+  // Crypto: try coin symbol
+  if (item._kind === 'crypto') {
+    var coin = (item.coin || '').toUpperCase();
+    if (TICKER_LOGO[coin]) return TICKER_LOGO[coin];
+  }
+  // Stocks: try ticker symbol
+  if (item._kind === 'stocks') {
+    var t = (item.ticker || '').toUpperCase();
+    if (TICKER_LOGO[t]) return TICKER_LOGO[t];
+  }
+  // Else fall back to category icon
+  return categoryIconSvg(item);
+}
+
+function hasTickerLogo(item) {
+  if (item._kind === 'crypto')  return !!TICKER_LOGO[(item.coin   || '').toUpperCase()];
+  if (item._kind === 'stocks')  return !!TICKER_LOGO[(item.ticker || '').toUpperCase()];
+  return false;
+}
 function detailOf(item) {
   if (item._kind === 'crypto')  return (item.amount || 0).toLocaleString(getLang() === 'id' ? 'id-ID' : 'en-US', { maximumFractionDigits: 4 }) + ' × ' + Math.round(cryptoPrice(item)).toLocaleString('id-ID');
   if (item._kind === 'gold')    return (item.grams || 0) + ' g × Rp ' + Math.round(S.goldGramIdr || 0).toLocaleString('id-ID');
@@ -302,9 +392,10 @@ function renderHoldings() {
       if (item._kind === 'gold'   && item.costBasisPerGram) { const cost = item.grams * item.costBasisPerGram; delta = v - cost; deltaPct = cost > 0 ? (delta / cost) * 100 : 0; }
       const dDir = delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat';
       const dArrow = delta > 0 ? '▲' : delta < 0 ? '▼' : '▪';
+      const hasLogo = hasTickerLogo(item);
       return `
         <div class="holding">
-          <div class="holding__icon holding__icon--${item._kind}">${categoryIconSvg(item)}</div>
+          <div class="holding__icon ${hasLogo ? 'holding__icon--logo' : 'holding__icon--' + item._kind}">${logoSvg(item)}</div>
           <div class="holding__name">
             <span class="ticker">${esc(n.ticker)}</span>
             <span class="desc">${esc(n.desc)}</span>
