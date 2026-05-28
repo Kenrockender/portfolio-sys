@@ -410,10 +410,111 @@
 
   <!-- ── ANALISIS tab ── -->
   <section class="tab-panel" id="tab-analisis" data-tab="analisis" role="tabpanel">
-    <div class="placeholder">
-      <div class="placeholder__num">Phase 5</div>
-      <h2 class="serif" data-i18n="ph.an">Analisis tab</h2>
-      <p data-i18n="ph.an-desc">AI insight + health strip + equity chart + alokasi donut + risk grid + saran rebalance + ML signals + monthly heatmap.</p>
+    <div class="an">
+
+      <!-- Page head + period picker -->
+      <section class="page-head">
+        <div>
+          <h1 class="serif-display" data-i18n="an.title">Bagaimana performanya?</h1>
+          <div class="page-head__sub" data-an-sub>—</div>
+        </div>
+        <div class="period" role="tablist" data-an-period>
+          <button data-period="1M" aria-pressed="false">1M</button>
+          <button data-period="3M" aria-pressed="false">3M</button>
+          <button data-period="6M" aria-pressed="false">6M</button>
+          <button data-period="1Y" aria-pressed="true">1Y</button>
+          <button data-period="3Y" aria-pressed="false">3Y</button>
+          <button data-period="ALL" aria-pressed="false">ALL</button>
+        </div>
+      </section>
+
+      <!-- AI insight callout -->
+      <section class="insight reveal">
+        <div class="insight__icon">✦</div>
+        <div class="insight__body">
+          <div class="insight__label" data-i18n="an.insight.label">Insight · powered by Gemini</div>
+          <div class="insight__msg" data-an-insight-msg>—</div>
+        </div>
+        <div class="insight__actions">
+          <button class="btn btn--ghost" data-an-insight-ask data-i18n="an.insight.ask">Tanya lagi</button>
+          <button class="btn btn--primary" data-an-jump="rebalance"><span data-i18n="an.insight.act">Lihat saran ↓</span></button>
+        </div>
+      </section>
+
+      <!-- Health strip -->
+      <section class="health reveal" data-an-health>
+        <!-- populated by analisis.js -->
+      </section>
+
+      <!-- Equity chart -->
+      <section class="card perf-chart reveal">
+        <div class="perf-chart__head">
+          <div>
+            <div class="perf-chart__title" data-i18n="an.perf.title">Equity curve vs benchmark</div>
+            <div class="perf-chart__range" data-an-perf-range>—</div>
+          </div>
+          <div class="perf-chart__legend">
+            <span><span class="swatch"></span> <span data-i18n="an.perf.port">Portofolio</span> <span data-an-perf-port>—</span></span>
+            <span><span class="swatch dashed"></span> <span data-i18n="an.perf.bench">Benchmark 6%/yr</span> <span data-an-perf-bench>—</span></span>
+          </div>
+        </div>
+        <svg class="perf-chart__svg" data-an-perf viewBox="0 0 1200 360" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="perfGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--signal)" stop-opacity="0.18"/>
+              <stop offset="100%" stop-color="var(--signal)" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </section>
+
+      <!-- Allocation + Risk -->
+      <section class="alloc-grid reveal">
+        <div class="card alloc">
+          <div class="alloc__chart">
+            <svg viewBox="0 0 200 200" data-an-donut></svg>
+            <div class="alloc__chart-center">
+              <div class="alloc__chart-center__big" data-an-donut-big>—</div>
+              <div class="alloc__chart-center__sub" data-i18n="an.donut.sub">kelas aset</div>
+            </div>
+          </div>
+          <div class="alloc__legend" data-an-donut-legend></div>
+        </div>
+        <div class="card risk">
+          <h3 class="serif" data-i18n="an.risk.title">Diagnosa risiko</h3>
+          <div class="risk-grid" data-an-risk></div>
+        </div>
+      </section>
+
+      <!-- Rebalance -->
+      <section class="reveal" id="an-rebalance">
+        <div class="section-title">
+          <h2 data-i18n="an.rb.title">Saran rebalance</h2>
+          <span class="rb-sub" data-an-rb-sub>—</span>
+          <a href="#" class="more" data-i18n="an.rb.edit">Edit target →</a>
+        </div>
+        <div class="rebalance" data-an-rb></div>
+      </section>
+
+      <!-- ML signals -->
+      <section class="reveal">
+        <div class="section-title">
+          <h2 data-i18n="an.sig.title">Sinyal &amp; catatan</h2>
+          <span class="rb-sub" data-an-sig-sub>—</span>
+        </div>
+        <div class="signals" data-an-signals></div>
+      </section>
+
+      <!-- Monthly heatmap -->
+      <section class="card heatmap reveal">
+        <div class="heatmap__head">
+          <h2 class="serif-display" data-i18n="an.hm.title">Riwayat bulanan</h2>
+          <div class="heatmap__sub" data-i18n="an.hm.sub">Return per bulan, 3 tahun terakhir. Hijau = naik, merah = turun.</div>
+        </div>
+        <div class="heatmap__grid" data-an-heatmap></div>
+        <div class="heatmap__scale" data-an-heatmap-scale></div>
+      </section>
+
     </div>
   </section>
 
@@ -519,10 +620,11 @@
   }
 </script>
 
-<!-- Tab data wiring: HOME, quick-add parser, TRANSAKSI -->
+<!-- Tab data wiring: HOME, quick-add parser, TRANSAKSI, ANALISIS -->
 <script type="module" src="js/home.js"></script>
 <script type="module" src="js/quickadd.js"></script>
 <script type="module" src="js/transaksi.js"></script>
+<script type="module" src="js/analisis.js"></script>
 <!-- Quick-add UI (shared) — classic script, no imports -->
 <script src="js/quickadd-ui.js"></script>
 
@@ -556,6 +658,21 @@
         'tx.mode.all':    'Semua',
         'tx.mode.trades': 'Transaksi',
         'tx.mode.cf':     'Arus kas',
+        /* ANALISIS tab */
+        'an.title':         'Bagaimana performanya?',
+        'an.insight.label': 'Insight · powered by Gemini',
+        'an.insight.ask':   'Tanya lagi',
+        'an.insight.act':   'Lihat saran ↓',
+        'an.perf.title':    'Equity curve vs benchmark',
+        'an.perf.port':     'Portofolio',
+        'an.perf.bench':    'Benchmark 6%/yr',
+        'an.donut.sub':     'kelas aset',
+        'an.risk.title':    'Diagnosa risiko',
+        'an.rb.title':      'Saran rebalance',
+        'an.rb.edit':       'Edit target →',
+        'an.sig.title':     'Sinyal & catatan',
+        'an.hm.title':      'Riwayat bulanan',
+        'an.hm.sub':        'Return per bulan, 3 tahun terakhir. Hijau = naik, merah = turun.',
       },
       en: {
         'home.sub':       'Here is your portfolio today.',
@@ -583,6 +700,21 @@
         'tx.mode.all':    'All',
         'tx.mode.trades': 'Trades',
         'tx.mode.cf':     'Cashflow',
+        /* ANALISIS tab */
+        'an.title':         'How is it performing?',
+        'an.insight.label': 'Insight · powered by Gemini',
+        'an.insight.ask':   'Ask again',
+        'an.insight.act':   'See suggestions ↓',
+        'an.perf.title':    'Equity curve vs benchmark',
+        'an.perf.port':     'Portfolio',
+        'an.perf.bench':    'Benchmark 6%/yr',
+        'an.donut.sub':     'asset classes',
+        'an.risk.title':    'Risk diagnosis',
+        'an.rb.title':      'Rebalance suggestions',
+        'an.rb.edit':       'Edit target →',
+        'an.sig.title':     'Signals & notes',
+        'an.hm.title':      'Monthly history',
+        'an.hm.sub':        'Return per month, last 3 years. Green = up, red = down.',
       }
     });
     window.psys.i18n.applyI18n();
