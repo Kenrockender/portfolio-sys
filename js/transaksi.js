@@ -8,7 +8,8 @@
    psys:lang-change, psys:quickadd, psys:tab-change.
    ============================================================ */
 
-import { DATA } from './state.js';
+import { S, DATA } from './state.js';
+import { cryptoPrice, stockPrice, stockMul, savingsIdr } from './storage.js';
 
 var i18n = (typeof window !== 'undefined' && window.psys && window.psys.i18n) || null;
 
@@ -19,22 +20,9 @@ function fmtDeltaIDR(n, opts) { return i18n ? i18n.fmtDeltaIDR(n, opts) : ((n >=
 function relTime(d) { return i18n ? i18n.relTime(d) : new Date(d).toLocaleString(); }
 
 var state = {
-  mode: 'all',           // all | trades | cashflow
   search: '',
   limit: 20,
 };
-
-var TRADE_ACTIONS = ['buy', 'sell', 'div'];
-var CASHFLOW_ACTIONS = ['income', 'expense'];
-var FEE_ACTIONS = ['fee', 'tax'];
-
-function classifyForMode(action) {
-  var a = String(action || '').toLowerCase();
-  if (TRADE_ACTIONS.indexOf(a) !== -1)    return 'trades';
-  if (CASHFLOW_ACTIONS.indexOf(a) !== -1) return 'cashflow';
-  if (FEE_ACTIONS.indexOf(a) !== -1)      return 'trades';  // fees+tax follow trades by default
-  return 'trades';
-}
 
 function esc(s) {
   return (s == null ? '' : String(s)).replace(/[&<>"']/g, function (c) {
@@ -104,30 +92,34 @@ function typeLabel(action) {
 }
 
 /* ---- FILTER ---- */
+/* Multiple textual forms of a date so the search box matches ISO
+   (2026-03-15), numeric (15/03/2026), and month names in id + en. */
+function dateHaystack(ts) {
+  var d = new Date(ts);
+  if (isNaN(d)) return '';
+  var dd = String(d.getDate()).padStart(2, '0');
+  var mm = String(d.getMonth() + 1).padStart(2, '0');
+  var yyyy = d.getFullYear();
+  return [
+    d.toISOString().slice(0, 10),
+    dd + '/' + mm + '/' + yyyy,
+    dd + '-' + mm + '-' + yyyy,
+    d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long',  year: 'numeric' }),
+    d.toLocaleDateString('en-US', { day: 'numeric', month: 'long',  year: 'numeric' }),
+    d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+    d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }),
+  ].join(' ');
+}
+
 function filtered() {
   var log = (DATA.txLog || []).slice().sort(function (a, b) { return new Date(b.ts) - new Date(a.ts); });
   var q = (state.search || '').trim().toLowerCase();
+  if (!q) return log;
   return log.filter(function (tx) {
-    var cls = classifyForMode(tx.action);
-    if (state.mode === 'trades' && cls !== 'trades') return false;
-    if (state.mode === 'cashflow' && cls !== 'cashflow') return false;
-    if (!q) return true;
-    var hay = (tx.detail || '') + ' ' + (tx.name || '') + ' ' + (tx.type || '') + ' ' + (tx.action || '');
+    var hay = (tx.detail || '') + ' ' + (tx.name || '') + ' ' + (tx.type || '') + ' '
+            + (tx.action || '') + ' ' + dateHaystack(tx.ts);
     return hay.toLowerCase().indexOf(q) !== -1;
   });
-}
-
-/* ---- COUNTS for mode toggle ---- */
-function counts() {
-  var log = DATA.txLog || [];
-  var c = { all: 0, trades: 0, cashflow: 0 };
-  for (var i = 0; i < log.length; i++) {
-    c.all++;
-    var cls = classifyForMode(log[i].action);
-    if (cls === 'trades') c.trades++;
-    if (cls === 'cashflow') c.cashflow++;
-  }
-  return c;
 }
 
 /* ---- SUMMARY ---- */
@@ -170,19 +162,11 @@ function summary() {
 /* ---- RENDER ---- */
 
 function renderHead() {
-  var month = monthLabel();
-  var c = counts();
   var monthEl = document.querySelector('[data-tx-month]');
-  if (monthEl) monthEl.textContent = month;
+  if (monthEl) monthEl.textContent = monthLabel();
   var countEl = document.querySelector('[data-tx-count]');
-  if (countEl) countEl.textContent = c.all + (lang() === 'id' ? ' entri' : ' entries');
-
-  var ca = document.querySelector('[data-count-all]');
-  var ct = document.querySelector('[data-count-trades]');
-  var cf = document.querySelector('[data-count-cf]');
-  if (ca) ca.textContent = c.all;
-  if (ct) ct.textContent = c.trades;
-  if (cf) cf.textContent = c.cashflow;
+  var n = (DATA.txLog || []).length;
+  if (countEl) countEl.textContent = n + (lang() === 'id' ? ' entri' : ' entries');
 }
 
 function renderSummary() {
@@ -204,7 +188,7 @@ function renderSummary() {
     netEl.textContent = fmtDeltaIDR(s.net, { compact: true });
   }
   var netMeta = document.querySelector('[data-tx-sum-net-meta]');
-  if (netMeta) netMeta.textContent = (lang() === 'id' ? s.count + ' transaksi · ' + s.cfCount + ' arus kas' : s.count + ' trades · ' + s.cfCount + ' cashflow');
+  if (netMeta) netMeta.textContent = (lang() === 'id' ? s.count + ' transaksi' : s.count + ' trades');
 
   set('[data-tx-sum-buy]',  fmtIDR(s.buy, { compact: true }),  (lang() === 'id' ? 'masuk portfolio' : 'into portfolio'));
   set('[data-tx-sum-sell]', fmtIDR(s.sell, { compact: true }), (lang() === 'id' ? 'realisasi' : 'realised'));
@@ -299,18 +283,6 @@ function rerender() {
 }
 
 /* ---- WIRING ---- */
-function wireModes() {
-  var btns = document.querySelectorAll('[data-tx-mode]');
-  btns.forEach(function (b) {
-    b.addEventListener('click', function () {
-      btns.forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
-      b.setAttribute('aria-pressed', 'true');
-      state.mode = b.getAttribute('data-tx-mode');
-      state.limit = 20;
-      renderLedger();
-    });
-  });
-}
 function wireSearch() {
   var s = document.querySelector('[data-tx-search]');
   if (!s) return;
@@ -333,13 +305,64 @@ function wireMore() {
     }
   });
 }
+/* ---- EXPORT HOLDINGS → CSV ---- */
+function csvCell(v) {
+  var s = (v == null) ? '' : String(v);
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function holdingRows() {
+  var rows = [];
+  (DATA.crypto || []).forEach(function (h) {
+    rows.push(['Crypto', h.name || h.coin, h.coin, h.amount || 0, 'coin', h.platform || '',
+      Math.round(h.costBasisIdr || 0), Math.round((h.amount || 0) * cryptoPrice(h)), h.date || '']);
+  });
+  (DATA.stocks || []).forEach(function (h) {
+    var mul = stockMul(h), shares = h.shares || 0;
+    rows.push(['Stocks', h.name || h.ticker, h.ticker, shares,
+      (h.market === 'US' ? 'shares' : 'lots'), h.broker || h.market || '',
+      Math.round(shares * mul * (h.seedPrice || 0)), Math.round(shares * mul * stockPrice(h)), h.date || '']);
+  });
+  (DATA.gold || []).forEach(function (h) {
+    var g = h.grams || 0;
+    rows.push(['Gold', h.name || 'Antam', 'EMAS', g, 'gram', 'physical',
+      Math.round(g * (h.costBasisPerGram || 0)), Math.round(g * (S.goldGramIdr || 0)), h.date || '']);
+  });
+  (DATA.savings || []).forEach(function (h) {
+    rows.push(['Savings', h.name || '', h.currency || '', h.foreignAmt || h.idr || 0, h.currency || '',
+      h.bank || '', Math.round(h.idr || 0), Math.round(savingsIdr(h)), h.date || '']);
+  });
+  return rows;
+}
+
+function exportHoldingsCsv() {
+  var header = ['Category', 'Name', 'Symbol', 'Quantity', 'Unit', 'Platform', 'CostBasisIDR', 'ValueIDR', 'Date'];
+  var rows = holdingRows();
+  if (!rows.length) {
+    alert(lang() === 'id' ? 'Belum ada aset untuk diekspor.' : 'No assets to export.');
+    return;
+  }
+  var csv = [header].concat(rows)
+    .map(function (r) { return r.map(csvCell).join(','); })
+    .join('\r\n');
+  var blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'portfolio-holdings-' + new Date().toISOString().slice(0, 10) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+}
+
 function wireActions() {
   var imp = document.querySelector('[data-tx-import]');
   var exp = document.querySelector('[data-tx-export]');
   var add = document.querySelector('[data-tx-add]');
   function todo(label) { alert((lang() === 'id' ? 'Belum diimplementasi: ' : 'Not implemented yet: ') + label); }
-  if (imp) imp.addEventListener('click', function () { todo('Impor CSV (Phase 7)'); });
-  if (exp) exp.addEventListener('click', function () { todo('Ekspor (Phase 7)'); });
+  if (imp) imp.addEventListener('click', function () { if (typeof openImport === 'function') openImport(); else if (window.openImport) window.openImport(); });
+  if (exp) exp.addEventListener('click', function () { if (window._exportPDF) window._exportPDF(); else exportHoldingsCsv(); });
   if (add) add.addEventListener('click', function () {
     var input = document.querySelector('#tab-transaksi .quickadd__input input');
     if (input) { input.focus(); input.select(); }
@@ -348,7 +371,6 @@ function wireActions() {
 
 function init() {
   if (i18n) i18n.applyI18n();
-  wireModes();
   wireSearch();
   wireMore();
   wireActions();
@@ -375,5 +397,5 @@ if (document.readyState === 'loading') {
 
 if (typeof window !== 'undefined') {
   window.psys = window.psys || {};
-  window.psys.transaksi = { rerender: rerender, setMode: function (m) { state.mode = m; renderLedger(); } };
+  window.psys.transaksi = { rerender: rerender };
 }

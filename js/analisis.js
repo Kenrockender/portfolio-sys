@@ -298,7 +298,7 @@ function renderAllocation() {
   var hoverNameEl = hoverEl && hoverEl.querySelector('.alloc__chart-center__hover__name');
   var hoverPctEl  = hoverEl && hoverEl.querySelector('.alloc__chart-center__hover__pct');
   function defaultHoverText() {
-    if (hoverNameEl) hoverNameEl.textContent = lang() === 'id' ? 'arahkan kursor' : 'hover for detail';
+    if (hoverNameEl) hoverNameEl.textContent = '';
     if (hoverPctEl)  hoverPctEl.textContent = '';
   }
   defaultHoverText();
@@ -499,8 +499,8 @@ function renderInsight() {
   }
   if (hist.length < 2) {
     msg.textContent = lang() === 'id'
-      ? 'Riwayat belum cukup untuk analisis. Tambahkan transaksi lewat quick-add atau impor CSV.'
-      : 'Not enough history yet. Add transactions via quick-add or import CSV.';
+      ? 'Riwayat belum cukup untuk analisis. Tambahkan transaksi lewat quick-add atau import.'
+      : 'Not enough history yet. Add transactions via quick-add or import.';
     return;
   }
   var text;

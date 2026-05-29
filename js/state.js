@@ -199,18 +199,18 @@ const _store = { data: {
     timestamp: Date.now()
   },
   txLog: [
-    { id: uid(), ts: '2026-03-15T09:12:00Z', action: 'buy',    type: 'crypto',  name: 'AVAX',  detail: 'Beli 30 AVAX @ Rp 367.000/koin via Floq',            snapshot: null },
-    { id: uid(), ts: '2026-03-10T14:30:00Z', action: 'buy',    type: 'stocks',  name: 'AMZN',  detail: 'Beli 2 saham AMZN @ $178 via Pluang',                 snapshot: null },
-    { id: uid(), ts: '2026-02-28T10:00:00Z', action: 'add',    type: 'savings', name: 'Krom',  detail: 'Top-up Krom Deposito Rp 5.000.000',                   snapshot: null },
-    { id: uid(), ts: '2026-02-14T08:45:00Z', action: 'buy',    type: 'crypto',  name: 'XRP',   detail: 'Beli 2.500 XRP @ Rp 6.400/koin via Pintu',            snapshot: null },
-    { id: uid(), ts: '2026-01-22T11:20:00Z', action: 'buy',    type: 'stocks',  name: 'NVDA',  detail: 'Beli 4 saham NVDA @ $480 via Pluang',                 snapshot: null },
-    { id: uid(), ts: '2026-01-10T09:00:00Z', action: 'buy',    type: 'gold',    name: 'Antam', detail: 'Beli Antam 1g Koin @ Rp 1.420.000/gram',              snapshot: null },
-    { id: uid(), ts: '2025-12-05T15:00:00Z', action: 'buy',    type: 'crypto',  name: 'SOL',   detail: 'Beli 12 SOL @ Rp 2.333.333/koin via Pintu',           snapshot: null },
-    { id: uid(), ts: '2025-11-20T10:30:00Z', action: 'buy',    type: 'stocks',  name: 'GOTO',  detail: 'Beli 20 lot GOTO @ Rp 68/saham via Stockbit',         snapshot: null },
-    { id: uid(), ts: '2025-10-15T13:00:00Z', action: 'add',    type: 'savings', name: 'BCA',   detail: 'Top-up BCA USD Savings $500',                         snapshot: null },
-    { id: uid(), ts: '2025-09-01T09:15:00Z', action: 'buy',    type: 'gold',    name: 'Antam', detail: 'Beli Antam 5g Bar @ Rp 1.390.000/gram',               snapshot: null },
-    { id: uid(), ts: '2025-08-10T11:00:00Z', action: 'buy',    type: 'crypto',  name: 'DOGE',  detail: 'Beli 15.000 DOGE @ Rp 480/koin via Pintu',            snapshot: null },
-    { id: uid(), ts: '2025-07-20T14:00:00Z', action: 'buy',    type: 'stocks',  name: 'UNVR',  detail: 'Beli 4 lot UNVR @ Rp 2.600/saham via Indopremier',   snapshot: null },
+    { id: uid(), ts: '2026-03-15T09:12:00Z', action: 'buy',    type: 'crypto',  name: 'AVAX',  detail: 'Beli 30 AVAX @ Rp 367.000/koin via Floq',            qty: 30,    price: 367_000,   amount: -11_010_000, snapshot: null },
+    { id: uid(), ts: '2026-03-10T14:30:00Z', action: 'buy',    type: 'stocks',  name: 'AMZN',  detail: 'Beli 2 saham AMZN @ $178 via Pluang',                 qty: 2,     price: 2_892_500, amount:  -5_785_000, snapshot: null },
+    { id: uid(), ts: '2026-02-28T10:00:00Z', action: 'add',    type: 'savings', name: 'Krom',  detail: 'Top-up Krom Deposito Rp 5.000.000',                   amount:  -5_000_000, snapshot: null },
+    { id: uid(), ts: '2026-02-14T08:45:00Z', action: 'buy',    type: 'crypto',  name: 'XRP',   detail: 'Beli 2.500 XRP @ Rp 6.400/koin via Pintu',            qty: 2500,  price: 6_400,     amount: -16_000_000, snapshot: null },
+    { id: uid(), ts: '2026-01-22T11:20:00Z', action: 'buy',    type: 'stocks',  name: 'NVDA',  detail: 'Beli 4 saham NVDA @ $480 via Pluang',                 qty: 4,     price: 7_800_000, amount: -31_200_000, snapshot: null },
+    { id: uid(), ts: '2026-01-10T09:00:00Z', action: 'buy',    type: 'gold',    name: 'Antam', detail: 'Beli Antam 1g Koin @ Rp 1.420.000/gram',              qty: 1,     price: 1_420_000, amount:  -1_420_000, snapshot: null },
+    { id: uid(), ts: '2025-12-05T15:00:00Z', action: 'buy',    type: 'crypto',  name: 'SOL',   detail: 'Beli 12 SOL @ Rp 2.333.333/koin via Pintu',           qty: 12,    price: 2_333_333, amount: -28_000_000, snapshot: null },
+    { id: uid(), ts: '2025-11-20T10:30:00Z', action: 'buy',    type: 'stocks',  name: 'GOTO',  detail: 'Beli 20 lot GOTO @ Rp 68/saham via Stockbit',         qty: 2000,  price: 68,        amount:    -136_000, snapshot: null },
+    { id: uid(), ts: '2025-10-15T13:00:00Z', action: 'add',    type: 'savings', name: 'BCA',   detail: 'Top-up BCA USD Savings $500',                         amount:  -8_125_000, snapshot: null },
+    { id: uid(), ts: '2025-09-01T09:15:00Z', action: 'buy',    type: 'gold',    name: 'Antam', detail: 'Beli Antam 5g Bar @ Rp 1.390.000/gram',               qty: 5,     price: 1_390_000, amount:  -6_950_000, snapshot: null },
+    { id: uid(), ts: '2025-08-10T11:00:00Z', action: 'buy',    type: 'crypto',  name: 'DOGE',  detail: 'Beli 15.000 DOGE @ Rp 480/koin via Pintu',            qty: 15000, price: 480,       amount:  -7_200_000, snapshot: null },
+    { id: uid(), ts: '2025-07-20T14:00:00Z', action: 'buy',    type: 'stocks',  name: 'UNVR',  detail: 'Beli 4 lot UNVR @ Rp 2.600/saham via Indopremier',   qty: 400,   price: 2_600,     amount:  -1_040_000, snapshot: null },
   ]
 }};  // end _store.data
 

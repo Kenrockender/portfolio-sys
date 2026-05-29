@@ -375,6 +375,7 @@ window._getS             = () => S;
 window._uid              = uid;
 window._saveCloud        = saveDataToCloud;
 window._POPULAR_STOCKS   = POPULAR_STOCKS;
+window._exportPDF        = exportPDF;
 
 // ── Initialize Application ─────────────────────────────────────────
 document.getElementById('footerDate').textContent = new Date().toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' });

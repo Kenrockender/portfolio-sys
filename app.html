@@ -272,7 +272,6 @@
             <code>beli 100 BBCA @ 9.425</code>
             <code>jual 5 GOTO</code>
             <code>div BMRI 250.000</code>
-            <code>expense 35.000 makan siang</code>
           </div>
           <div class="quickadd__result" hidden></div>
         </div>
@@ -397,14 +396,14 @@
       <!-- Page head -->
       <section class="page-head">
         <div>
-          <h1 class="serif-display" data-i18n="tx.title">Catatan transaksi &amp; arus kas.</h1>
+          <h1 class="serif-display" data-i18n="tx.title">Catatan transaksi.</h1>
           <div class="page-head__sub">
             <span data-tx-month>…</span> ·
             <span data-tx-count>0 transaksi</span>
           </div>
         </div>
         <div class="page-head__actions">
-          <button class="btn btn--ghost" data-tx-import>↑↓ <span data-i18n="btn.import">Impor CSV</span></button>
+          <button class="btn btn--ghost" data-tx-import>↑↓ <span data-i18n="btn.import">Import</span></button>
           <button class="btn btn--ghost" data-tx-export>↓ <span data-i18n="btn.export">Ekspor</span></button>
           <button class="btn btn--primary" data-tx-add>+ <span data-i18n="btn.add">Tambah</span></button>
         </div>
@@ -423,8 +422,6 @@
             <code>beli 100 BBCA @ 9.425</code>
             <code>jual 5 GOTO market</code>
             <code>div BMRI 250.000</code>
-            <code>expense 35.000 makan</code>
-            <code>income 12.000.000 gaji</code>
           </div>
         </div>
       </section>
@@ -458,13 +455,8 @@
         </div>
       </section>
 
-      <!-- Mode toggle + filter + search -->
+      <!-- Search -->
       <section class="modebar">
-        <div class="modes" role="tablist">
-          <button class="mode" data-tx-mode="all" aria-pressed="true" title="Semua catatan"><span data-i18n="tx.mode.all">Semua</span> <span class="count" data-count-all>0</span></button>
-          <button class="mode" data-tx-mode="trades" aria-pressed="false" data-i18n-title="tx.mode.trades.tip" title="Beli, jual, dividen, biaya broker, pajak"><span data-i18n="tx.mode.trades">Investasi</span> <span class="count" data-count-trades>0</span></button>
-          <button class="mode" data-tx-mode="cashflow" aria-pressed="false" data-i18n-title="tx.mode.cf.tip" title="Income & expense — uang masuk/keluar di luar investasi"><span data-i18n="tx.mode.cf">Arus kas</span> <span class="count" data-count-cf>0</span></button>
-        </div>
         <div class="modebar__sp"></div>
         <div class="search">
           <span class="search__icon">⌕</span>
@@ -553,7 +545,7 @@
             <svg viewBox="0 0 200 200" data-an-donut></svg>
             <div class="alloc__chart-center">
               <div class="alloc__chart-center__hover" data-an-donut-hover>
-                <div class="alloc__chart-center__hover__name" data-i18n="an.donut.hover">arahkan kursor</div>
+                <div class="alloc__chart-center__hover__name" data-i18n="an.donut.hover"></div>
                 <div class="alloc__chart-center__hover__pct"></div>
               </div>
             </div>
@@ -742,12 +734,12 @@
         'hd.sort.label':    'Urutkan:',
         /* ANALISIS donut */
         'an.donut.label':   'Total portofolio',
-        'an.donut.hover':   'arahkan kursor',
+        'an.donut.hover':   '',
         /* TRANSAKSI tab */
-        'tx.title':       'Catatan transaksi & arus kas.',
+        'tx.title':       'Catatan transaksi.',
         'tx.synced':      'semua tersinkron',
         'tx.mode.trades': 'Investasi',
-        'tx.search.placeholder': 'Cari ticker, broker, catatan…',
+        'tx.search.placeholder': 'Cari ticker, broker, catatan, tanggal…',
         'tx.sum.net':     'Net 90 hari',
         'tx.sum.buy':     'Beli',
         'tx.sum.sell':    'Jual',
@@ -799,9 +791,9 @@
         'home.div-more':  'Detail analysis →',
         'home.empty':     'No positions yet. Sign in with Google to load your portfolio.',
         /* TRANSAKSI tab */
-        'tx.title':       'Transactions & cashflow log.',
+        'tx.title':       'Transactions log.',
         'tx.synced':      'all synced',
-        'tx.search.placeholder': 'Search ticker, broker, notes…',
+        'tx.search.placeholder': 'Search ticker, broker, notes, date…',
         'tx.sum.net':     'Net last 90 days',
         'tx.sum.buy':     'Buy',
         'tx.sum.sell':    'Sell',
@@ -825,7 +817,7 @@
         'hd.cat.savings':   'Savings',
         'hd.sort.label':    'Sort by:',
         'an.donut.label':   'Total portfolio',
-        'an.donut.hover':   'hover for detail',
+        'an.donut.hover':   '',
         /* ANALISIS tab */
         'an.title':         'How is it performing?',
         'an.insight.label': 'Insight · powered by Gemini',
@@ -902,6 +894,63 @@
     </div>
   </div>
 </div>
+
+<!-- ══ IMPORT modal (native redesign — PDF + image OCR + paste) ══ -->
+<div class="modal" id="importModal" role="dialog" aria-modal="true" aria-labelledby="importModalTitle">
+  <div class="modal__backdrop"></div>
+  <div class="modal__card modal__card--lg">
+    <div class="modal__head">
+      <div class="modal__head__icon is-signal">↓</div>
+      <div>
+        <div class="modal__title" id="importModalTitle">Impor data</div>
+        <div class="modal__sub" data-imp-sub>Upload PDF / gambar (OCR) atau tempel teks.</div>
+      </div>
+      <button class="modal__close" data-modal-close aria-label="Close">✕</button>
+    </div>
+    <div class="modal__body" data-imp-body>
+      <!-- step content injected by js/import-export.js -->
+    </div>
+    <div class="modal__actions" data-imp-actions>
+      <!-- action buttons injected by js/import-export.js -->
+    </div>
+  </div>
+</div>
+
+<!-- ══ EXPORT modal (PDF + CSV) ══ -->
+<div class="modal" id="exportModal" role="dialog" aria-modal="true" aria-labelledby="exportModalTitle">
+  <div class="modal__backdrop"></div>
+  <div class="modal__card">
+    <div class="modal__head">
+      <div class="modal__head__icon is-signal">↑</div>
+      <div>
+        <div class="modal__title" id="exportModalTitle">Ekspor portfolio</div>
+        <div class="modal__sub" data-exp-sub>Pilih format file.</div>
+      </div>
+      <button class="modal__close" data-modal-close aria-label="Close">✕</button>
+    </div>
+    <div class="modal__body">
+      <div class="exp-choice">
+        <button class="exp-choice__btn" data-exp-pdf>
+          <span class="exp-choice__ic">PDF</span>
+          <span class="exp-choice__lbl" data-exp-pdf-lbl>Laporan PDF</span>
+          <span class="exp-choice__sub" data-exp-pdf-sub>Ringkasan holdings yang rapi untuk dicetak / disimpan.</span>
+        </button>
+        <button class="exp-choice__btn" data-exp-csv>
+          <span class="exp-choice__ic">CSV</span>
+          <span class="exp-choice__lbl" data-exp-csv-lbl>Data CSV</span>
+          <span class="exp-choice__sub" data-exp-csv-sub>Spreadsheet semua aset (Excel / Sheets).</span>
+        </button>
+      </div>
+    </div>
+    <div class="modal__actions">
+      <span style="flex: 1;"></span>
+      <button class="btn" data-modal-close data-i18n="btn.cancel">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Import / Export engine (reuses rule parser, native modal) ══ -->
+<script type="module" src="js/import-export.js"></script>
 
 <!-- ══ SHELL behaviours ══ -->
 <script src="js/shell.js"></script>

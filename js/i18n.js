@@ -33,7 +33,7 @@
       'btn.edit':       'Edit',
       'btn.confirm':    'Konfirmasi',
       'btn.add':        'Tambah',
-      'btn.import':     'Impor CSV',
+      'btn.import':     'Import',
       'btn.export':     'Ekspor',
       'btn.more':       'Lainnya',
 
@@ -44,7 +44,7 @@
       'time.lastweek':  'Minggu lalu',
 
       /* quick-add */
-      'qa.placeholder': 'beli 10 BBCA @ 9.425  ·  dividen BMRI 250.000  ·  expense makan siang 35.000',
+      'qa.placeholder': 'beli 10 BBCA @ 9.425  ·  dividen BMRI 250.000',
       'qa.title':       'Catat sesuatu',
       'qa.shortcut':    'tekan',
       'qa.tofocus':     'untuk fokus',
@@ -83,7 +83,7 @@
       'btn.edit':       'Edit',
       'btn.confirm':    'Confirm',
       'btn.add':        'Add',
-      'btn.import':     'Import CSV',
+      'btn.import':     'Import',
       'btn.export':     'Export',
       'btn.more':       'More',
 
@@ -92,7 +92,7 @@
       'time.yesterday': 'Yesterday',
       'time.lastweek':  'Last week',
 
-      'qa.placeholder': 'buy 10 BBCA @ 9425  ·  div BMRI 250000  ·  expense 35000 lunch',
+      'qa.placeholder': 'buy 10 BBCA @ 9425  ·  div BMRI 250000',
       'qa.title':       'Log something',
       'qa.shortcut':    'press',
       'qa.tofocus':     'to focus',

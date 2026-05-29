@@ -799,7 +799,6 @@ function impRenderStep(){
           <div class="imp-tab-row" style="margin:0">
             <button class="imp-tab ${_impMethod==='text'?'active':''}" onclick="impSetMethod('text')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg> ${impT('text','Text','Teks')}</button>
             <button class="imp-tab ${_impMethod==='pdf'?'active':''}"  onclick="impSetMethod('pdf')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF</button>
-            <button class="imp-tab ${_impMethod==='csv'?'active':''}"  onclick="impSetMethod('csv')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/></svg> CSV</button>
             <button class="imp-tab ${_impMethod==='ocr'?'active':''}"  onclick="impSetMethod('ocr')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> ${impT('img','Image','Gambar')}</button>
           </div>
         </div>
@@ -868,23 +867,10 @@ function impRenderInputArea(){
       </div>
     `;
   } else if(_impMethod==='csv'){
-    area.innerHTML=`
-      <div class="imp-dropzone" id="impDropzone"
-        onclick="document.getElementById('impCsvInput').click()"
-        ondragover="event.preventDefault();this.classList.add('drag')"
-        ondragleave="this.classList.remove('drag')"
-        ondrop="impHandleDrop(event)">
-        <div class="imp-dropzone-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="32" height="32"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/></svg></div>
-        <div class="imp-dropzone-label">Klik atau seret file CSV ke sini</div>
-        <div class="imp-dropzone-sub">Format: Transaction History CSV dari Pluang</div>
-        <div class="imp-file-name" id="impFileName"></div>
-      </div>
-      <input type="file" class="imp-file-input" id="impCsvInput" accept=".csv,.txt" multiple onchange="impHandleCsv(this.files)">
-      <div class="imp-progress" id="impProgress" style="display:none">
-        <div class="imp-progress-bar-track"><div class="imp-progress-bar-fill" id="impProgFill" style="width:0%"></div></div>
-        <div class="imp-progress-text" id="impProgText">Membaca CSV...</div>
-      </div>
-    `;
+    // Legacy: redirect CSV method to PDF
+    _impMethod = 'pdf';
+    impRenderInputArea();
+    return;
   } else {
     area.innerHTML=`
       <div class="imp-dropzone" id="impDropzone"
@@ -932,7 +918,7 @@ function impCopyTemplate(){
 function impChangeSource(val){
   _impSource=val;
   // Auto-switch method untuk parser yang punya format khusus
-  if(val === 'pluang-csv') {impSetMethod('csv');}
+  if(val === 'pluang-csv') {impSetMethod('pdf');}
   impRenderTemplate();
 }
 
@@ -942,7 +928,7 @@ function impSetMethod(m){
   // re-render method buttons
   document.querySelectorAll('.imp-tab').forEach(b=>{
     b.classList.toggle('active', b.textContent.toLowerCase().includes(
-      {text:'teks',pdf:'pdf',csv:'csv',ocr:'gambar'}[m]
+      {text:'teks',pdf:'pdf',ocr:'gambar'}[m]
     ));
   });
 }
@@ -1173,41 +1159,6 @@ async function impHandleOcr(filesOrFile){
   setTimeout(()=>progress.style.display='none',2500);
 }
 
-async function impHandleCsv(filesOrFile) {
-  const files = filesOrFile instanceof FileList ? Array.from(filesOrFile)
-              : Array.isArray(filesOrFile) ? filesOrFile : [filesOrFile];
-  if (!files.length) {return;}
-
-  const progress = document.getElementById('impProgress');
-  const fill     = document.getElementById('impProgFill');
-  const txt      = document.getElementById('impProgText');
-  if (progress) {progress.style.display = '';}
-  if (fill) {fill.style.width = '20%';}
-  if (txt) {txt.textContent = 'Membaca CSV...';}
-
-  _impRaw = '';
-  for (let fi = 0; fi < files.length; fi++) {
-    const file = files[fi];
-    try {
-      const text = await file.text();
-      _impRaw += (fi > 0 ? '\n\n--- FILE: ' + file.name + ' ---\n\n' : '') + text;
-      if (fill) {fill.style.width = Math.round(((fi + 1) / files.length) * 90 + 5) + '%';}
-    } catch(e) {
-      if (txt) {txt.textContent = 'Failed: ' + file.name + ' — ' + e.message;}
-    }
-  }
-
-  const fn = document.getElementById('impFileName');
-  if (fn) {fn.textContent = files.length === 1
-    ? files[0].name
-    : `${files.length} CSV files`;}
-
-  applyAutoDetect(_impRaw);
-  if (fill) {fill.style.width = '100%';}
-  if (txt) {txt.textContent = `${_impRaw.length} chars from ${files.length} CSV files`;}
-  setTimeout(() => { if (progress) {progress.style.display = 'none';} }, 2500);
-}
-
 function impHandleDrop(e){
   e.preventDefault();
   document.getElementById('impDropzone')?.classList.remove('drag');
@@ -1215,10 +1166,8 @@ function impHandleDrop(e){
   if(!files || !files.length) {return;}
   const pdfs = Array.from(files).filter(f=>f.type==='application/pdf');
   const imgs = Array.from(files).filter(f=>f.type.startsWith('image/'));
-  const csvs = Array.from(files).filter(f=>f.name.match(/\.(csv|txt)$/i));
   if(pdfs.length) {impHandlePdf(pdfs);}
   if(imgs.length) {impHandleOcr(imgs);}
-  if(csvs.length) {impHandleCsv(csvs);}
 }
 
 // ── Parsing & Preview ────────────────────────────────────────────
@@ -1363,8 +1312,21 @@ window.openImport=openImport; window.closeImport=closeImport;
 window.impNext=impNext; window.impBack=impBack;
 window.impToggleRow=impToggleRow; window.impToggleAll=impToggleAll;
 window.impSetMethod=impSetMethod; window.impChangeSource=impChangeSource;
-window.impHandlePdf=impHandlePdf; window.impHandleOcr=impHandleOcr; window.impHandleCsv=impHandleCsv;
+window.impHandlePdf=impHandlePdf; window.impHandleOcr=impHandleOcr;
 window.impHandleDrop=impHandleDrop; window.impCopyTemplate=impCopyTemplate;
-document.getElementById('impOverlay').addEventListener('click',e=>{
-  if(e.target.id==='impOverlay') {closeImport();}
-});
+// Legacy wizard overlay (only present in app.old.html). Guard so this
+// module can be imported into the redesigned app.html where #impOverlay
+// does not exist.
+(function () {
+  var _ov = document.getElementById('impOverlay');
+  if (_ov) {
+    _ov.addEventListener('click', e => {
+      if (e.target.id === 'impOverlay') { closeImport(); }
+    });
+  }
+})();
+
+// ── ES exports for the redesigned native importer (app.html) ─────────
+// The redesign reuses the rule engine + auto-detect + number/date helpers
+// but supplies its own modal UI and DOM-free text extraction.
+export { IMPORT_RULES, autoDetectSource, parseDate, parseIdrNum, COIN_NAMES };

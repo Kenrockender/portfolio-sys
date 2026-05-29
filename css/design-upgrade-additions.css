@@ -1394,3 +1394,152 @@ html[data-theme="light"] .kv-total  { color: var(--crypto); }
   .imp-steps { padding: 12px 16px 0; gap: 0; }
   .imp-step span { display: none; }
 }
+
+/* ────────────────────────────────────────────────────────────────────
+   TICKER AUTOCOMPLETE DROPDOWN
+   Rich, custom dropdown that shows ticker + company name + market tag.
+   Replaces browser-native <datalist> for better UX.
+──────────────────────────────────────────────────────────────────── */
+.ticker-ac-wrap {
+  position: relative;
+}
+
+.ticker-ac-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  max-height: 280px;
+  overflow-y: auto;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(139, 92, 246, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  animation: ticker-ac-enter 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+
+.ticker-ac-dropdown::-webkit-scrollbar {
+  width: 5px;
+}
+.ticker-ac-dropdown::-webkit-scrollbar-thumb {
+  background: var(--border2);
+  border-radius: 4px;
+}
+.ticker-ac-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@keyframes ticker-ac-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ticker-ac-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.12s, padding-left 0.15s;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  position: relative;
+}
+.ticker-ac-item:last-child {
+  border-bottom: none;
+}
+.ticker-ac-item:hover,
+.ticker-ac-item.is-active {
+  background: rgba(139, 92, 246, 0.10);
+  padding-left: 18px;
+}
+.ticker-ac-item.is-active {
+  background: rgba(139, 92, 246, 0.16);
+}
+.ticker-ac-item.is-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  background: var(--crypto, #8b5cf6);
+  border-radius: 0 3px 3px 0;
+  box-shadow: 0 0 8px var(--crypto, #8b5cf6);
+}
+
+.ticker-ac-item__ticker {
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text);
+  min-width: 56px;
+  letter-spacing: 0.03em;
+}
+
+.ticker-ac-item__name {
+  flex: 1;
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.ticker-ac-item__mkt {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.ticker-ac-item__mkt--idx {
+  color: #22d3ee;
+  background: rgba(34, 211, 238, 0.12);
+  border: 1px solid rgba(34, 211, 238, 0.22);
+}
+.ticker-ac-item__mkt--us {
+  color: #f5c518;
+  background: rgba(245, 197, 24, 0.10);
+  border: 1px solid rgba(245, 197, 24, 0.22);
+}
+.ticker-ac-item__mkt--index {
+  color: #a78bfa;
+  background: rgba(167, 139, 250, 0.10);
+  border: 1px solid rgba(167, 139, 250, 0.22);
+}
+
+/* Light theme adjustments */
+html[data-theme="light"] .ticker-ac-dropdown {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: var(--border);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+html[data-theme="light"] .ticker-ac-item:hover,
+html[data-theme="light"] .ticker-ac-item.is-active {
+  background: rgba(139, 92, 246, 0.06);
+}
+html[data-theme="light"] .ticker-ac-item.is-active {
+  background: rgba(139, 92, 246, 0.10);
+}
+html[data-theme="light"] .ticker-ac-item {
+  border-bottom-color: rgba(0, 0, 0, 0.04);
+}

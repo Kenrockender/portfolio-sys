@@ -7,12 +7,28 @@
 
 // ── Platform Colors ─────────────────────────────────────────────
 export const PLAT_COLORS = {
+  // crypto platforms
   floq: '#8b5cf6', triv: '#22d3ee', pintu: '#fcd34d', pluang: '#34d399',
   indodax: '#f97316', tokocrypto: '#0ea5e9',
-  binance: '#fde047', bitget: '#67e8f9', stockbit: '#4ade80', bibit: '#86efac',
-  indopremier: '#a5b4fc', manual: '#94a3b8', other: '#64748b',
+  binance: '#fde047', bitget: '#67e8f9', reku: '#ef4444', luno: '#38bdf8',
+  bybit: '#f97316', okx: '#f5f5f5', kucoin: '#22c55e', coinbase: '#3b82f6',
+  kraken: '#a78bfa', mexc: '#2dd4bf', upbit: '#60a5fa', gate: '#22d3ee',
+  // brokers
+  stockbit: '#4ade80', bibit: '#86efac',
+  indopremier: '#a5b4fc', ajaib: '#34d399', bareksa: '#60a5fa',
+  'mandiri-sek': '#fde047', 'bca-sek': '#60a5fa', 'bni-sek': '#fdba74',
+  mirae: '#f59e0b', cgs: '#a78bfa', 'mnc-sek': '#f97316', philip: '#fb923c',
+  rhb: '#818cf8', 'sinarmas-sek': '#f472b6', trimegah: '#22d3ee', gotrade: '#a3e635',
+  manual: '#94a3b8', other: '#64748b',
+  // banks
   bca: '#60a5fa', bri: '#fca5a5', bni: '#fdba74', mandiri: '#fde047',
-  ocbc: '#fca5a5', krom: '#c4b5fd', cash: '#4ade80', physical: '#fcd34d', superbank: '#22c55e'
+  bsi: '#22c55e', btn: '#f97316', cimb: '#ef4444', danamon: '#fbbf24',
+  permata: '#34d399', panin: '#60a5fa', mega: '#3b82f6', maybank: '#fde047',
+  ocbc: '#fca5a5', hsbc: '#ef4444', dbs: '#ef4444', uob: '#3b82f6',
+  sc: '#0ea5e9', sinarmas: '#f472b6',
+  jenius: '#06b6d4', jago: '#a78bfa', blu: '#3b82f6', seabank: '#22d3ee',
+  linebank: '#22c55e', allobank: '#8b5cf6', neo: '#f43f5e',
+  krom: '#c4b5fd', cash: '#4ade80', physical: '#fcd34d', superbank: '#22c55e'
 };
 
 // ── FX Pairs for Yahoo Finance ───────────────────────────────────
@@ -438,6 +454,79 @@ export const BANK_OPTS = `
   <option value="cash">Cash</option>
   <option value="other">Lainnya</option>
 `;
+
+// ── Autocomplete Lists (for asset-editor dropdowns) ─────────────
+export const AC_BANKS = [
+  { value: 'bca',        label: 'BCA' },
+  { value: 'bri',        label: 'BRI' },
+  { value: 'bni',        label: 'BNI' },
+  { value: 'mandiri',    label: 'Mandiri' },
+  { value: 'bsi',        label: 'BSI' },
+  { value: 'btn',        label: 'BTN' },
+  { value: 'cimb',       label: 'CIMB Niaga' },
+  { value: 'danamon',    label: 'Danamon' },
+  { value: 'permata',    label: 'Permata' },
+  { value: 'panin',      label: 'Panin' },
+  { value: 'mega',       label: 'Mega' },
+  { value: 'ocbc',       label: 'OCBC' },
+  { value: 'maybank',    label: 'Maybank' },
+  { value: 'hsbc',       label: 'HSBC' },
+  { value: 'dbs',        label: 'DBS' },
+  { value: 'uob',        label: 'UOB' },
+  { value: 'sc',         label: 'Standard Chartered' },
+  { value: 'sinarmas',   label: 'Sinarmas' },
+  { value: 'jenius',     label: 'Jenius (BTPN)' },
+  { value: 'jago',       label: 'Bank Jago' },
+  { value: 'blu',        label: 'Blu (BCA Digital)' },
+  { value: 'seabank',    label: 'SeaBank' },
+  { value: 'linebank',   label: 'LINE Bank' },
+  { value: 'allobank',   label: 'Allo Bank' },
+  { value: 'neo',        label: 'Neo Commerce' },
+  { value: 'krom',       label: 'Krom' },
+  { value: 'superbank',  label: 'Superbank' },
+  { value: 'cash',       label: 'Cash' },
+];
+
+export const AC_BROKERS = [
+  { value: 'stockbit',     label: 'Stockbit' },
+  { value: 'bibit',        label: 'Bibit' },
+  { value: 'ajaib',        label: 'Ajaib' },
+  { value: 'indopremier',  label: 'IPOT (Indopremier)' },
+  { value: 'pluang',       label: 'Pluang' },
+  { value: 'bareksa',      label: 'Bareksa' },
+  { value: 'mandiri-sek',  label: 'Mandiri Sekuritas' },
+  { value: 'bca-sek',      label: 'BCA Sekuritas' },
+  { value: 'bni-sek',      label: 'BNI Sekuritas' },
+  { value: 'mirae',        label: 'Mirae Asset' },
+  { value: 'cgs',          label: 'CGS International' },
+  { value: 'mnc-sek',      label: 'MNC Sekuritas' },
+  { value: 'philip',       label: 'Philip Sekuritas' },
+  { value: 'rhb',          label: 'RHB Sekuritas' },
+  { value: 'sinarmas-sek', label: 'Sinarmas Sekuritas' },
+  { value: 'trimegah',     label: 'Trimegah Sekuritas' },
+  { value: 'gotrade',      label: 'GoTrade' },
+];
+
+export const AC_PLATFORMS = [
+  { value: 'indodax',     label: 'Indodax' },
+  { value: 'pintu',       label: 'Pintu' },
+  { value: 'triv',        label: 'Triv' },
+  { value: 'pluang',      label: 'Pluang' },
+  { value: 'floq',        label: 'Floq' },
+  { value: 'tokocrypto',  label: 'Tokocrypto' },
+  { value: 'reku',        label: 'Reku' },
+  { value: 'luno',        label: 'Luno' },
+  { value: 'binance',     label: 'Binance' },
+  { value: 'bitget',      label: 'Bitget' },
+  { value: 'bybit',       label: 'Bybit' },
+  { value: 'okx',         label: 'OKX' },
+  { value: 'kucoin',      label: 'KuCoin' },
+  { value: 'coinbase',    label: 'Coinbase' },
+  { value: 'kraken',      label: 'Kraken' },
+  { value: 'mexc',        label: 'MEXC' },
+  { value: 'upbit',       label: 'Upbit' },
+  { value: 'gate',        label: 'Gate.io' },
+];
 
 // ═════════════════════════════════════════════════════════════════
 // TAX & FEE STRUCTURES 2026 (Indonesia)
