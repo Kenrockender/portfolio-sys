@@ -120,9 +120,8 @@
   }
 
   /* ---- "TAMBAH ASET" custom asset modal ---- */
-  // Hook is a placeholder: opens the modal and saves to DATA.txLog as a note.
-  // Full position-mutation happens via existing js/ui.js once we re-wire it
-  // in a later phase; for now we capture intent and let quick-add log it.
+  // The [data-tx-add] button focuses the persistent quick-add in TRANSAKSI.
+  // Full add/edit/delete (with transaction logging) lives in js/asset-editor.js.
   function wireAddAsset() {
     document.addEventListener('click', function (e) {
       var btn = e.target.closest('[data-tx-add]');

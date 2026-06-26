@@ -25,8 +25,8 @@ export let currentUser = null;
 export let db          = null;
 export let isCanvasEnv = false;
 
-// [Fix 1] Flag that prevents openImport() from firing automatically
-// during the auth → load-data flow. Checked by openImport() in ui.js.
+// Flag set during the auth → load-data flow so other modules can avoid
+// firing UI side-effects mid-load. (Legacy consumer openImport() was removed.)
 export let isAuthInProgress = false;
 
 let app  = null;
