@@ -21,7 +21,7 @@
 // v14 = native Import (PDF + image OCR + paste, reuses rule engine) & Export chooser (PDF + CSV).
 // v15 = PDF export redesign: "Terminal" dark themed report via html2canvas → jsPDF (hero, category cards, allocation donut, holdings table).
 // v16 = PDF export polish: fonts match app shell (IBM Plex Mono + Fraunces), category colors match home palette, row-aware page breaks (no cut rows), hero no-wrap.
-const CACHE_NAME = 'portfolio-sys-v16';
+const CACHE_NAME = 'portfolio-sys-v17';
 const RUNTIME_CACHE = 'portfolio-runtime-v2';
 const API_CACHE = 'portfolio-api-v1';
 const API_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
@@ -51,22 +51,15 @@ const PRECACHE_URLS = [
   '/js/config.js',
   '/js/state.js',
   '/js/storage.js',
-  '/js/import-parsers.js',
   '/js/parsers/binance.js',
   '/js/parsers/parser-utils.js',
   '/js/parsers/savings.js',
   '/js/parsers/stock.js',
   '/js/parsers/tokocrypto.js',
-  '/js/pwa-install.js',
-  '/js/module-loader.js',
   '/firebase/firebase-config.js',
   '/manifest.json',
   '/favicon.ico',
-  // Legacy CSS still imported by the old index.html until landing redesign
-  '/css/styles.css',
-  '/css/mobile.css',
-  '/css/pwa-install.css',
-  '/css/loading-states.css',
+  '/favicon.svg',
 ];
 
 // Firebase auth & write endpoints must always go to network (no cache)
