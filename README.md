@@ -219,6 +219,15 @@ npm run lint:fix    # Auto-fix issues
 npm run typecheck   # Validate TypeScript types
 ```
 
+### Testing
+```bash
+npm test            # Run the unit test suite (Vitest)
+npm run test:watch  # Watch mode
+```
+Tests cover the financial math in `js/storage.js` — totals, P&L, FX
+conversion, lot multipliers, broker/crypto fees, tax mode, income, and
+portfolio analytics. See `test/storage.test.js`.
+
 ### TypeScript Integration
 The project uses TypeScript for type safety without a build step:
 - Type definitions in `types/portfolio.d.ts`
