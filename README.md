@@ -228,6 +228,18 @@ Tests cover the financial math in `js/storage.js` — totals, P&L, FX
 conversion, lot multipliers, broker/crypto fees, tax mode, income, and
 portfolio analytics. See `test/storage.test.js`.
 
+### Production build
+```bash
+npm run build       # Minify JS + CSS into dist/ (esbuild)
+```
+Dev stays build-free — `npm run serve` runs the source directly. The build
+only minifies files in place (no bundling/renaming), so every import path and
+the service worker keep working; it just ships ~40% smaller. Vercel runs this
+automatically via `vercel.json` (`buildCommand` → `dist/`). Serverless
+functions in `api/` are detected at the repo root and are **not** part of
+`dist/`. To revert to the old zero-config static deploy, set `vercel.json`
+back to just the `rewrites` block.
+
 ### TypeScript Integration
 The project uses TypeScript for type safety without a build step:
 - Type definitions in `types/portfolio.d.ts`

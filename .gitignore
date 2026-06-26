@@ -1,7 +1,7 @@
 # Dependencies
 node_modules/
 
-# Build / dist
+# Build / dist (produced by `npm run build` for Vercel deploys)
 dist/
 *.tsbuildinfo
 
