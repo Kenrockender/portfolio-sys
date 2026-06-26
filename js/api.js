@@ -71,11 +71,23 @@ async function _proxyFetch(url) {
   throw new Error(`[API] All proxies failed for: ${url}`);
 }
 
-// ── Yahoo Finance Price Fetch ────────────────────────────────────
+// ── Yahoo Finance chart fetch ────────────────────────────────────
+// Prefer our own same-origin serverless function (/api/yahoo) — no browser
+// CORS and no dependency on flaky public proxies. Falls back to the public
+// CORS proxies when the function isn't available (e.g. static hosting / dev).
+async function _yahooChart(sym, range = '1d', interval = '1d') {
+  try {
+    const q = `/api/yahoo?symbol=${encodeURIComponent(sym)}&range=${encodeURIComponent(range)}&interval=${encodeURIComponent(interval)}`;
+    const r = await fetch(q, { signal: AbortSignal.timeout(9000) });
+    if (r.ok) {return await r.json();}
+  } catch (_) {}
+  const url = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=${encodeURIComponent(interval)}&range=${encodeURIComponent(range)}`;
+  const raw = await _proxyFetch(url);
+  return await raw.json();
+}
+
 export async function fetchYahoo(sym) {
-  const url = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=1d`;
-  const r = await _proxyFetch(url);
-  const d = await r.json();
+  const d = await _yahooChart(sym, '1d', '1d');
   const p = d?.chart?.result?.[0]?.meta?.regularMarketPrice;
   if (!p) {throw 0;}
   return p;
@@ -85,6 +97,19 @@ export async function fetchYahoo(sym) {
 // Source: https://www.logammulia.com/id/harga-emas-hari-ini
 // Harga Jual 1 gram Antam — angka dalam IDR langsung
 export async function fetchLogamMulia() {
+  // 1. Same-origin serverless function — parses server-side, returns clean JSON.
+  try {
+    const r = await fetch('/api/gold', { signal: AbortSignal.timeout(10_000) });
+    if (r.ok) {
+      const j = await r.json();
+      if (j && j.price >= 1_500_000 && j.price <= 6_000_000) {
+        console.log(`[LM] Harga emas Antam 1gr: Rp ${j.price.toLocaleString('id-ID')}/gr`);
+        return j.price;
+      }
+    }
+  } catch (_) {}
+
+  // 2. Fallback: scrape via public CORS proxy (static host / function down).
   const LM_URL = 'https://www.logammulia.com/id/harga-emas-hari-ini';
   let html = null;
 
@@ -360,12 +385,10 @@ export async function fetchAssetPriceHistory(item, type, range) {
       // IDX → append .JK; INDEX and US → ticker as-is
       const sym = item.market === 'IDX' ? `${item.ticker}.JK` : item.ticker;
       const rangeStr = { 30: '1mo', 90: '3mo', 180: '6mo', 365: '1y' }[days] || '3mo';
-      const url = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=${rangeStr}`;
 
-      const raw = await _proxyFetch(url).catch(() => null);
-      if (!raw) {return null;}
+      const d = await _yahooChart(sym, rangeStr, '1d').catch(() => null);
+      if (!d) {return null;}
 
-      const d = await raw.json();
       const result = d?.chart?.result?.[0];
       if (!result) {return null;}
 
@@ -392,12 +415,10 @@ export async function fetchAssetPriceHistory(item, type, range) {
 
     if (type === 'gold') {
       const rangeStr = { 30: '1mo', 90: '3mo', 180: '6mo', 365: '1y' }[days] || '3mo';
-      const url = `https://query2.finance.yahoo.com/v8/finance/chart/GC%3DF?interval=1d&range=${rangeStr}`;
 
-      const raw = await _proxyFetch(url).catch(() => null);
-      if (!raw) {return null;}
+      const d = await _yahooChart('GC=F', rangeStr, '1d').catch(() => null);
+      if (!d) {return null;}
 
-      const d = await raw.json();
       const result = d?.chart?.result?.[0];
       if (!result) {return null;}
 
