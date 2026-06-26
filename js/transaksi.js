@@ -76,6 +76,7 @@ function typeClass(action) {
   return ({
     buy: 't-buy', sell: 't-sell', div: 't-div', fee: 't-fee',
     income: 't-in', expense: 't-out', add: 't-add', tax: 't-tax',
+    edit: 't-fee', delete: 't-sell',
   })[a] || 't-add';
 }
 function typeLabel(action) {
@@ -88,6 +89,8 @@ function typeLabel(action) {
   if (a === 'expense') return 'OUT';
   if (a === 'tax')     return 'TAX';
   if (a === 'add')     return 'ADD';
+  if (a === 'edit')    return 'EDIT';
+  if (a === 'delete')  return 'DEL';
   return a.toUpperCase();
 }
 

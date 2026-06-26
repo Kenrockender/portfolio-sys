@@ -405,6 +405,58 @@ function open(kind, item) {
   if (window.psys && window.psys.modal) window.psys.modal.open('assetModal');
 }
 
+/* ---- TRANSACTION LOG ----
+   Append an audit entry to DATA.txLog so add / edit / delete shows up in
+   the TRANSAKSI ledger. Shape matches the seed entries in state.js and what
+   transaksi.js renders: { id, ts, action, type, name, detail, via, amount }.
+   amount is the signed IDR cost-basis delta (only meaningful for 'edit';
+   the ledger hides it for 'add' / 'delete'). */
+function assetIdr(kind, r) {
+  if (!r) return 0;
+  if (kind === 'savings') {
+    var rate = (S.fxRates && S.fxRates[r.currency]) || 1;
+    return Number(r.idr) || (Number(r.foreignAmt) || 0) * rate;
+  }
+  if (kind === 'crypto') return Number(r.costBasisIdr) || 0;
+  if (kind === 'stocks') {
+    var mul = (r.market === 'IDX' || r.market === 'INDEX') ? 100 : 1;
+    return (Number(r.shares) || 0) * mul * (Number(r.seedPrice) || 0);
+  }
+  if (kind === 'gold') return (Number(r.grams) || 0) * (Number(r.costBasisPerGram) || 0);
+  return 0;
+}
+function assetLabel(kind, r) {
+  if (!r) return '';
+  if (kind === 'crypto') return String(r.coin || r.name || '').toUpperCase();
+  if (kind === 'stocks') return String(r.ticker || r.name || '').toUpperCase();
+  return String(r.name || '');
+}
+function assetVia(r) { return (r && (r.platform || r.broker || r.bank)) || ''; }
+
+function logTx(action, kind, record, prev) {
+  if (!DATA.txLog) DATA.txLog = [];
+  var ref  = record || prev;
+  var name = assetLabel(kind, ref);
+  var isId = lang() === 'id';
+  var verb = isId
+    ? ({ add: 'Tambah', edit: 'Edit', delete: 'Hapus' })[action]
+    : ({ add: 'Added', edit: 'Edited', delete: 'Deleted' })[action];
+  var amount = action === 'edit' ? (assetIdr(kind, record) - assetIdr(kind, prev)) : 0;
+
+  DATA.txLog.unshift({
+    id:     uid(),
+    ts:     new Date().toISOString(),
+    action: action,            // 'add' | 'edit' | 'delete'
+    type:   kind,              // crypto | stocks | gold | savings
+    name:   name,
+    detail: (verb ? verb + ' ' : '') + name,
+    via:    assetVia(ref),
+    amount: amount,
+    snapshot: null,
+  });
+  if (DATA.txLog.length > 200) DATA.txLog.length = 200;
+}
+
 /* ---- SAVE ---- */
 function save() {
   if (!editing) return;
@@ -427,11 +479,14 @@ function save() {
     return;
   }
 
+  // Snapshot the pre-edit record so we can log the value delta later.
+  var prev = null;
   if (editing.id) {
     var idx = arr.findIndex(function (x) { return x.id === editing.id; });
     if (idx >= 0) {
       // Preserve id, mutate the rest
       var keep = arr[idx].id;
+      prev = Object.assign({}, arr[idx]);
       arr[idx] = Object.assign({}, arr[idx], record, { id: keep });
     }
   } else {
@@ -457,6 +512,10 @@ function save() {
     if (st && st.ticker) st.ticker = String(st.ticker).toUpperCase();
   }
 
+  // Log to the transaction ledger (final record reflects derived idr / casing).
+  var finalRec = editing.id ? arr.find(function (x) { return x.id === editing.id; }) : arr[arr.length - 1];
+  logTx(editing.id ? 'edit' : 'add', editing.kind, finalRec, prev);
+
   // Persist
   try { saveDataToCloud(); } catch (e) { console.warn('[asset-editor] save error:', e); }
   window.dispatchEvent(new CustomEvent('portfolio:update'));
@@ -471,7 +530,9 @@ function remove() {
   var arr = arrayForKind(editing.kind);
   if (!arr) return;
   var idx = arr.findIndex(function (x) { return x.id === editing.id; });
+  var removed = idx >= 0 ? arr[idx] : null;
   if (idx >= 0) arr.splice(idx, 1);
+  if (removed) logTx('delete', editing.kind, removed, null);
   try { saveDataToCloud(); } catch (e) {}
   window.dispatchEvent(new CustomEvent('portfolio:update'));
   if (window.psys && window.psys.modal) window.psys.modal.close('assetModal');
