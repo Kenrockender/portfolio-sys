@@ -202,8 +202,10 @@ function rowHtml(tx) {
   var mm = String(ts.getMinutes()).padStart(2,'0');
   var timeStr = hh + ':' + mm;
   var amt = Number(tx.amount) || 0;
+  var act = String(tx.action || '').toLowerCase();
   var amtClass = amt > 0 ? 'is-pos' : amt < 0 ? 'is-neg' : 'is-mute';
   var amtStr = (amt > 0 ? '+' : amt < 0 ? '−' : '') + fmtIDR(Math.abs(amt), { compact: Math.abs(amt) >= 1e7 });
+  if (act === 'add' || act === 'delete') { amtStr = ''; amtClass = ''; }
   var qtyStr = (tx.qty && tx.price)
     ? esc(tx.qty.toLocaleString(lang() === 'id' ? 'id-ID' : 'en-US', { maximumFractionDigits: 4 })) + ' <span class="x">×</span> Rp ' + esc(Math.round(tx.price).toLocaleString('id-ID'))
     : '';

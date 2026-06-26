@@ -1008,6 +1008,29 @@ function _logTx(action, type, item, prevItem = null) {
     if (changes.length) {detail = changes.join(', ');}
   }
 
+  let amount = 0;
+  if (action === 'EDIT' && prevItem && item) {
+    if (type === 'savings') {
+      amount = (item.idr || item.foreignAmt || 0) - (prevItem.idr || prevItem.foreignAmt || 0);
+    } else if (type === 'crypto') {
+      amount = (item.costBasisIdr || 0) - (prevItem.costBasisIdr || 0);
+    } else if (type === 'stocks') {
+      const mul = (item.market === 'IDX' || item.market === 'INDEX') ? 100 : 1;
+      const prevMul = (prevItem.market === 'IDX' || prevItem.market === 'INDEX') ? 100 : 1;
+      amount = ((item.shares||0)*mul*(item.seedPrice||0)) - ((prevItem.shares||0)*prevMul*(prevItem.seedPrice||0));
+    } else if (type === 'gold') {
+      amount = ((item.grams||0)*(item.costBasisPerGram||0)) - ((prevItem.grams||0)*(prevItem.costBasisPerGram||0));
+    }
+  } else if (action === 'ADD' && item) {
+    if (type === 'savings') amount = item.idr || item.foreignAmt || 0;
+    else if (type === 'crypto') amount = item.costBasisIdr || 0;
+    else if (type === 'stocks') {
+      const mul = (item.market === 'IDX' || item.market === 'INDEX') ? 100 : 1;
+      amount = (item.shares||0)*mul*(item.seedPrice||0);
+    }
+    else if (type === 'gold') amount = (item.grams||0)*(item.costBasisPerGram||0);
+  }
+
   DATA.txLog.unshift({
     id:     uid(),
     ts:     new Date().toISOString(),
@@ -1015,6 +1038,7 @@ function _logTx(action, type, item, prevItem = null) {
     type:   typeLabels[type] || type,
     name,
     detail,
+    amount,
   });
 
   // Simpan max 200 entri
