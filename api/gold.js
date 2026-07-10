@@ -6,6 +6,8 @@
  *
  *   GET /api/gold  ->  { price: 1687000, source: "logammulia" }
  */
+import { blockCrossSite } from './_guard.js';
+
 const LM_URL = 'https://www.logammulia.com/id/harga-emas-hari-ini';
 
 /** "2,902,000" or "2.902.000" -> 2902000 */
@@ -15,6 +17,8 @@ function parseIdr(str) {
 }
 
 export default async function handler(req, res) {
+  if (blockCrossSite(req, res)) return;
+
   try {
     const r = await fetch(LM_URL, {
       signal: AbortSignal.timeout(10000),

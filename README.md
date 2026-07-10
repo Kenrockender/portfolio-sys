@@ -14,7 +14,7 @@ Personal net worth dashboard for Indonesian investors. Tracks crypto, gold, stoc
 
 ### Live Prices
 - **Crypto** — CoinGecko API (BTC, ETH, XRP + altcoin batch)
-- **Stocks & Gold** — Yahoo Finance via CORS proxy (allorigins.win → corsproxy.io fallback)
+- **Stocks & Gold** — own serverless proxies (`/api/yahoo`, `/api/gold`) — no third-party CORS proxies
 - **FX Rates** — ExchangeRate-API (11 currency pairs)
 - **Manual Override** — Click any price in the top bar or use the ✎ HARGA button to enter prices manually. Manual prices persist to cloud on save.
 - Auto-sync every 5 minutes (skips if a sync is already running)
@@ -276,7 +276,8 @@ const CACHE_NAME = 'portfolio-sys-v7'; // Increment version
 ## Notes
 
 - All portfolio data is stored in **your own** Firestore under your Google account. Nobody else can read it.
-- The app uses `allorigins.win` as a CORS proxy for Yahoo Finance requests, with `corsproxy.io` as an automatic fallback. If both are down, stock and gold prices will not update but the app remains usable with the last saved rates.
+- Yahoo Finance, Antam gold, CoinGecko-fallback, and FX-fallback requests go through the app's own Vercel serverless functions (`/api/yahoo`, `/api/gold`, `/api/crypto`, `/api/fx`) — no public CORS proxies that could observe or tamper with price data. If an upstream source is down, prices simply stay at the last saved rates.
+- Firestore access is locked down by `firestore.rules` (repo root): each user can only read/write their own documents, and `subscription/plan` is read-only from the client. Deploy the rules via Firebase Console → Firestore → Rules.
 - The CoinGecko free tier allows ~10–30 requests/minute. If you have many altcoins the sync may occasionally be rate-limited; it will retry on the next auto-sync.
 - `^IHSG` and other index tickers (starting with `^`) are treated with a multiplier of 1, not 100 like regular IDX lots, so P&L is calculated correctly.
 - **PWA Install**: A dismissible banner appears after 3 seconds on installable devices. Dismissed banners won't show again.

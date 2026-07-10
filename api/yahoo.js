@@ -9,7 +9,11 @@
  * Returns the raw Yahoo chart JSON. The client (js/api.js) parses it exactly
  * as before, so this is a drop-in for the old proxied URL.
  */
+import { blockCrossSite } from './_guard.js';
+
 export default async function handler(req, res) {
+  if (blockCrossSite(req, res)) return;
+
   const symbol   = String(req.query.symbol   || '').trim();
   const range    = String(req.query.range    || '1d').trim();
   const interval = String(req.query.interval || '1d').trim();

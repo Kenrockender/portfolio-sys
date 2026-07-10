@@ -10,10 +10,24 @@ import { saveDailySnapshot, saveDataToCloud } from '../firebase/firebase-config.
 import { CG_IDS, FX_PAIRS, RANGE_DAYS } from './config.js';
 
 // ── CoinGecko Price Fetch ────────────────────────────────────────
+// Direct first (CoinGecko allows CORS); our own /api/crypto proxy as
+// fallback. No public CORS proxies — they can tamper with price data.
+async function _cgSimplePrice(ids, vs) {
+  const direct = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=${vs}`;
+  try {
+    const r = await fetch(direct, { signal: AbortSignal.timeout(8000) });
+    if (r.ok) {return await r.json();}
+  } catch (e) { console.warn('[API] CoinGecko direct failed:', e.message); }
+  try {
+    const r = await fetch(`/api/crypto?ids=${ids}&vs=${vs}`, { signal: AbortSignal.timeout(9000) });
+    if (r.ok) {return await r.json();}
+  } catch (e) { console.warn('[API] /api/crypto fallback failed:', e.message); }
+  return null;
+}
+
 export async function fetchCG() {
-  const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,ripple&vs_currencies=idr,usd');
-  if (!r.ok) {throw 0;}
-  const d = await r.json();
+  const d = await _cgSimplePrice('bitcoin,ethereum,ripple', 'idr,usd');
+  if (!d) {throw new Error('[API] CoinGecko unavailable');}
   const usdIdr = (d.bitcoin?.usd && d.bitcoin?.idr) ? Math.round(d.bitcoin.idr / d.bitcoin.usd) : null;
   return { btcIdr: d.bitcoin.idr, ethIdr: d.ethereum.idr, xrpIdr: d.ripple.idr, usdIdr };
 }
@@ -29,22 +43,7 @@ export async function fetchAltcoinPrices() {
   if (coins.length === 0) {return;}
 
   const ids = coins.map(c => CG_IDS[c]).join(',');
-  const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=idr`;
-
-  // Try direct first, then proxy fallback
-  let d = null;
-  try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
-    if (r.ok) {d = await r.json();}
-  } catch (_) {}
-
-  if (!d) {
-    try {
-      const r = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`, { signal: AbortSignal.timeout(9000) });
-      if (r.ok) {d = await r.json();}
-    } catch (_) {}
-  }
-
+  const d = await _cgSimplePrice(ids, 'idr');
   if (!d) { console.warn('[API] fetchAltcoinPrices: all sources failed'); return; }
 
   let updated = 0;
@@ -55,41 +54,20 @@ export async function fetchAltcoinPrices() {
   console.log(`[API] Altcoin prices: ${updated}/${coins.length} updated`);
 }
 
-// ── CORS Proxy Fetch (allorigins → corsproxy.io fallback) ────────
-const _PROXIES = [
-  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-];
-
-async function _proxyFetch(url) {
-  for (const makeProxy of _PROXIES) {
-    try {
-      const r = await fetch(makeProxy(url), { signal: AbortSignal.timeout(9000) });
-      if (r.ok) {return r;}
-    } catch (_) {}
-  }
-  throw new Error(`[API] All proxies failed for: ${url}`);
-}
-
 // ── Yahoo Finance chart fetch ────────────────────────────────────
-// Prefer our own same-origin serverless function (/api/yahoo) — no browser
-// CORS and no dependency on flaky public proxies. Falls back to the public
-// CORS proxies when the function isn't available (e.g. static hosting / dev).
+// Only via our own same-origin serverless function (/api/yahoo) — no browser
+// CORS and no third-party proxy that could tamper with price data.
 async function _yahooChart(sym, range = '1d', interval = '1d') {
-  try {
-    const q = `/api/yahoo?symbol=${encodeURIComponent(sym)}&range=${encodeURIComponent(range)}&interval=${encodeURIComponent(interval)}`;
-    const r = await fetch(q, { signal: AbortSignal.timeout(9000) });
-    if (r.ok) {return await r.json();}
-  } catch (_) {}
-  const url = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=${encodeURIComponent(interval)}&range=${encodeURIComponent(range)}`;
-  const raw = await _proxyFetch(url);
-  return await raw.json();
+  const q = `/api/yahoo?symbol=${encodeURIComponent(sym)}&range=${encodeURIComponent(range)}&interval=${encodeURIComponent(interval)}`;
+  const r = await fetch(q, { signal: AbortSignal.timeout(9000) });
+  if (!r.ok) {throw new Error(`[API] /api/yahoo ${r.status} for ${sym}`);}
+  return await r.json();
 }
 
 export async function fetchYahoo(sym) {
   const d = await _yahooChart(sym, '1d', '1d');
   const p = d?.chart?.result?.[0]?.meta?.regularMarketPrice;
-  if (!p) {throw 0;}
+  if (!p) {throw new Error(`[API] No market price for ${sym}`);}
   return p;
 }
 
@@ -97,59 +75,17 @@ export async function fetchYahoo(sym) {
 // Source: https://www.logammulia.com/id/harga-emas-hari-ini
 // Harga Jual 1 gram Antam — angka dalam IDR langsung
 export async function fetchLogamMulia() {
-  // 1. Same-origin serverless function — parses server-side, returns clean JSON.
-  try {
-    const r = await fetch('/api/gold', { signal: AbortSignal.timeout(10_000) });
-    if (r.ok) {
-      const j = await r.json();
-      if (j && j.price >= 1_500_000 && j.price <= 6_000_000) {
-        console.log(`[LM] Harga emas Antam 1gr: Rp ${j.price.toLocaleString('id-ID')}/gr`);
-        return j.price;
-      }
-    }
-  } catch (_) {}
-
-  // 2. Fallback: scrape via public CORS proxy (static host / function down).
-  const LM_URL = 'https://www.logammulia.com/id/harga-emas-hari-ini';
-  let html = null;
-
-  for (const proxyFn of [
-    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
-  ]) {
-    try {
-      const r = await fetch(proxyFn(LM_URL), { signal: AbortSignal.timeout(10_000) });
-      if (r.ok) { html = await r.text(); break; }
-    } catch (_) {}
+  // Same-origin serverless function only (/api/gold) — parses the LM page
+  // server-side. The old public-CORS-proxy scrape fallback is gone: a third
+  // party in the middle of a price feed is worse than a stale price.
+  const r = await fetch('/api/gold', { signal: AbortSignal.timeout(10_000) });
+  if (!r.ok) {throw new Error(`[LM] /api/gold ${r.status}`);}
+  const j = await r.json();
+  if (j && j.price >= 1_500_000 && j.price <= 6_000_000) {
+    console.log(`[LM] Harga emas Antam 1gr: Rp ${j.price.toLocaleString('id-ID')}/gr`);
+    return j.price;
   }
-
-  if (!html) {throw new Error('[LM] Semua proxy gagal');}
-
-  // Parse <tr> rows — cari baris yang kolom pertama persis "1 gr"
-  // HTML LM: <tr><td>1 gr</td><td>2,902,000</td><td>2,909,255</td></tr>
-  // Angka memakai koma sebagai thousand separator → _parseIdrHtml handles it
-  const rowRe = /<tr[\s\S]*?>([\s\S]*?)<\/tr>/gi;
-  for (const rowMatch of html.matchAll(rowRe)) {
-    const cells = [...rowMatch[1].matchAll(/<td[^>]*>([\s\S]*?)<\/td>/gi)]
-      .map(c => c[1].replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim());
-
-    if (cells.length >= 2 && /^1\s*gr$/i.test(cells[0])) {
-      const price = _parseIdrHtml(cells[1]);
-      if (price >= 1_500_000 && price <= 6_000_000) {
-        console.log(`[LM] Harga emas Antam 1gr: Rp ${price.toLocaleString('id-ID')}/gr`);
-        return price;
-      }
-    }
-  }
-
-  throw new Error('[LM] Tidak dapat menemukan harga 1gr dalam HTML');
-}
-/** Parse angka IDR dari HTML: "1.687.000" → 1687000 */
-function _parseIdrHtml(str) {
-  if (!str) {return 0;}
-  // LM HTML pakai koma sebagai thousand separator (bukan titik)
-  // e.g. "2,902,000" → hapus semua koma → "2902000"
-  return Math.round(parseFloat(String(str).trim().replace(/,/g, '')) || 0);
+  throw new Error('[LM] /api/gold returned an out-of-range price');
 }
 
 // ── Sync UI Helpers (null-safe — DOM mungkin tidak ada di test env) ─
@@ -202,9 +138,13 @@ export async function syncAllPrices() {
     // 1b. Altcoins — batched, non-fatal jika gagal
     await fetchAltcoinPrices();
 
-    // 2. FX via ExchangeRate-API
-    const fxRes = await fetch('https://api.exchangerate-api.com/v4/latest/USD',
+    // 2. FX via ExchangeRate-API — direct first, /api/fx fallback
+    let fxRes = await fetch('https://api.exchangerate-api.com/v4/latest/USD',
       { signal: AbortSignal.timeout(7000) }).catch(() => ({ ok: false }));
+    if (!fxRes.ok) {
+      fxRes = await fetch('/api/fx', { signal: AbortSignal.timeout(9000) })
+        .catch(() => ({ ok: false }));
+    }
     if (fxRes.ok) {
       const fx = await fxRes.json();
       const toIDR = c => Math.round((fx.rates.IDR || S.usdIdr) / (fx.rates[c] || 1));
@@ -221,7 +161,8 @@ export async function syncAllPrices() {
       setStatus('fx', 'stale');
     }
 
-    // 3. Gold — Logam Mulia primary (IDR/gram langsung), metals.live & Yahoo fallback
+    // 3. Gold — Logam Mulia primary (IDR/gram langsung), Yahoo GC=F fallback
+    //    (metals.live fallback removed — that service is dead)
     let goldGramIdr = null;
 
     // 3a. Logam Mulia (sumber utama — harga resmi Antam dalam IDR)
@@ -235,23 +176,7 @@ export async function syncAllPrices() {
       console.warn('[API] Logam Mulia fetch gagal:', e.message);
     }
 
-    // 3b. Fallback: metals.live (USD/oz) → konversi ke IDR/gram
-    if (!goldGramIdr) {
-      try {
-        const mRes = await fetch('https://api.metals.live/v1/spot/gold', { signal: AbortSignal.timeout(7000) });
-        if (mRes.ok) {
-          const mData = await mRes.json();
-          const entry = Array.isArray(mData) ? mData[0] : mData;
-          const goldUsd = entry?.price || entry?.gold || null;
-          if (goldUsd && goldUsd > 3000) {
-            goldGramIdr = Math.round((goldUsd / 31.1035) * S.usdIdr);
-            console.log(`[API] Gold (metals.live fallback): $${goldUsd}/oz → Rp ${goldGramIdr.toLocaleString('id-ID')}/gr`);
-          }
-        }
-      } catch (_) {}
-    }
-
-    // 3c. Fallback: Yahoo Finance GC=F
+    // 3b. Fallback: Yahoo Finance GC=F
     if (!goldGramIdr) {
       try {
         const yGold = await fetchYahoo('GC=F');
@@ -259,7 +184,9 @@ export async function syncAllPrices() {
           goldGramIdr = Math.round((yGold / 31.1035) * S.usdIdr);
           console.log(`[API] Gold (Yahoo fallback): $${yGold}/oz → Rp ${goldGramIdr.toLocaleString('id-ID')}/gr`);
         }
-      } catch (_) {}
+      } catch (e) {
+        console.warn('[API] Yahoo gold fallback gagal:', e.message);
+      }
     }
 
     if (goldGramIdr) {

@@ -1,0 +1,35 @@
+rules_version = '2';
+
+// Deploy: Firebase Console → Firestore Database → Rules → paste → Publish
+// (or `firebase deploy --only firestore:rules` with the Firebase CLI).
+//
+// Model:
+//   - Every user may read/write ONLY their own portfolio document.
+//   - subscription/plan is read-only from the client. Granting Pro is done
+//     from the Firebase Console (edit users/{uid}/subscription/plan by hand)
+//     or an Admin SDK script — the console/Admin SDK bypass these rules.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Portfolio data: users/{uid}/portfolio/main
+    match /users/{uid}/portfolio/{doc} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Plan: users/{uid}/subscription/plan — client may read, never write.
+    match /users/{uid}/subscription/{doc} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // Canvas-environment path (artifacts/{appId}/users/{uid}/portfolio_data/main)
+    match /artifacts/{appId}/users/{uid}/portfolio_data/{doc} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Everything else: denied.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
