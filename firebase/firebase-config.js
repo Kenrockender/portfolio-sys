@@ -32,6 +32,18 @@ export let isAuthInProgress = false;
 let app  = null;
 let auth = null;
 
+// updatedAt of the cloud doc we last loaded/saved — used to detect another
+// device having written newer data before we overwrite the whole document.
+let lastLoadedUpdatedAt = null;
+
+/** Local (WIB) calendar date as YYYY-MM-DD — not UTC, so a snapshot taken
+ *  before 07:00 WIB no longer lands on yesterday's date. */
+function localDateStr(d = new Date()) {
+  return new Intl.DateTimeFormat('en-CA', {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(d);
+}
+
 // ── Helpers ───────────────────────────────────────────────────────
 function setCloudStatus(text, isErr = false) {
   const el = document.getElementById('cloudStatus');
@@ -168,6 +180,7 @@ export function initCloud() {
     if (user) {
       // ── User sudah login ──────────────────────────────────────
       currentUser = user;
+      try { localStorage.setItem('cf-returning', '1'); } catch (_) { } // landing page smart-skip
 
       // [Fix 1] Raise the flag BEFORE touching the UI or loading data.
       // This prevents openImport() from being called automatically by
@@ -214,6 +227,7 @@ export async function loadDataFromCloud() {
     const snap = await firebase.getDoc(ref);
     if (snap.exists()) {
       const cloudData = snap.data();
+      lastLoadedUpdatedAt = cloudData.updatedAt || null;
       setDATA(cloudData);
 
       if (!DATA.history) DATA.history = [];
@@ -254,7 +268,32 @@ export async function saveDataToCloud() {
 
   try {
     setCloudStatus('SAVING...');
+
+    // Conflict guard: setDoc overwrites the WHOLE document, so if another
+    // device saved after we last loaded, blindly writing would clobber it.
+    // One extra read per save is cheap insurance for a personal app.
+    try {
+      const snap = await firebase.getDoc(ref);
+      const cloudTs = snap.exists() ? (snap.data().updatedAt || null) : null;
+      if (cloudTs && lastLoadedUpdatedAt && cloudTs > lastLoadedUpdatedAt) {
+        const overwrite = confirm(
+          'Data di cloud lebih baru (mungkin dari perangkat lain).\n\n' +
+          'OK = timpa dengan data di perangkat ini\n' +
+          'Cancel = muat data terbaru dari cloud'
+        );
+        if (!overwrite) {
+          await loadDataFromCloud();
+          setCloudStatus('SYNCED');
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('[FIREBASE] Conflict check failed, saving anyway:', e);
+    }
+
+    DATA.updatedAt = new Date().toISOString();
     await firebase.setDoc(ref, DATA);
+    lastLoadedUpdatedAt = DATA.updatedAt;
     setTimeout(() => setCloudStatus('SYNCED'), 800);
   } catch (e) {
     console.error('[FIREBASE] Save error:', e);
@@ -271,7 +310,7 @@ export async function saveDailySnapshot() {
     return;
   }
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = localDateStr();
 
   const getTotals = typeof window._getTotals === 'function' ? window._getTotals : null;
   if (!getTotals) {
@@ -353,28 +392,12 @@ export async function loadUserPlan() {
   }
 }
 
-/**
- * Set user sebagai Pro (dipanggil manual setelah konfirmasi pembayaran).
- * @param {string} uid - Firebase UID user
- * @param {'lifetime'|'annual'} type
- * @param {string} note - mis. "Trakteer #12345"
- */
-export async function setUserPro(uid, type = 'lifetime', note = '') {
-  if (!db) { console.error('[PLANS] Firestore not ready'); return; }
-  const planRef = firebase.doc(db, 'users', uid, 'subscription', 'plan');
-  const expiresAt = type === 'lifetime' ? null
-    : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
-  await firebase.setDoc(planRef, {
-    plan:        'pro',
-    type,
-    upgradedAt:  new Date().toISOString(),
-    expiresAt,
-    note,
-  });
-  console.log(`[PLANS] User ${uid} upgraded to PRO (${type})`);
-}
-
-// Expose setUserPro untuk admin console
-window._setUserPro = setUserPro;
+// NOTE: the old client-side setUserPro()/window._setUserPro was removed.
+// firestore.rules now makes users/{uid}/subscription/plan read-only from the
+// client (otherwise ANY signed-in user could grant themselves Pro from the
+// browser console). To grant Pro after a payment: Firebase Console →
+// Firestore → users/{uid}/subscription/plan → set
+//   { plan: "pro", type: "lifetime"|"annual", upgradedAt: <ISO>, expiresAt: <ISO|null>, note: "..." }
+// The console (and Admin SDK) bypass security rules.
 
 console.log('[FIREBASE] firebase-config loaded — Google Auth ready');

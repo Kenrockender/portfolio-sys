@@ -70,7 +70,7 @@ async function run() {
   });
 
   // 3. Copy the remaining static assets verbatim.
-  const rootFiles = ['app.html', 'index.html', 'sw.js', 'manifest.json', 'favicon.ico', 'favicon.svg'];
+  const rootFiles = ['app.html', 'index.html', 'landing-skip.js', 'sw.js', 'manifest.json', 'favicon.ico', 'favicon.svg'];
   for (const f of rootFiles) {
     await copyFile(join(root, f), join(dist, f)).catch(() => {});
   }
