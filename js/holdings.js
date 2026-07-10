@@ -10,14 +10,14 @@
 import { S, DATA } from './state.js';
 import { cryptoPrice, stockPrice, stockMul, savingsIdr } from './storage.js';
 
-var i18n = (typeof window !== 'undefined' && window.psys && window.psys.i18n) || null;
+const i18n = (typeof window !== 'undefined' && window.psys && window.psys.i18n) || null;
 function t(k, fb)        { return i18n ? i18n.t(k, fb) : (fb || k); }
 function lang()          { return i18n ? i18n.getLang() : 'id'; }
 function fmtIDR(n, opts) { return i18n ? i18n.fmtIDR(n, opts) : ('Rp ' + Math.round(n || 0).toLocaleString('id-ID')); }
 function fmtDeltaIDR(n, opts) { return i18n ? i18n.fmtDeltaIDR(n, opts) : ((n >= 0 ? '+' : '−') + fmtIDR(Math.abs(n), opts)); }
 function fmtPct(n, d)    { return i18n ? i18n.fmtPct(n, d) : ((n >= 0 ? '+' : '−') + Math.abs(n).toFixed(d || 2) + '%'); }
 
-var state = {
+const state = {
   cat: 'all',          // all | crypto | stocks | gold | savings
   sort: 'value-desc',
 };
@@ -30,13 +30,13 @@ function esc(s) {
 
 /* ---- BUILD UNIFIED ROW LIST ---- */
 function flatten() {
-  var rows = [];
+  const rows = [];
   (DATA.crypto || []).forEach(function (h) {
-    var price = cryptoPrice(h);
-    var val = (h.amount || 0) * price;
-    var cost = h.costBasisIdr || 0;
-    var pnl = val - cost;
-    var ret = cost > 0 ? (pnl / cost) * 100 : 0;
+    const price = cryptoPrice(h);
+    const val = (h.amount || 0) * price;
+    const cost = h.costBasisIdr || 0;
+    const pnl = val - cost;
+    const ret = cost > 0 ? (pnl / cost) * 100 : 0;
     rows.push({
       kind: 'crypto',
       ticker: h.coin || '?',
@@ -49,13 +49,13 @@ function flatten() {
     });
   });
   (DATA.stocks || []).forEach(function (h) {
-    var price = stockPrice(h);
-    var mul = stockMul(h);
-    var shares = h.shares || 0;
-    var val = shares * mul * price;
-    var cost = shares * mul * (h.seedPrice || 0);
-    var pnl = val - cost;
-    var ret = cost > 0 ? (pnl / cost) * 100 : 0;
+    const price = stockPrice(h);
+    const mul = stockMul(h);
+    const shares = h.shares || 0;
+    const val = shares * mul * price;
+    const cost = shares * mul * (h.seedPrice || 0);
+    const pnl = val - cost;
+    const ret = cost > 0 ? (pnl / cost) * 100 : 0;
     rows.push({
       kind: 'stocks',
       ticker: h.ticker || '?',
@@ -68,11 +68,11 @@ function flatten() {
     });
   });
   (DATA.gold || []).forEach(function (h) {
-    var price = S.goldGramIdr || 0;
-    var val = (h.grams || 0) * price;
-    var cost = (h.grams || 0) * (h.costBasisPerGram || 0);
-    var pnl = val - cost;
-    var ret = cost > 0 ? (pnl / cost) * 100 : 0;
+    const price = S.goldGramIdr || 0;
+    const val = (h.grams || 0) * price;
+    const cost = (h.grams || 0) * (h.costBasisPerGram || 0);
+    const pnl = val - cost;
+    const ret = cost > 0 ? (pnl / cost) * 100 : 0;
     rows.push({
       kind: 'gold',
       ticker: 'EMAS',
@@ -85,7 +85,7 @@ function flatten() {
     });
   });
   (DATA.savings || []).forEach(function (h) {
-    var val = savingsIdr(h);
+    const val = savingsIdr(h);
     rows.push({
       kind: 'savings',
       ticker: (h.name || 'SAVINGS'),
@@ -104,8 +104,8 @@ function flatten() {
 }
 
 function filtered() {
-  var rows = flatten();
-  if (state.cat !== 'all') rows = rows.filter(function (r) { return r.kind === state.cat; });
+  let rows = flatten();
+  if (state.cat !== 'all') {rows = rows.filter(function (r) { return r.kind === state.cat; });}
   switch (state.sort) {
     case 'value-asc':  rows.sort(function (a, b) { return a.val - b.val; }); break;
     case 'pnl-desc':   rows.sort(function (a, b) { return b.pnl - a.pnl; }); break;
@@ -130,7 +130,7 @@ function rowLogoSvg(row) {
   return { svg: categorySvg(row.kind), variant: row.kind };
 }
 function categorySvg(kind) {
-  var ICON = {
+  const ICON = {
     crypto: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 2 L20 7 L20 17 L12 22 L4 17 L4 7 Z"/><circle cx="12" cy="12" r="3.5"/></svg>',
     stocks: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="5" y1="20" x2="5" y2="14"/><line x1="12" y1="20" x2="12" y2="9"/><line x1="19" y1="20" x2="19" y2="4"/></svg>',
     gold:   '<svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><rect x="3" y="9" width="18" height="9" rx="1.5"/><rect x="6" y="6" width="12" height="3" rx="1" opacity="0.55"/></svg>',
@@ -141,27 +141,27 @@ function categorySvg(kind) {
 
 /* ---- RENDER ---- */
 function renderHead(rows) {
-  var sub = document.querySelector('[data-hd-sub]');
+  const sub = document.querySelector('[data-hd-sub]');
   if (sub) {
-    var classes = ['crypto','stocks','gold','savings'].filter(function (k) { return rows.some(function (r) { return r.kind === k; }); }).length;
+    const classes = ['crypto','stocks','gold','savings'].filter(function (k) { return rows.some(function (r) { return r.kind === k; }); }).length;
     sub.textContent = rows.length + (lang() === 'id' ? ' aset · ' : ' assets · ') + classes + (lang() === 'id' ? ' kelas' : ' classes');
   }
 }
 
 function renderSummary() {
-  var all = flatten();
-  var total = all.reduce(function (s, r) { return s + r.val; }, 0);
-  var cost  = all.reduce(function (s, r) { return s + r.cost; }, 0);
-  var pnl   = all.reduce(function (s, r) { return s + r.pnl; }, 0);
-  var ret   = cost > 0 ? (pnl / cost) * 100 : 0;
+  const all = flatten();
+  const total = all.reduce(function (s, r) { return s + r.val; }, 0);
+  const cost  = all.reduce(function (s, r) { return s + r.cost; }, 0);
+  const pnl   = all.reduce(function (s, r) { return s + r.pnl; }, 0);
+  const ret   = cost > 0 ? (pnl / cost) * 100 : 0;
   function set(sel, val, meta) {
-    var v = document.querySelector(sel); if (v) v.textContent = val;
-    if (meta != null) { var m = document.querySelector(sel.replace(/\]$/, '-meta]')); if (m) m.textContent = meta; }
+    const v = document.querySelector(sel); if (v) {v.textContent = val;}
+    if (meta != null) { const m = document.querySelector(sel.replace(/\]$/, '-meta]')); if (m) {m.textContent = meta;} }
   }
   set('[data-hd-total]', fmtIDR(total, { compact: true }), all.length + (lang() === 'id' ? ' posisi' : ' positions'));
   set('[data-hd-cost]',  fmtIDR(cost,  { compact: true }), lang() === 'id' ? 'total dibayar' : 'total paid');
   set('[data-hd-pnl]',   fmtDeltaIDR(pnl, { compact: true }), fmtPct(ret, 1) + ' return');
-  var pnlEl = document.querySelector('[data-hd-pnl]');
+  const pnlEl = document.querySelector('[data-hd-pnl]');
   if (pnlEl) {
     pnlEl.classList.remove('is-pos','is-neg','is-mute');
     pnlEl.classList.add(pnl > 0 ? 'is-pos' : pnl < 0 ? 'is-neg' : 'is-mute');
@@ -169,15 +169,15 @@ function renderSummary() {
   set('[data-hd-count]', String(all.length), ['crypto','stocks','gold','savings'].filter(function (k) { return all.some(function (r) { return r.kind === k; }); }).length + (lang() === 'id' ? ' kelas aset' : ' asset classes'));
 
   // Per-category counts in the filter pills
-  var counts = { all: all.length, crypto: 0, stocks: 0, gold: 0, savings: 0 };
+  const counts = { all: all.length, crypto: 0, stocks: 0, gold: 0, savings: 0 };
   all.forEach(function (r) { counts[r.kind]++; });
   ['all','crypto','stocks','gold','savings'].forEach(function (k) {
-    var el = document.querySelector('[data-hd-count-' + k + ']');
-    if (el) el.textContent = counts[k];
+    const el = document.querySelector('[data-hd-count-' + k + ']');
+    if (el) {el.textContent = counts[k];}
   });
 }
 
-var CATEGORY_LABEL = {
+const CATEGORY_LABEL = {
   crypto:  { id: 'Crypto', en: 'Crypto' },
   stocks:  { id: 'Saham',  en: 'Stocks' },
   gold:    { id: 'Emas',   en: 'Gold'   },
@@ -185,10 +185,10 @@ var CATEGORY_LABEL = {
 };
 
 function rowHtml(r) {
-  var logo = rowLogoSvg(r);
-  var pnlDir = r.pnl > 0 ? 'up' : r.pnl < 0 ? 'down' : 'mute';
-  var hasPnl = r.cost > 0;
-  var id = (r.raw && r.raw.id) || '';
+  const logo = rowLogoSvg(r);
+  const pnlDir = r.pnl > 0 ? 'up' : r.pnl < 0 ? 'down' : 'mute';
+  const hasPnl = r.cost > 0;
+  const id = (r.raw && r.raw.id) || '';
   return ''
     + '<div class="hd-row" data-hd-edit="' + esc(r.kind) + ':' + esc(id) + '" title="' + esc(lang() === 'id' ? 'Klik untuk edit' : 'Click to edit') + '">'
     + '  <div class="hd-row__icon hd-row__icon--' + esc(logo.variant) + '">' + logo.svg + '</div>'
@@ -216,9 +216,9 @@ function rowHtml(r) {
 }
 
 function renderGroups() {
-  var root = document.querySelector('[data-hd-groups]');
-  if (!root) return;
-  var rows = filtered();
+  const root = document.querySelector('[data-hd-groups]');
+  if (!root) {return;}
+  const rows = filtered();
 
   if (!rows.length) {
     root.innerHTML = '<div class="hd__empty">' + esc(lang() === 'id'
@@ -229,15 +229,15 @@ function renderGroups() {
 
   // When a specific category is selected, render a single group;
   // when "all", group by category in a fixed order.
-  var order = ['crypto', 'stocks', 'gold', 'savings'];
-  var groups = {};
+  const order = ['crypto', 'stocks', 'gold', 'savings'];
+  const groups = {};
   rows.forEach(function (r) { (groups[r.kind] = groups[r.kind] || []).push(r); });
 
-  var html = '';
+  let html = '';
   order.forEach(function (k) {
-    if (!groups[k] || !groups[k].length) return;
-    var groupRows = groups[k];
-    var total = groupRows.reduce(function (s, r) { return s + r.val; }, 0);
+    if (!groups[k] || !groups[k].length) {return;}
+    const groupRows = groups[k];
+    const total = groupRows.reduce(function (s, r) { return s + r.val; }, 0);
     html += ''
       + '<div class="hd-group">'
       + '  <div class="hd-group__head">'
@@ -282,8 +282,8 @@ function wireFilters() {
   });
 }
 function wireSort() {
-  var s = document.querySelector('[data-hd-sort]');
-  if (!s) return;
+  const s = document.querySelector('[data-hd-sort]');
+  if (!s) {return;}
   s.addEventListener('change', function () {
     state.sort = s.value;
     renderGroups();
@@ -291,8 +291,8 @@ function wireSort() {
 }
 
 function findItem(kind, id) {
-  var arr = ({ crypto: DATA.crypto, stocks: DATA.stocks, gold: DATA.gold, savings: DATA.savings })[kind];
-  if (!arr) return null;
+  const arr = ({ crypto: DATA.crypto, stocks: DATA.stocks, gold: DATA.gold, savings: DATA.savings })[kind];
+  if (!arr) {return null;}
   return arr.find(function (x) { return x.id === id; }) || null;
 }
 
@@ -300,29 +300,29 @@ function wireRowActions() {
   // Delegated click: row → edit, +Tambah/group-add → add new
   document.addEventListener('click', function (e) {
     // +Tambah button (group head or empty-state CTA)
-    var addBtn = e.target.closest('[data-hd-add]');
+    const addBtn = e.target.closest('[data-hd-add]');
     if (addBtn) {
       e.preventDefault();
-      var kind = addBtn.getAttribute('data-hd-add');
-      if (window.psys && window.psys.assetEditor) window.psys.assetEditor.open(kind, null);
+      const kind = addBtn.getAttribute('data-hd-add');
+      if (window.psys && window.psys.assetEditor) {window.psys.assetEditor.open(kind, null);}
       return;
     }
     // Row click → open editor
-    var row = e.target.closest('[data-hd-edit]');
+    const row = e.target.closest('[data-hd-edit]');
     if (row) {
       e.preventDefault();
-      var payload = row.getAttribute('data-hd-edit') || '';
-      var parts = payload.split(':');
-      var kind2 = parts[0], id = parts[1];
-      if (!kind2 || !id) return;
-      var item = findItem(kind2, id);
-      if (item && window.psys && window.psys.assetEditor) window.psys.assetEditor.open(kind2, item);
+      const payload = row.getAttribute('data-hd-edit') || '';
+      const parts = payload.split(':');
+      const kind2 = parts[0], id = parts[1];
+      if (!kind2 || !id) {return;}
+      const item = findItem(kind2, id);
+      if (item && window.psys && window.psys.assetEditor) {window.psys.assetEditor.open(kind2, item);}
     }
   });
 }
 
 function init() {
-  if (i18n) i18n.applyI18n();
+  if (i18n) {i18n.applyI18n();}
   wireFilters();
   wireSort();
   wireRowActions();
@@ -331,7 +331,7 @@ function init() {
   window.addEventListener('portfolio:update', rerender);
   window.addEventListener('psys:lang-change', rerender);
   window.addEventListener('psys:tab-change', function (e) {
-    if (e && e.detail && e.detail.tab === 'aset') rerender();
+    if (e && e.detail && e.detail.tab === 'aset') {rerender();}
   });
 }
 

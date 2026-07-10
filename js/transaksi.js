@@ -11,7 +11,7 @@
 import { S, DATA } from './state.js';
 import { cryptoPrice, stockPrice, stockMul, savingsIdr } from './storage.js';
 
-var i18n = (typeof window !== 'undefined' && window.psys && window.psys.i18n) || null;
+const i18n = (typeof window !== 'undefined' && window.psys && window.psys.i18n) || null;
 
 function t(k, fb) { return i18n ? i18n.t(k, fb) : (fb || k); }
 function lang()   { return i18n ? i18n.getLang() : 'id'; }
@@ -19,7 +19,7 @@ function fmtIDR(n, opts) { return i18n ? i18n.fmtIDR(n, opts) : ('Rp ' + Math.ro
 function fmtDeltaIDR(n, opts) { return i18n ? i18n.fmtDeltaIDR(n, opts) : ((n >= 0 ? '+' : '−') + fmtIDR(Math.abs(n), opts)); }
 function relTime(d) { return i18n ? i18n.relTime(d) : new Date(d).toLocaleString(); }
 
-var state = {
+const state = {
   search: '',
   limit: 20,
 };
@@ -31,7 +31,7 @@ function esc(s) {
 }
 
 function startOfDay(d) {
-  var dt = new Date(d); dt.setHours(0,0,0,0); return dt;
+  const dt = new Date(d); dt.setHours(0,0,0,0); return dt;
 }
 
 function sameDay(a, b) {
@@ -44,14 +44,14 @@ function diffDays(a, b) {
 }
 
 function dayHeading(date, now) {
-  var d = diffDays(now, date);
-  if (d === 0) return lang() === 'id' ? 'Hari ini' : 'Today';
-  if (d === 1) return lang() === 'id' ? 'Kemarin' : 'Yesterday';
+  const d = diffDays(now, date);
+  if (d === 0) {return lang() === 'id' ? 'Hari ini' : 'Today';}
+  if (d === 1) {return lang() === 'id' ? 'Kemarin' : 'Yesterday';}
   if (d > 1 && d < 7) {
-    var weekday = date.toLocaleDateString(lang() === 'id' ? 'id-ID' : 'en-US', { weekday: 'long' });
+    const weekday = date.toLocaleDateString(lang() === 'id' ? 'id-ID' : 'en-US', { weekday: 'long' });
     return weekday.charAt(0).toUpperCase() + weekday.slice(1);
   }
-  if (d >= 7 && d < 14) return lang() === 'id' ? 'Minggu lalu' : 'Last week';
+  if (d >= 7 && d < 14) {return lang() === 'id' ? 'Minggu lalu' : 'Last week';}
   return date.toLocaleDateString(lang() === 'id' ? 'id-ID' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
@@ -61,18 +61,18 @@ function dayDateText(date) {
 }
 
 function isInCurrentMonth(d) {
-  var n = new Date();
+  const n = new Date();
   return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth();
 }
 
 function monthLabel() {
-  var n = new Date();
+  const n = new Date();
   return n.toLocaleDateString(lang() === 'id' ? 'id-ID' : 'en-US', { month: 'long', year: 'numeric' });
 }
 
 /* ---- TYPE PILL ---- */
 function typeClass(action) {
-  var a = String(action || '').toLowerCase();
+  const a = String(action || '').toLowerCase();
   return ({
     buy: 't-buy', sell: 't-sell', div: 't-div', fee: 't-fee',
     income: 't-in', expense: 't-out', add: 't-add', tax: 't-tax',
@@ -80,17 +80,17 @@ function typeClass(action) {
   })[a] || 't-add';
 }
 function typeLabel(action) {
-  var a = String(action || '').toLowerCase();
-  if (a === 'buy')     return 'BUY';
-  if (a === 'sell')    return 'SELL';
-  if (a === 'div')     return 'DIV';
-  if (a === 'fee')     return 'FEE';
-  if (a === 'income')  return 'IN';
-  if (a === 'expense') return 'OUT';
-  if (a === 'tax')     return 'TAX';
-  if (a === 'add')     return 'ADD';
-  if (a === 'edit')    return 'EDIT';
-  if (a === 'delete')  return 'DEL';
+  const a = String(action || '').toLowerCase();
+  if (a === 'buy')     {return 'BUY';}
+  if (a === 'sell')    {return 'SELL';}
+  if (a === 'div')     {return 'DIV';}
+  if (a === 'fee')     {return 'FEE';}
+  if (a === 'income')  {return 'IN';}
+  if (a === 'expense') {return 'OUT';}
+  if (a === 'tax')     {return 'TAX';}
+  if (a === 'add')     {return 'ADD';}
+  if (a === 'edit')    {return 'EDIT';}
+  if (a === 'delete')  {return 'DEL';}
   return a.toUpperCase();
 }
 
@@ -98,11 +98,11 @@ function typeLabel(action) {
 /* Multiple textual forms of a date so the search box matches ISO
    (2026-03-15), numeric (15/03/2026), and month names in id + en. */
 function dateHaystack(ts) {
-  var d = new Date(ts);
-  if (isNaN(d)) return '';
-  var dd = String(d.getDate()).padStart(2, '0');
-  var mm = String(d.getMonth() + 1).padStart(2, '0');
-  var yyyy = d.getFullYear();
+  const d = new Date(ts);
+  if (isNaN(d)) {return '';}
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const yyyy = d.getFullYear();
   return [
     d.toISOString().slice(0, 10),
     dd + '/' + mm + '/' + yyyy,
@@ -115,11 +115,11 @@ function dateHaystack(ts) {
 }
 
 function filtered() {
-  var log = (DATA.txLog || []).slice().sort(function (a, b) { return new Date(b.ts) - new Date(a.ts); });
-  var q = (state.search || '').trim().toLowerCase();
-  if (!q) return log;
+  const log = (DATA.txLog || []).slice().sort(function (a, b) { return new Date(b.ts) - new Date(a.ts); });
+  const q = (state.search || '').trim().toLowerCase();
+  if (!q) {return log;}
   return log.filter(function (tx) {
-    var hay = (tx.detail || '') + ' ' + (tx.name || '') + ' ' + (tx.type || '') + ' '
+    const hay = (tx.detail || '') + ' ' + (tx.name || '') + ' ' + (tx.type || '') + ' '
             + (tx.action || '') + ' ' + dateHaystack(tx.ts);
     return hay.toLowerCase().indexOf(q) !== -1;
   });
@@ -130,26 +130,26 @@ function filtered() {
    data still shows numbers, and a fresh signed-in user sees recent
    activity rather than a zero summary. */
 function summary() {
-  var log = DATA.txLog || [];
-  var s = { buy: 0, sell: 0, div: 0, fee: 0, tax: 0, income: 0, expense: 0, count: 0, cfCount: 0 };
+  const log = DATA.txLog || [];
+  const s = { buy: 0, sell: 0, div: 0, fee: 0, tax: 0, income: 0, expense: 0, count: 0, cfCount: 0 };
   if (!log.length) { s.net = 0; return s; }
 
   // anchor = whichever is later: today or latest tx
-  var latest = new Date(log[0].ts);
-  for (var k = 0; k < log.length; k++) {
-    var ts = new Date(log[k].ts);
-    if (ts > latest) latest = ts;
+  let latest = new Date(log[0].ts);
+  for (let k = 0; k < log.length; k++) {
+    const ts = new Date(log[k].ts);
+    if (ts > latest) {latest = ts;}
   }
-  var now    = new Date();
-  var anchor = latest > now ? latest : now;
-  var cutoff = new Date(anchor); cutoff.setDate(cutoff.getDate() - 90);
+  const now    = new Date();
+  const anchor = latest > now ? latest : now;
+  const cutoff = new Date(anchor); cutoff.setDate(cutoff.getDate() - 90);
 
-  for (var i = 0; i < log.length; i++) {
-    var tx = log[i];
-    var d  = new Date(tx.ts);
-    if (d < cutoff) continue;
-    var a   = String(tx.action || '').toLowerCase();
-    var amt = Math.abs(Number(tx.amount) || 0);
+  for (let i = 0; i < log.length; i++) {
+    const tx = log[i];
+    const d  = new Date(tx.ts);
+    if (d < cutoff) {continue;}
+    const a   = String(tx.action || '').toLowerCase();
+    const amt = Math.abs(Number(tx.amount) || 0);
     if (a === 'buy')          { s.buy     += amt; s.count++; }
     else if (a === 'sell')    { s.sell    += amt; s.count++; }
     else if (a === 'div')     { s.div     += amt; s.count++; }
@@ -165,33 +165,33 @@ function summary() {
 /* ---- RENDER ---- */
 
 function renderHead() {
-  var monthEl = document.querySelector('[data-tx-month]');
-  if (monthEl) monthEl.textContent = monthLabel();
-  var countEl = document.querySelector('[data-tx-count]');
-  var n = (DATA.txLog || []).length;
-  if (countEl) countEl.textContent = n + (lang() === 'id' ? ' entri' : ' entries');
+  const monthEl = document.querySelector('[data-tx-month]');
+  if (monthEl) {monthEl.textContent = monthLabel();}
+  const countEl = document.querySelector('[data-tx-count]');
+  const n = (DATA.txLog || []).length;
+  if (countEl) {countEl.textContent = n + (lang() === 'id' ? ' entri' : ' entries');}
 }
 
 function renderSummary() {
-  var s = summary();
+  const s = summary();
   function set(sel, val, meta) {
-    var v = document.querySelector(sel);
-    if (v) v.textContent = val;
+    const v = document.querySelector(sel);
+    if (v) {v.textContent = val;}
     if (meta) {
       // selector `[data-foo]` → `[data-foo-meta]`
-      var metaSel = sel.replace(/\]$/, '-meta]');
-      var m = document.querySelector(metaSel);
-      if (m) m.textContent = meta;
+      const metaSel = sel.replace(/\]$/, '-meta]');
+      const m = document.querySelector(metaSel);
+      if (m) {m.textContent = meta;}
     }
   }
-  var netEl = document.querySelector('[data-tx-sum-net]');
+  const netEl = document.querySelector('[data-tx-sum-net]');
   if (netEl) {
     netEl.classList.remove('is-pos','is-neg','is-mute');
     netEl.classList.add(s.net > 0 ? 'is-pos' : (s.net < 0 ? 'is-neg' : 'is-mute'));
     netEl.textContent = fmtDeltaIDR(s.net, { compact: true });
   }
-  var netMeta = document.querySelector('[data-tx-sum-net-meta]');
-  if (netMeta) netMeta.textContent = (lang() === 'id' ? s.count + ' transaksi' : s.count + ' trades');
+  const netMeta = document.querySelector('[data-tx-sum-net-meta]');
+  if (netMeta) {netMeta.textContent = (lang() === 'id' ? s.count + ' transaksi' : s.count + ' trades');}
 
   set('[data-tx-sum-buy]',  fmtIDR(s.buy, { compact: true }),  (lang() === 'id' ? 'masuk portfolio' : 'into portfolio'));
   set('[data-tx-sum-sell]', fmtIDR(s.sell, { compact: true }), (lang() === 'id' ? 'realisasi' : 'realised'));
@@ -200,19 +200,19 @@ function renderSummary() {
 }
 
 function rowHtml(tx) {
-  var ts = new Date(tx.ts);
-  var hh = String(ts.getHours()).padStart(2,'0');
-  var mm = String(ts.getMinutes()).padStart(2,'0');
-  var timeStr = hh + ':' + mm;
-  var amt = Number(tx.amount) || 0;
-  var act = String(tx.action || '').toLowerCase();
-  var amtClass = amt > 0 ? 'is-pos' : amt < 0 ? 'is-neg' : 'is-mute';
-  var amtStr = (amt > 0 ? '+' : amt < 0 ? '−' : '') + fmtIDR(Math.abs(amt), { compact: Math.abs(amt) >= 1e7 });
+  const ts = new Date(tx.ts);
+  const hh = String(ts.getHours()).padStart(2,'0');
+  const mm = String(ts.getMinutes()).padStart(2,'0');
+  const timeStr = hh + ':' + mm;
+  const amt = Number(tx.amount) || 0;
+  const act = String(tx.action || '').toLowerCase();
+  let amtClass = amt > 0 ? 'is-pos' : amt < 0 ? 'is-neg' : 'is-mute';
+  let amtStr = (amt > 0 ? '+' : amt < 0 ? '−' : '') + fmtIDR(Math.abs(amt), { compact: Math.abs(amt) >= 1e7 });
   if (act === 'add' || act === 'delete') { amtStr = ''; amtClass = ''; }
-  var qtyStr = (tx.qty && tx.price)
+  const qtyStr = (tx.qty && tx.price)
     ? esc(tx.qty.toLocaleString(lang() === 'id' ? 'id-ID' : 'en-US', { maximumFractionDigits: 4 })) + ' <span class="x">×</span> Rp ' + esc(Math.round(tx.price).toLocaleString('id-ID'))
     : '';
-  var what = esc(tx.detail || (tx.name || ''));
+  const what = esc(tx.detail || (tx.name || ''));
   return ''
     + '<div class="row" data-tx-id="' + esc(tx.id || '') + '">'
     + '  <span class="row__time">' + esc(timeStr) + '</span>'
@@ -225,22 +225,22 @@ function rowHtml(tx) {
 }
 
 function renderLedger() {
-  var root = document.querySelector('[data-tx-ledger]');
-  if (!root) return;
-  var rows = filtered();
-  var endline = document.querySelector('[data-tx-endline]');
+  const root = document.querySelector('[data-tx-ledger]');
+  if (!root) {return;}
+  const rows = filtered();
+  const endline = document.querySelector('[data-tx-endline]');
 
   if (!rows.length) {
     root.innerHTML = '<div class="placeholder" style="border:1px dashed var(--rule); margin: 0;"><h2 class="serif">' + esc(lang() === 'id' ? 'Belum ada catatan' : 'No entries yet') + '</h2><p>' + esc(lang() === 'id' ? 'Pakai quick-add di atas atau tombol + Tambah.' : 'Use the quick-add above or the + Add button.') + '</p></div>';
-    if (endline) endline.innerHTML = '';
+    if (endline) {endline.innerHTML = '';}
     return;
   }
 
-  var visible = rows.slice(0, state.limit);
-  var groups = []; // [{ date: Date, rows: [], net: 0 }]
-  for (var i = 0; i < visible.length; i++) {
-    var d = startOfDay(new Date(visible[i].ts));
-    var g = groups[groups.length - 1];
+  const visible = rows.slice(0, state.limit);
+  const groups = []; // [{ date: Date, rows: [], net: 0 }]
+  for (let i = 0; i < visible.length; i++) {
+    const d = startOfDay(new Date(visible[i].ts));
+    let g = groups[groups.length - 1];
     if (!g || !sameDay(g.date, d)) {
       g = { date: d, rows: [], net: 0 };
       groups.push(g);
@@ -249,11 +249,11 @@ function renderLedger() {
     g.net += Number(visible[i].amount) || 0;
   }
 
-  var now = new Date();
-  var html = '';
-  for (var k = 0; k < groups.length; k++) {
-    var grp = groups[k];
-    var netClass = grp.net > 0 ? 'is-pos' : grp.net < 0 ? 'is-neg' : '';
+  const now = new Date();
+  let html = '';
+  for (let k = 0; k < groups.length; k++) {
+    const grp = groups[k];
+    const netClass = grp.net > 0 ? 'is-pos' : grp.net < 0 ? 'is-neg' : '';
     html += ''
       + '<div class="day">'
       + '  <div class="day__head">'
@@ -269,7 +269,7 @@ function renderLedger() {
   // endline
   if (endline) {
     if (rows.length > state.limit) {
-      var remaining = rows.length - state.limit;
+      const remaining = rows.length - state.limit;
       endline.innerHTML =
         '<span>' + esc(lang() === 'id'
           ? 'Menampilkan ' + state.limit + ' dari ' + rows.length + ' catatan.'
@@ -289,9 +289,9 @@ function rerender() {
 
 /* ---- WIRING ---- */
 function wireSearch() {
-  var s = document.querySelector('[data-tx-search]');
-  if (!s) return;
-  var deb = null;
+  const s = document.querySelector('[data-tx-search]');
+  if (!s) {return;}
+  let deb = null;
   s.addEventListener('input', function () {
     clearTimeout(deb);
     deb = setTimeout(function () {
@@ -303,7 +303,7 @@ function wireSearch() {
 }
 function wireMore() {
   document.addEventListener('click', function (e) {
-    var more = e.target.closest('[data-tx-more]');
+    const more = e.target.closest('[data-tx-more]');
     if (more) {
       state.limit += 20;
       renderLedger();
@@ -312,24 +312,24 @@ function wireMore() {
 }
 /* ---- EXPORT HOLDINGS → CSV ---- */
 function csvCell(v) {
-  var s = (v == null) ? '' : String(v);
+  const s = (v == null) ? '' : String(v);
   return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
 }
 
 function holdingRows() {
-  var rows = [];
+  const rows = [];
   (DATA.crypto || []).forEach(function (h) {
     rows.push(['Crypto', h.name || h.coin, h.coin, h.amount || 0, 'coin', h.platform || '',
       Math.round(h.costBasisIdr || 0), Math.round((h.amount || 0) * cryptoPrice(h)), h.date || '']);
   });
   (DATA.stocks || []).forEach(function (h) {
-    var mul = stockMul(h), shares = h.shares || 0;
+    const mul = stockMul(h), shares = h.shares || 0;
     rows.push(['Stocks', h.name || h.ticker, h.ticker, shares,
       (h.market === 'US' ? 'shares' : 'lots'), h.broker || h.market || '',
       Math.round(shares * mul * (h.seedPrice || 0)), Math.round(shares * mul * stockPrice(h)), h.date || '']);
   });
   (DATA.gold || []).forEach(function (h) {
-    var g = h.grams || 0;
+    const g = h.grams || 0;
     rows.push(['Gold', h.name || 'Antam', 'EMAS', g, 'gram', 'physical',
       Math.round(g * (h.costBasisPerGram || 0)), Math.round(g * (S.goldGramIdr || 0)), h.date || '']);
   });
@@ -341,18 +341,18 @@ function holdingRows() {
 }
 
 function exportHoldingsCsv() {
-  var header = ['Category', 'Name', 'Symbol', 'Quantity', 'Unit', 'Platform', 'CostBasisIDR', 'ValueIDR', 'Date'];
-  var rows = holdingRows();
+  const header = ['Category', 'Name', 'Symbol', 'Quantity', 'Unit', 'Platform', 'CostBasisIDR', 'ValueIDR', 'Date'];
+  const rows = holdingRows();
   if (!rows.length) {
     alert(lang() === 'id' ? 'Belum ada aset untuk diekspor.' : 'No assets to export.');
     return;
   }
-  var csv = [header].concat(rows)
+  const csv = [header].concat(rows)
     .map(function (r) { return r.map(csvCell).join(','); })
     .join('\r\n');
-  var blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
   a.href = url;
   a.download = 'portfolio-holdings-' + new Date().toISOString().slice(0, 10) + '.csv';
   document.body.appendChild(a);
@@ -362,20 +362,20 @@ function exportHoldingsCsv() {
 }
 
 function wireActions() {
-  var imp = document.querySelector('[data-tx-import]');
-  var exp = document.querySelector('[data-tx-export]');
-  var add = document.querySelector('[data-tx-add]');
+  const imp = document.querySelector('[data-tx-import]');
+  const exp = document.querySelector('[data-tx-export]');
+  const add = document.querySelector('[data-tx-add]');
   function todo(label) { alert((lang() === 'id' ? 'Belum diimplementasi: ' : 'Not implemented yet: ') + label); }
-  if (imp) imp.addEventListener('click', function () { if (typeof openImport === 'function') openImport(); else if (window.openImport) window.openImport(); });
-  if (exp) exp.addEventListener('click', function () { if (window._exportPDF) window._exportPDF(); else exportHoldingsCsv(); });
-  if (add) add.addEventListener('click', function () {
-    var input = document.querySelector('#tab-transaksi .quickadd__input input');
+  if (imp) {imp.addEventListener('click', function () { if (typeof window.openImport === 'function') {window.openImport();} });}
+  if (exp) {exp.addEventListener('click', function () { if (window._exportPDF) {window._exportPDF();} else {exportHoldingsCsv();} });}
+  if (add) {add.addEventListener('click', function () {
+    const input = document.querySelector('#tab-transaksi .quickadd__input input');
     if (input) { input.focus(); input.select(); }
-  });
+  });}
 }
 
 function init() {
-  if (i18n) i18n.applyI18n();
+  if (i18n) {i18n.applyI18n();}
   wireSearch();
   wireMore();
   wireActions();
@@ -384,13 +384,13 @@ function init() {
   window.addEventListener('portfolio:update', rerender);
   window.addEventListener('psys:lang-change', rerender);
   window.addEventListener('psys:tab-change',  function (e) {
-    if (e && e.detail && e.detail.tab === 'transaksi') rerender();
+    if (e && e.detail && e.detail.tab === 'transaksi') {rerender();}
   });
   window.addEventListener('psys:quickadd',   function () {
     rerender();
     // flag the newest row as just-added so CSS animates
-    var first = document.querySelector('[data-tx-ledger] .row');
-    if (first) first.classList.add('is-new');
+    const first = document.querySelector('[data-tx-ledger] .row');
+    if (first) {first.classList.add('is-new');}
   });
 }
 

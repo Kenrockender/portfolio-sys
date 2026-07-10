@@ -1318,7 +1318,7 @@ window.impHandleDrop=impHandleDrop; window.impCopyTemplate=impCopyTemplate;
 // module can be imported into the redesigned app.html where #impOverlay
 // does not exist.
 (function () {
-  var _ov = document.getElementById('impOverlay');
+  const _ov = document.getElementById('impOverlay');
   if (_ov) {
     _ov.addEventListener('click', e => {
       if (e.target.id === 'impOverlay') { closeImport(); }

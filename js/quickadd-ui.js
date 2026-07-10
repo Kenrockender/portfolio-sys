@@ -22,50 +22,50 @@
   }
 
   function wireOne(quick) {
-    if (!quick || quick.dataset.psysQa) return;
+    if (!quick || quick.dataset.psysQa) {return;}
     quick.dataset.psysQa = '1';
-    var input  = getInputFor(quick);
-    var submit = quick.querySelector('.quickadd__submit, .btn--primary');
-    var result = quick.querySelector('.quickadd__result');
-    var inputWrap = quick.querySelector('.quickadd__input');
+    const input  = getInputFor(quick);
+    const submit = quick.querySelector('.quickadd__submit, .btn--primary');
+    const result = quick.querySelector('.quickadd__result');
+    const inputWrap = quick.querySelector('.quickadd__input');
 
     function showResult(r) {
-      if (!result) return;
+      if (!result) {return;}
       if (!r) { result.hidden = true; result.textContent = ''; result.classList.remove('is-ok', 'is-err'); return; }
       result.hidden = false;
       result.classList.toggle('is-ok',  !!r.ok);
       result.classList.toggle('is-err', !r.ok);
       result.textContent = r.message || '';
-      if (inputWrap) inputWrap.classList.toggle('is-error', !r.ok);
-      if (r.ok) setTimeout(function () {
-        if (inputWrap) inputWrap.classList.remove('is-error');
+      if (inputWrap) {inputWrap.classList.toggle('is-error', !r.ok);}
+      if (r.ok) {setTimeout(function () {
+        if (inputWrap) {inputWrap.classList.remove('is-error');}
         if (result) { result.hidden = true; result.textContent = ''; result.classList.remove('is-ok', 'is-err'); }
-      }, 3000);
+      }, 3000);}
     }
 
     function submitNow() {
-      if (!input) return;
-      var cmd = (input.value || '').trim();
-      if (!cmd) return;
-      var qa = window.psys && window.psys.quickadd;
+      if (!input) {return;}
+      const cmd = (input.value || '').trim();
+      if (!cmd) {return;}
+      const qa = window.psys && window.psys.quickadd;
       if (!qa || typeof qa.run !== 'function') {
         showResult({ ok: false, message: 'Quick-add not loaded yet.' });
         return;
       }
-      var r = qa.run(cmd);
+      const r = qa.run(cmd);
       showResult(r);
-      if (r && r.ok) input.value = '';
+      if (r && r.ok) {input.value = '';}
     }
 
-    if (submit) submit.addEventListener('click', submitNow);
+    if (submit) {submit.addEventListener('click', submitNow);}
     if (input) {
       input.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') { e.preventDefault(); submitNow(); }
         if (e.key === 'Escape') { input.blur(); }
       });
       input.addEventListener('input', function () {
-        if (inputWrap) inputWrap.classList.remove('is-error');
-        if (result && !result.hidden) showResult(null);
+        if (inputWrap) {inputWrap.classList.remove('is-error');}
+        if (result && !result.hidden) {showResult(null);}
       });
     }
   }
@@ -76,21 +76,21 @@
 
   /* Global T shortcut — focus quick-add in the currently-active tab. */
   function isTypingTarget(el) {
-    if (!el) return false;
-    var tag = (el.tagName || '').toLowerCase();
-    if (tag === 'input' || tag === 'textarea' || tag === 'select') return true;
-    if (el.isContentEditable) return true;
+    if (!el) {return false;}
+    const tag = (el.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') {return true;}
+    if (el.isContentEditable) {return true;}
     return false;
   }
   document.addEventListener('keydown', function (e) {
-    if (e.key !== 't' && e.key !== 'T') return;
-    if (e.metaKey || e.ctrlKey || e.altKey) return;
-    if (isTypingTarget(document.activeElement)) return;
-    var quick = activeTab().querySelector('.quickadd');
-    if (!quick) quick = document.querySelector('.quickadd');
-    if (!quick) return;
-    var input = getInputFor(quick);
-    if (!input) return;
+    if (e.key !== 't' && e.key !== 'T') {return;}
+    if (e.metaKey || e.ctrlKey || e.altKey) {return;}
+    if (isTypingTarget(document.activeElement)) {return;}
+    let quick = activeTab().querySelector('.quickadd');
+    if (!quick) {quick = document.querySelector('.quickadd');}
+    if (!quick) {return;}
+    const input = getInputFor(quick);
+    if (!input) {return;}
     e.preventDefault();
     input.focus();
     input.select();

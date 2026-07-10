@@ -225,12 +225,12 @@ export function setDATA(newData) {
   Object.assign(_store.data, newData);
   // Ensure required arrays exist — protects consumers that call
   // .reduce/.filter/.length on missing fields after a cloud load.
-  if (!Array.isArray(_store.data.crypto))  _store.data.crypto  = [];
-  if (!Array.isArray(_store.data.gold))    _store.data.gold    = [];
-  if (!Array.isArray(_store.data.stocks))  _store.data.stocks  = [];
-  if (!Array.isArray(_store.data.savings)) _store.data.savings = [];
-  if (!Array.isArray(_store.data.history)) _store.data.history = [];
-  if (!Array.isArray(_store.data.txLog))   _store.data.txLog   = [];
+  if (!Array.isArray(_store.data.crypto))  {_store.data.crypto  = [];}
+  if (!Array.isArray(_store.data.gold))    {_store.data.gold    = [];}
+  if (!Array.isArray(_store.data.stocks))  {_store.data.stocks  = [];}
+  if (!Array.isArray(_store.data.savings)) {_store.data.savings = [];}
+  if (!Array.isArray(_store.data.history)) {_store.data.history = [];}
+  if (!Array.isArray(_store.data.txLog))   {_store.data.txLog   = [];}
 }
 
 export function setHistoryData(data) {

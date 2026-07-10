@@ -57,6 +57,8 @@ export default [
         performance: 'readonly',
         getComputedStyle: 'readonly',
         matchMedia: 'readonly',
+        MutationObserver: 'readonly',
+        module: 'readonly',
         HTMLElement: 'readonly',
         HTMLInputElement: 'readonly',
         HTMLCanvasElement: 'readonly',

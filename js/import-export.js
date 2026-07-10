@@ -22,11 +22,11 @@ import { cryptoPrice, stockPrice, stockMul, savingsIdr, totals, computeMetrics, 
 import { IMPORT_RULES, autoDetectSource } from './import-parsers.js';
 
 /* ---- i18n helpers ---- */
-var i18n = (typeof window !== 'undefined' && window.psys && window.psys.i18n) || null;
+const i18n = (typeof window !== 'undefined' && window.psys && window.psys.i18n) || null;
 function lang() { return i18n ? i18n.getLang() : (S.lang || 'id'); }
 function tt(en, id) { return lang() === 'en' ? en : id; }
 function fmtIDR(n) {
-  if (i18n) return i18n.fmtIDR(n);
+  if (i18n) {return i18n.fmtIDR(n);}
   return 'Rp ' + Math.round(n || 0).toLocaleString('id-ID');
 }
 
@@ -55,11 +55,11 @@ ensureBridges();
 /* ============================================================
    2.  LAZY SCRIPT LOADER
    ============================================================ */
-var _scriptCache = {};
+const _scriptCache = {};
 function loadScript(src) {
-  if (_scriptCache[src]) return _scriptCache[src];
+  if (_scriptCache[src]) {return _scriptCache[src];}
   _scriptCache[src] = new Promise(function (resolve, reject) {
-    var s = document.createElement('script');
+    const s = document.createElement('script');
     s.src = src;
     s.async = true;
     s.onload = function () { resolve(); };
@@ -69,28 +69,28 @@ function loadScript(src) {
   return _scriptCache[src];
 }
 
-var PDFJS_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-var PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-var TESSERACT_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.5/tesseract.min.js';
-var JSPDF_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-var HTML2CANVAS_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+const PDFJS_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const TESSERACT_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.5/tesseract.min.js';
+const JSPDF_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+const HTML2CANVAS_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
 
 async function loadPdfJs() {
-  if (!window['pdfjs-dist/build/pdf']) await loadScript(PDFJS_SRC);
-  var lib = window['pdfjs-dist/build/pdf'];
-  if (lib) lib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
+  if (!window['pdfjs-dist/build/pdf']) {await loadScript(PDFJS_SRC);}
+  const lib = window['pdfjs-dist/build/pdf'];
+  if (lib) {lib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;}
   return lib;
 }
 async function loadTesseract() {
-  if (!window.Tesseract) await loadScript(TESSERACT_SRC);
+  if (!window.Tesseract) {await loadScript(TESSERACT_SRC);}
   return window.Tesseract;
 }
 async function loadJsPdf() {
-  if (!(window.jspdf && window.jspdf.jsPDF)) await loadScript(JSPDF_SRC);
+  if (!(window.jspdf && window.jspdf.jsPDF)) {await loadScript(JSPDF_SRC);}
   return window.jspdf && window.jspdf.jsPDF;
 }
 async function loadHtml2Canvas() {
-  if (!window.html2canvas) await loadScript(HTML2CANVAS_SRC);
+  if (!window.html2canvas) {await loadScript(HTML2CANVAS_SRC);}
   return window.html2canvas;
 }
 
@@ -98,58 +98,58 @@ async function loadHtml2Canvas() {
    3.  DOM-FREE TEXT EXTRACTION
    ============================================================ */
 async function extractPdfText(files, onProgress) {
-  var lib = await loadPdfJs();
-  if (!lib) throw new Error('PDF.js gagal dimuat');
-  var out = '';
-  for (var fi = 0; fi < files.length; fi++) {
-    var file = files[fi];
-    if (onProgress) onProgress((fi / files.length) * 0.9, '(' + (fi + 1) + '/' + files.length + ') ' + tt('Reading', 'Membaca') + ': ' + file.name);
+  const lib = await loadPdfJs();
+  if (!lib) {throw new Error('PDF.js gagal dimuat');}
+  let out = '';
+  for (let fi = 0; fi < files.length; fi++) {
+    const file = files[fi];
+    if (onProgress) {onProgress((fi / files.length) * 0.9, '(' + (fi + 1) + '/' + files.length + ') ' + tt('Reading', 'Membaca') + ': ' + file.name);}
     try {
-      var buf = await file.arrayBuffer();
-      var pdf = await lib.getDocument({ data: buf }).promise;
-      var fileText = '';
-      for (var i = 1; i <= pdf.numPages; i++) {
-        var page = await pdf.getPage(i);
-        var content = await page.getTextContent();
-        var items = content.items;
+      const buf = await file.arrayBuffer();
+      const pdf = await lib.getDocument({ data: buf }).promise;
+      let fileText = '';
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        const items = content.items;
         if (!items.length) { fileText += '\n'; continue; }
         // Sort by Y desc then X asc, group items on the same row (Δy ≤ 3px)
-        var sorted = items.slice().sort(function (a, b) {
-          var dy = Math.round(b.transform[5]) - Math.round(a.transform[5]);
+        const sorted = items.slice().sort(function (a, b) {
+          const dy = Math.round(b.transform[5]) - Math.round(a.transform[5]);
           return dy !== 0 ? dy : a.transform[4] - b.transform[4];
         });
-        var lines = [], curLine = [], curY = null;
-        for (var k = 0; k < sorted.length; k++) {
-          var it = sorted[k];
-          var y = Math.round(it.transform[5]);
+        let lines = [], curLine = [], curY = null;
+        for (let k = 0; k < sorted.length; k++) {
+          const it = sorted[k];
+          const y = Math.round(it.transform[5]);
           if (curY === null || Math.abs(y - curY) <= 3) { curLine.push(it.str); curY = y; }
-          else { if (curLine.length) lines.push(curLine.join(' ')); curLine = [it.str]; curY = y; }
+          else { if (curLine.length) {lines.push(curLine.join(' '));} curLine = [it.str]; curY = y; }
         }
-        if (curLine.length) lines.push(curLine.join(' '));
+        if (curLine.length) {lines.push(curLine.join(' '));}
         fileText += lines.join('\n') + '\n';
-        if (onProgress) onProgress(((fi / files.length) + (1 / files.length) * (i / pdf.numPages)) * 0.9, file.name + ' — p' + i + '/' + pdf.numPages);
+        if (onProgress) {onProgress(((fi / files.length) + (1 / files.length) * (i / pdf.numPages)) * 0.9, file.name + ' — p' + i + '/' + pdf.numPages);}
       }
       out += (fi > 0 ? '\n\n--- FILE: ' + file.name + ' ---\n\n' : '') + fileText;
     } catch (e) {
       console.error('[import] PDF error', file.name, e);
     }
   }
-  if (onProgress) onProgress(1, tt('Done', 'Selesai'));
+  if (onProgress) {onProgress(1, tt('Done', 'Selesai'));}
   return out;
 }
 
 async function extractOcrText(files, onProgress) {
-  var T = await loadTesseract();
-  if (!T) throw new Error('Tesseract gagal dimuat');
-  var out = '';
-  var worker = await T.createWorker(['ind', 'eng'], 1);
+  const T = await loadTesseract();
+  if (!T) {throw new Error('Tesseract gagal dimuat');}
+  let out = '';
+  const worker = await T.createWorker(['ind', 'eng'], 1);
   try {
-    for (var fi = 0; fi < files.length; fi++) {
-      var file = files[fi];
-      var base = fi / files.length;
-      if (onProgress) onProgress(base * 0.95, 'OCR (' + (fi + 1) + '/' + files.length + '): ' + file.name);
+    for (let fi = 0; fi < files.length; fi++) {
+      const file = files[fi];
+      const base = fi / files.length;
+      if (onProgress) {onProgress(base * 0.95, 'OCR (' + (fi + 1) + '/' + files.length + '): ' + file.name);}
       try {
-        var res = await worker.recognize(file, {}, {
+        const res = await worker.recognize(file, {}, {
           logger: function (m) {
             if (m.status === 'recognizing text' && onProgress) {
               onProgress(base + m.progress * (0.95 / files.length), 'OCR: ' + Math.round(m.progress * 100) + '%');
@@ -164,14 +164,14 @@ async function extractOcrText(files, onProgress) {
   } finally {
     await worker.terminate();
   }
-  if (onProgress) onProgress(1, tt('Done', 'Selesai'));
+  if (onProgress) {onProgress(1, tt('Done', 'Selesai'));}
   return out;
 }
 
 /* ============================================================
    4.  IMPORT MODAL
    ============================================================ */
-var imp = {
+let imp = {
   step: 1,
   raw: '',
   source: 'auto',
@@ -184,11 +184,11 @@ function body() { return document.querySelector('[data-imp-body]'); }
 function actions() { return document.querySelector('[data-imp-actions]'); }
 
 function sourceOptions() {
-  var keys = Object.keys(IMPORT_RULES);
-  var opts = '<option value="auto">' + tt('Auto-detect', 'Deteksi otomatis') + '</option>';
-  for (var i = 0; i < keys.length; i++) {
-    var k = keys[i];
-    var label = (IMPORT_RULES[k] && IMPORT_RULES[k].label) || k;
+  const keys = Object.keys(IMPORT_RULES);
+  let opts = '<option value="auto">' + tt('Auto-detect', 'Deteksi otomatis') + '</option>';
+  for (let i = 0; i < keys.length; i++) {
+    const k = keys[i];
+    const label = (IMPORT_RULES[k] && IMPORT_RULES[k].label) || k;
     opts += '<option value="' + esc(k) + '"' + (k === imp.source ? ' selected' : '') + '>' + esc(label) + '</option>';
   }
   return opts;
@@ -196,8 +196,8 @@ function sourceOptions() {
 
 function renderStep1() {
   imp.step = 1;
-  var sub = document.querySelector('#importModal .modal__sub');
-  if (sub) sub.textContent = tt('Upload a PDF / image (OCR) or paste text.', 'Upload PDF / gambar (OCR) atau tempel teks.');
+  const sub = document.querySelector('#importModal .modal__sub');
+  if (sub) {sub.textContent = tt('Upload a PDF / image (OCR) or paste text.', 'Upload PDF / gambar (OCR) atau tempel teks.');}
 
   body().innerHTML =
     '<div class="imp-field">' +
@@ -230,54 +230,54 @@ function renderStep1() {
 }
 
 function renderHint() {
-  var hintEl = document.querySelector('[data-imp-hint]');
-  if (!hintEl) return;
+  const hintEl = document.querySelector('[data-imp-hint]');
+  if (!hintEl) {return;}
   if (imp.source === 'auto') {
     hintEl.textContent = tt('The source will be detected from the uploaded file / pasted text.',
       'Sumber akan dideteksi otomatis dari file / teks yang ditempel.');
     return;
   }
-  var rule = IMPORT_RULES[imp.source];
+  const rule = IMPORT_RULES[imp.source];
   hintEl.textContent = (rule && rule.hint) ? rule.hint : '';
 }
 
 function setProgress(frac, txt) {
-  var box = document.querySelector('[data-imp-progress]');
-  var fill = document.querySelector('[data-imp-progress-fill]');
-  var t = document.querySelector('[data-imp-progress-txt]');
-  if (!box) return;
+  const box = document.querySelector('[data-imp-progress]');
+  const fill = document.querySelector('[data-imp-progress-fill]');
+  const t = document.querySelector('[data-imp-progress-txt]');
+  if (!box) {return;}
   box.hidden = false;
-  if (fill) fill.style.width = Math.max(2, Math.round(frac * 100)) + '%';
-  if (t) t.textContent = txt || '';
-  if (frac >= 1) setTimeout(function () { if (box) box.hidden = true; }, 1800);
+  if (fill) {fill.style.width = Math.max(2, Math.round(frac * 100)) + '%';}
+  if (t) {t.textContent = txt || '';}
+  if (frac >= 1) {setTimeout(function () { if (box) {box.hidden = true;} }, 1800);}
 }
 
 function applyDetect(raw) {
-  if (imp.source !== 'auto') return;
-  var d = autoDetectSource(raw);
+  if (imp.source !== 'auto') {return;}
+  const d = autoDetectSource(raw);
   if (d) {
     imp.source = d;
-    var sel = document.querySelector('[data-imp-source]');
-    if (sel) sel.value = d;
-    var fn = document.querySelector('[data-imp-filename]');
-    if (fn) fn.textContent += '  ·  ' + tt('Detected', 'Terdeteksi') + ': ' + ((IMPORT_RULES[d] && IMPORT_RULES[d].label) || d);
+    const sel = document.querySelector('[data-imp-source]');
+    if (sel) {sel.value = d;}
+    const fn = document.querySelector('[data-imp-filename]');
+    if (fn) {fn.textContent += '  ·  ' + tt('Detected', 'Terdeteksi') + ': ' + ((IMPORT_RULES[d] && IMPORT_RULES[d].label) || d);}
     renderHint();
   }
 }
 
 async function handleFiles(fileList) {
-  var files = Array.prototype.slice.call(fileList || []);
-  if (!files.length) return;
-  var pdfs = files.filter(function (f) { return f.type === 'application/pdf' || /\.pdf$/i.test(f.name); });
-  var imgs = files.filter(function (f) { return f.type.indexOf('image/') === 0; });
+  const files = Array.prototype.slice.call(fileList || []);
+  if (!files.length) {return;}
+  const pdfs = files.filter(function (f) { return f.type === 'application/pdf' || /\.pdf$/i.test(f.name); });
+  const imgs = files.filter(function (f) { return f.type.indexOf('image/') === 0; });
   imp.fileName = files.length === 1 ? files[0].name : files.length + ' files';
-  var fn = document.querySelector('[data-imp-filename]');
-  if (fn) fn.textContent = imp.fileName;
+  const fn = document.querySelector('[data-imp-filename]');
+  if (fn) {fn.textContent = imp.fileName;}
 
-  var text = '';
+  let text = '';
   try {
-    if (pdfs.length) text += await extractPdfText(pdfs, setProgress);
-    if (imgs.length) text += (text ? '\n\n' : '') + await extractOcrText(imgs, setProgress);
+    if (pdfs.length) {text += await extractPdfText(pdfs, setProgress);}
+    if (imgs.length) {text += (text ? '\n\n' : '') + await extractOcrText(imgs, setProgress);}
   } catch (e) {
     setProgress(1, tt('Failed: ', 'Gagal: ') + e.message);
     alert(tt('Failed to read file: ', 'Gagal membaca file: ') + e.message);
@@ -285,17 +285,17 @@ async function handleFiles(fileList) {
   }
 
   imp.raw = text;
-  var ta = document.querySelector('[data-imp-textarea]');
-  if (ta) ta.value = text;
+  const ta = document.querySelector('[data-imp-textarea]');
+  if (ta) {ta.value = text;}
   applyDetect(text);
 }
 
 function wireStep1() {
-  var sel = document.querySelector('[data-imp-source]');
-  if (sel) sel.addEventListener('change', function () { imp.source = sel.value; renderHint(); });
+  const sel = document.querySelector('[data-imp-source]');
+  if (sel) {sel.addEventListener('change', function () { imp.source = sel.value; renderHint(); });}
 
-  var drop = document.querySelector('[data-imp-drop]');
-  var file = document.querySelector('[data-imp-file]');
+  const drop = document.querySelector('[data-imp-drop]');
+  const file = document.querySelector('[data-imp-file]');
   if (drop && file) {
     drop.addEventListener('click', function () { file.click(); });
     drop.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); file.click(); } });
@@ -308,19 +308,19 @@ function wireStep1() {
     file.addEventListener('change', function () { handleFiles(file.files); });
   }
 
-  var next = document.querySelector('[data-imp-next]');
-  if (next) next.addEventListener('click', doParse);
+  const next = document.querySelector('[data-imp-next]');
+  if (next) {next.addEventListener('click', doParse);}
 }
 
 function doParse() {
-  var ta = document.querySelector('[data-imp-textarea]');
-  if (ta && ta.value.trim()) imp.raw = ta.value;
+  const ta = document.querySelector('[data-imp-textarea]');
+  if (ta && ta.value.trim()) {imp.raw = ta.value;}
   if (!imp.raw.trim()) {
     alert(tt('No data yet — upload a file or paste text first.', 'Belum ada data — upload file atau tempel teks dulu.'));
     return;
   }
   // resolve auto-detect at parse time too
-  var src = imp.source;
+  let src = imp.source;
   if (src === 'auto') {
     src = autoDetectSource(imp.raw);
     if (!src) {
@@ -330,12 +330,12 @@ function doParse() {
     }
     imp.source = src;
   }
-  var rule = IMPORT_RULES[src];
+  const rule = IMPORT_RULES[src];
   if (!rule || typeof rule.parse !== 'function') {
     alert(tt('No parser for this source.', 'Tidak ada parser untuk sumber ini.'));
     return;
   }
-  var rows = [];
+  let rows = [];
   try {
     rows = rule.parse(imp.raw) || [];
   } catch (e) {
@@ -349,7 +349,7 @@ function doParse() {
   renderStep2();
 }
 
-var CAT_LABEL = {
+const CAT_LABEL = {
   crypto: { en: 'Crypto', id: 'Kripto' },
   stocks: { en: 'Stocks', id: 'Saham' },
   gold: { en: 'Gold', id: 'Emas' },
@@ -357,30 +357,30 @@ var CAT_LABEL = {
 };
 
 function rowSummary(r) {
-  var t = r.type;
-  if (t === 'crypto') return (r.amount != null ? r.amount + ' ' : '') + (r.coin || r.name || '') + (r.platform ? ' · ' + r.platform : '');
-  if (t === 'stocks') return (r.shares != null ? r.shares + ' ' : '') + (r.ticker || r.name || '') + (r.broker ? ' · ' + r.broker : '');
-  if (t === 'gold') return (r.grams != null ? r.grams + 'g ' : '') + (r.name || 'Gold');
-  if (t === 'savings') return (r.name || r.bank || '') + (r.currency ? ' · ' + r.currency : '') + (r.idr != null ? ' · ' + fmtIDR(r.idr) : '');
+  const t = r.type;
+  if (t === 'crypto') {return (r.amount != null ? r.amount + ' ' : '') + (r.coin || r.name || '') + (r.platform ? ' · ' + r.platform : '');}
+  if (t === 'stocks') {return (r.shares != null ? r.shares + ' ' : '') + (r.ticker || r.name || '') + (r.broker ? ' · ' + r.broker : '');}
+  if (t === 'gold') {return (r.grams != null ? r.grams + 'g ' : '') + (r.name || 'Gold');}
+  if (t === 'savings') {return (r.name || r.bank || '') + (r.currency ? ' · ' + r.currency : '') + (r.idr != null ? ' · ' + fmtIDR(r.idr) : '');}
   return r.name || JSON.stringify(r);
 }
 
 function renderStep2() {
   imp.step = 2;
-  var sub = document.querySelector('#importModal .modal__sub');
-  if (sub) sub.textContent = tt('Review rows, untick anything you don\'t want, then import.',
-    'Periksa baris, hapus centang yang tak diinginkan, lalu impor.');
+  const sub = document.querySelector('#importModal .modal__sub');
+  if (sub) {sub.textContent = tt('Review rows, untick anything you don\'t want, then import.',
+    'Periksa baris, hapus centang yang tak diinginkan, lalu impor.');}
 
-  var rows = imp.results;
-  var label = (IMPORT_RULES[imp.source] && IMPORT_RULES[imp.source].label) || imp.source;
+  const rows = imp.results;
+  const label = (IMPORT_RULES[imp.source] && IMPORT_RULES[imp.source].label) || imp.source;
 
   if (!rows.length) {
     body().innerHTML = '<div class="imp-empty">' +
       tt('No rows parsed from this source. Go back and check the file / source.',
          'Tidak ada baris yang ter-parse. Kembali dan cek file / sumber.') + '</div>';
   } else {
-    var trs = rows.map(function (r, i) {
-      var cat = CAT_LABEL[r.type] ? (CAT_LABEL[r.type][lang()] || CAT_LABEL[r.type].id) : (r.type || '?');
+    const trs = rows.map(function (r, i) {
+      const cat = CAT_LABEL[r.type] ? (CAT_LABEL[r.type][lang()] || CAT_LABEL[r.type].id) : (r.type || '?');
       return '<tr class="imp-row' + (imp.checked[i] ? ' is-on' : '') + '" data-imp-rowidx="' + i + '">' +
         '<td class="imp-row__chk"><input type="checkbox" data-imp-chk="' + i + '"' + (imp.checked[i] ? ' checked' : '') + '></td>' +
         '<td class="imp-row__cat"><span class="imp-tag imp-tag--' + esc(r.type || '') + '">' + esc(cat) + '</span></td>' +
@@ -409,11 +409,11 @@ function renderStep2() {
 }
 
 function updateCount() {
-  var n = 0;
-  Object.keys(imp.checked).forEach(function (k) { if (imp.checked[k]) n++; });
-  var c = document.querySelector('[data-imp-count]');
-  if (c) c.textContent = n + ' / ' + imp.results.length + ' ' + tt('selected', 'dipilih');
-  var commit = document.querySelector('[data-imp-commit]');
+  let n = 0;
+  Object.keys(imp.checked).forEach(function (k) { if (imp.checked[k]) {n++;} });
+  const c = document.querySelector('[data-imp-count]');
+  if (c) {c.textContent = n + ' / ' + imp.results.length + ' ' + tt('selected', 'dipilih');}
+  const commit = document.querySelector('[data-imp-commit]');
   if (commit) {
     commit.textContent = tt('Import ', 'Impor ') + n + ' ' + tt('item(s)', 'item');
     commit.disabled = n === 0;
@@ -421,40 +421,40 @@ function updateCount() {
 }
 
 function wireStep2() {
-  var back = document.querySelector('[data-imp-back]');
-  if (back) back.addEventListener('click', renderStep1);
+  const back = document.querySelector('[data-imp-back]');
+  if (back) {back.addEventListener('click', renderStep1);}
 
   body().querySelectorAll('[data-imp-chk]').forEach(function (cb) {
     cb.addEventListener('change', function () {
-      var i = +cb.getAttribute('data-imp-chk');
+      const i = +cb.getAttribute('data-imp-chk');
       imp.checked[i] = cb.checked;
-      var tr = cb.closest('.imp-row');
-      if (tr) tr.classList.toggle('is-on', cb.checked);
+      const tr = cb.closest('.imp-row');
+      if (tr) {tr.classList.toggle('is-on', cb.checked);}
       updateCount();
     });
   });
 
-  var all = document.querySelector('[data-imp-checkall]');
-  if (all) all.addEventListener('change', function () {
+  const all = document.querySelector('[data-imp-checkall]');
+  if (all) {all.addEventListener('change', function () {
     imp.results.forEach(function (_, i) { imp.checked[i] = all.checked; });
     body().querySelectorAll('[data-imp-chk]').forEach(function (cb) {
       cb.checked = all.checked;
-      var tr = cb.closest('.imp-row'); if (tr) tr.classList.toggle('is-on', all.checked);
+      const tr = cb.closest('.imp-row'); if (tr) {tr.classList.toggle('is-on', all.checked);}
     });
     updateCount();
-  });
+  });}
 
-  var commit = document.querySelector('[data-imp-commit]');
-  if (commit) commit.addEventListener('click', commitImport);
+  const commit = document.querySelector('[data-imp-commit]');
+  if (commit) {commit.addEventListener('click', commitImport);}
 }
 
 function commitImport() {
-  var added = 0;
+  let added = 0;
   imp.results.forEach(function (r, i) {
-    if (!imp.checked[i]) return;
-    var bucket = r.type;
-    if (!DATA[bucket] || !Array.isArray(DATA[bucket])) return;
-    var rec = Object.assign({}, r);
+    if (!imp.checked[i]) {return;}
+    const bucket = r.type;
+    if (!DATA[bucket] || !Array.isArray(DATA[bucket])) {return;}
+    const rec = Object.assign({}, r);
     delete rec.type;
     rec.id = uid();
     DATA[bucket].push(rec);
@@ -472,17 +472,17 @@ function commitImport() {
 function openImport() {
   imp = { step: 1, raw: '', source: 'auto', fileName: '', results: [], checked: {} };
   renderStep1();
-  if (window.psys && window.psys.modal) window.psys.modal.open('importModal');
+  if (window.psys && window.psys.modal) {window.psys.modal.open('importModal');}
 }
 function closeImport() {
-  if (window.psys && window.psys.modal) window.psys.modal.close('importModal');
+  if (window.psys && window.psys.modal) {window.psys.modal.close('importModal');}
 }
 
 /* ============================================================
    5.  EXPORT  (PDF + CSV)
    ============================================================ */
 function holdingRows() {
-  var rows = [];
+  const rows = [];
   DATA.crypto.forEach(function (a) {
     rows.push(['Crypto', a.name || a.coin, a.coin, a.amount, 'coin', a.platform || '',
       Math.round(a.costBasisIdr || 0), Math.round((a.amount || 0) * cryptoPrice(a)), a.date || '']);
@@ -492,7 +492,7 @@ function holdingRows() {
       Math.round((h.grams || 0) * (h.costBasisPerGram || 0)), Math.round((h.grams || 0) * (S.goldGramIdr || 0)), h.date || '']);
   });
   DATA.stocks.forEach(function (h) {
-    var mul = stockMul(h);
+    const mul = stockMul(h);
     rows.push(['Stocks', h.name || h.ticker, h.ticker, h.shares, 'share', h.broker || '',
       Math.round((h.shares || 0) * mul * (h.seedPrice || 0)), Math.round((h.shares || 0) * mul * stockPrice(h)), h.date || '']);
   });
@@ -504,28 +504,28 @@ function holdingRows() {
 }
 
 function csvCell(v) {
-  var s = (v == null ? '' : String(v));
-  if (/[",\r\n]/.test(s)) s = '"' + s.replace(/"/g, '""') + '"';
+  let s = (v == null ? '' : String(v));
+  if (/[",\r\n]/.test(s)) {s = '"' + s.replace(/"/g, '""') + '"';}
   return s;
 }
 
 function exportCsv() {
-  var header = ['Category', 'Name', 'Symbol', 'Quantity', 'Unit', 'Platform', 'CostBasisIDR', 'ValueIDR', 'Date'];
-  var rows = holdingRows();
+  const header = ['Category', 'Name', 'Symbol', 'Quantity', 'Unit', 'Platform', 'CostBasisIDR', 'ValueIDR', 'Date'];
+  const rows = holdingRows();
   if (!rows.length) { alert(tt('No assets to export.', 'Belum ada aset untuk diekspor.')); return; }
-  var csv = [header].concat(rows).map(function (r) { return r.map(csvCell).join(','); }).join('\r\n');
+  const csv = [header].concat(rows).map(function (r) { return r.map(csvCell).join(','); }).join('\r\n');
   download(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' }),
     'portfolio-holdings-' + new Date().toISOString().slice(0, 10) + '.csv');
 }
 
 /* ---- compact / percent / date formatting via i18n (with fallback) ---- */
 function fmtC(n) {
-  if (i18n) return i18n.fmtIDR(n, { compact: true });
+  if (i18n) {return i18n.fmtIDR(n, { compact: true });}
   return fmtIDR(n);
 }
 function pctStr(n) {
-  if (n == null || isNaN(n)) return '—';
-  if (i18n) return i18n.fmtPct(n, 1);
+  if (n == null || isNaN(n)) {return '—';}
+  if (i18n) {return i18n.fmtPct(n, 1);}
   return (n >= 0 ? '+' : '−') + Math.abs(n).toFixed(1) + '%';
 }
 function arrow(n) { return n == null ? '' : (n >= 0 ? '▲ ' : '▼ '); }
@@ -534,33 +534,33 @@ function plClass(n) { return n == null ? 'pdfr-flat' : (n >= 0 ? 'pdfr-pos' : 'p
 /* Category meta — colors match the in-app HOME allocation bars / donut
    (css: .div-bar__fill defaults + .c-crypto/.c-gold/.c-savings), so the
    report reads as the same product the user sees on screen. */
-var PDFR_CATS = [
+const PDFR_CATS = [
   { key: 'crypto',  label: tt('Crypto', 'Kripto'),    color: '#a78bfa' },
   { key: 'stocks',  label: tt('Stocks', 'Saham'),     color: '#34d399' },
   { key: 'gold',    label: tt('Gold', 'Emas'),        color: '#fbbf24' },
   { key: 'savings', label: tt('Savings', 'Tabungan'), color: '#38bdf8' },
 ];
 function catColor(key) {
-  for (var i = 0; i < PDFR_CATS.length; i++) if (PDFR_CATS[i].key === key) return PDFR_CATS[i].color;
+  for (let i = 0; i < PDFR_CATS.length; i++) {if (PDFR_CATS[i].key === key) {return PDFR_CATS[i].color;}}
   return '#8e8d80';
 }
 
 /* Per-asset detail rows with P/L. */
 function holdingsDetailed() {
-  var out = [];
+  const out = [];
   DATA.crypto.forEach(function (a) {
-    var m = assetMetrics('crypto', a);
+    const m = assetMetrics('crypto', a);
     out.push({ cat: 'crypto', color: catColor('crypto'), name: a.name || a.coin,
       qty: fmtNumLite(a.amount) + ' ' + (a.coin || ''), cost: m.cost, val: m.val, ret: m.ret });
   });
   DATA.stocks.forEach(function (h) {
-    var m = assetMetrics('stocks', h);
-    var unit = (h.market === 'IDX' && !(h.ticker || '').startsWith('^')) ? ' lot' : ' shr';
+    const m = assetMetrics('stocks', h);
+    const unit = (h.market === 'IDX' && !(h.ticker || '').startsWith('^')) ? ' lot' : ' shr';
     out.push({ cat: 'stocks', color: catColor('stocks'), name: h.name || h.ticker,
       qty: fmtNumLite(h.shares) + unit, cost: m.cost, val: m.val, ret: m.ret });
   });
   DATA.gold.forEach(function (g) {
-    var m = assetMetrics('gold', g);
+    const m = assetMetrics('gold', g);
     out.push({ cat: 'gold', color: catColor('gold'), name: g.name || 'Gold',
       qty: fmtNumLite(g.grams) + ' g', cost: m.cost, val: m.val, ret: m.ret });
   });
@@ -571,15 +571,15 @@ function holdingsDetailed() {
   return out;
 }
 function fmtNumLite(n) {
-  if (n == null || isNaN(n)) return '0';
-  if (i18n) return i18n.fmtNum(n, { maximumFractionDigits: 6 });
+  if (n == null || isNaN(n)) {return '0';}
+  if (i18n) {return i18n.fmtNum(n, { maximumFractionDigits: 6 });}
   return String(n);
 }
 
 /* Build the offscreen "Terminal" report node. */
 function ensureReportFonts() {
-  if (document.getElementById('pdfr-fonts')) return;
-  var l = document.createElement('link');
+  if (document.getElementById('pdfr-fonts')) {return;}
+  const l = document.createElement('link');
   l.id = 'pdfr-fonts';
   l.rel = 'stylesheet';
   // Match the app shell (app.html): IBM Plex Mono + Fraunces.
@@ -587,7 +587,7 @@ function ensureReportFonts() {
   document.head.appendChild(l);
 }
 
-var PDFR_CSS =
+const PDFR_CSS =
   '#pdfReport{position:fixed;left:-9999px;top:0;width:794px;background:#0c0d0b;color:#ecebe4;' +
   'font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;padding:48px 52px;box-sizing:border-box;}' +
   '#pdfReport *{box-sizing:border-box;margin:0;padding:0;}' +
@@ -624,10 +624,10 @@ var PDFR_CSS =
 
 function donutSvg(segments) {
   // segments: [{pct, color}] using a 100-unit circumference (r = 15.9155)
-  var circles = '<circle cx="18" cy="18" r="15.9155" fill="none" stroke="#23241d" stroke-width="4"/>';
-  var offset = 0;
+  let circles = '<circle cx="18" cy="18" r="15.9155" fill="none" stroke="#23241d" stroke-width="4"/>';
+  let offset = 0;
   segments.forEach(function (s) {
-    var dash = Math.max(0, s.pct);
+    const dash = Math.max(0, s.pct);
     circles += '<circle cx="18" cy="18" r="15.9155" fill="none" stroke="' + s.color +
       '" stroke-width="4" stroke-dasharray="' + dash.toFixed(2) + ' ' + (100 - dash).toFixed(2) +
       '" stroke-dashoffset="' + (-offset).toFixed(2) + '" transform="rotate(-90 18 18)"/>';
@@ -637,18 +637,18 @@ function donutSvg(segments) {
 }
 
 function buildReportNode() {
-  var T = totals();
-  var M = computeMetrics(T);
-  var now = new Date();
-  var dateStr = (i18n ? i18n.fmtDate(now) : now.toLocaleDateString()) +
+  const T = totals();
+  const M = computeMetrics(T);
+  const now = new Date();
+  const dateStr = (i18n ? i18n.fmtDate(now) : now.toLocaleDateString()) +
     ' · ' + (i18n ? i18n.fmtTime(now) : now.toLocaleTimeString());
 
-  var catVals = { crypto: T.c, stocks: T.k, gold: T.g, savings: T.sv };
-  var catM = { crypto: M.crypto, stocks: M.stocks, gold: M.gold, savings: M.savings };
+  const catVals = { crypto: T.c, stocks: T.k, gold: T.g, savings: T.sv };
+  const catM = { crypto: M.crypto, stocks: M.stocks, gold: M.gold, savings: M.savings };
 
   // cards
-  var cardsHtml = PDFR_CATS.map(function (c) {
-    var ret = catM[c.key] ? catM[c.key].ret : null;
+  const cardsHtml = PDFR_CATS.map(function (c) {
+    const ret = catM[c.key] ? catM[c.key].ret : null;
     return '<div class="card"><div class="bar" style="background:' + c.color + '"></div>' +
       '<div class="k">' + esc(c.label) + '</div>' +
       '<div class="v">' + fmtC(catVals[c.key]) + '</div>' +
@@ -656,19 +656,19 @@ function buildReportNode() {
   }).join('');
 
   // donut + legend (sorted by value desc, only non-zero)
-  var segCats = PDFR_CATS.map(function (c) {
+  const segCats = PDFR_CATS.map(function (c) {
     return { label: c.label, color: c.color, val: catVals[c.key], pct: T.t > 0 ? (catVals[c.key] / T.t * 100) : 0 };
   }).filter(function (s) { return s.val > 0; }).sort(function (a, b) { return b.val - a.val; });
 
-  var legendHtml = segCats.map(function (s) {
+  const legendHtml = segCats.map(function (s) {
     return '<div class="leg"><span class="d" style="background:' + s.color + '"></span>' +
       '<span class="n">' + esc(s.label) + '</span><span class="vv">' + fmtC(s.val) + '</span>' +
       '<span class="pp">' + s.pct.toFixed(1) + '%</span></div>';
   }).join('');
 
   // holdings table
-  var rows = holdingsDetailed();
-  var rowsHtml = rows.map(function (r) {
+  const rows = holdingsDetailed();
+  const rowsHtml = rows.map(function (r) {
     return '<tr><td><span class="cdot" style="background:' + r.color + '"></span>' + esc(r.name) + '</td>' +
       '<td class="num">' + esc(r.qty) + '</td>' +
       '<td class="num">' + (r.cost ? fmtC(r.cost) : '—') + '</td>' +
@@ -676,9 +676,9 @@ function buildReportNode() {
       '<td class="num ' + plClass(r.ret) + '">' + (r.ret == null ? '—' : pctStr(r.ret)) + '</td></tr>';
   }).join('');
 
-  var totalPL = M.total.pnl, totalRet = M.total.ret;
+  const totalPL = M.total.pnl, totalRet = M.total.ret;
 
-  var node = document.createElement('div');
+  const node = document.createElement('div');
   node.id = 'pdfReport';
   node.innerHTML =
     '<div class="top"><div>' +
@@ -711,7 +711,7 @@ function buildReportNode() {
 async function exportPdf() {
   if (!holdingsDetailed().length) { alert(tt('No assets to export.', 'Belum ada aset untuk diekspor.')); return; }
 
-  var JsPDF, h2c;
+  let JsPDF, h2c;
   try {
     JsPDF = await loadJsPdf();
     h2c = await loadHtml2Canvas();
@@ -723,84 +723,84 @@ async function exportPdf() {
 
   // inject scoped CSS + fonts once
   if (!document.getElementById('pdfr-style')) {
-    var st = document.createElement('style');
+    const st = document.createElement('style');
     st.id = 'pdfr-style';
     st.textContent = PDFR_CSS;
     document.head.appendChild(st);
   }
   ensureReportFonts();
 
-  var node = buildReportNode();
+  const node = buildReportNode();
   document.body.appendChild(node);
 
-  try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
+  try { if (document.fonts && document.fonts.ready) {await document.fonts.ready;} } catch (e) {}
   // small settle for webfont paint
   await new Promise(function (r) { setTimeout(r, 120); });
 
   // Measure "safe" break points (CSS px from node top) so multi-page slicing
   // never cuts a table row in half. We allow breaks at the top of the table
   // and at the bottom edge of every row.
-  var nodeRect = node.getBoundingClientRect();
-  var nodeH = nodeRect.height;
-  var safeCuts = [];
-  var tableEl = node.querySelector('table');
-  if (tableEl) safeCuts.push(tableEl.getBoundingClientRect().top - nodeRect.top);
+  const nodeRect = node.getBoundingClientRect();
+  const nodeH = nodeRect.height;
+  const safeCuts = [];
+  const tableEl = node.querySelector('table');
+  if (tableEl) {safeCuts.push(tableEl.getBoundingClientRect().top - nodeRect.top);}
   node.querySelectorAll('tbody tr').forEach(function (tr) {
     safeCuts.push(tr.getBoundingClientRect().bottom - nodeRect.top);
   });
   safeCuts.push(nodeH); // always allow a break at the very end
 
-  var canvas;
+  let canvas;
   try {
     canvas = await h2c(node, { scale: 2, backgroundColor: '#0c0d0b', useCORS: true, logging: false });
   } catch (e) {
     console.error('[export] html2canvas error', e);
     alert(tt('Failed to render report.', 'Gagal membuat laporan.'));
-    if (node.parentNode) node.parentNode.removeChild(node);
+    if (node.parentNode) {node.parentNode.removeChild(node);}
     return;
   }
-  if (node.parentNode) node.parentNode.removeChild(node);
+  if (node.parentNode) {node.parentNode.removeChild(node);}
 
-  var pdf = new JsPDF({ unit: 'pt', format: 'a4' });
-  var pw = pdf.internal.pageSize.getWidth();
-  var ph = pdf.internal.pageSize.getHeight();
+  const pdf = new JsPDF({ unit: 'pt', format: 'a4' });
+  const pw = pdf.internal.pageSize.getWidth();
+  const ph = pdf.internal.pageSize.getHeight();
 
-  var scaleY = canvas.height / nodeH;          // css px -> canvas px
-  var pxPerPt = canvas.width / pw;             // pt -> canvas px (full-bleed width)
-  var pagePxH = ph * pxPerPt;                  // one PDF page height, in canvas px
+  const scaleY = canvas.height / nodeH;          // css px -> canvas px
+  const pxPerPt = canvas.width / pw;             // pt -> canvas px (full-bleed width)
+  const pagePxH = ph * pxPerPt;                  // one PDF page height, in canvas px
 
   // candidate break offsets in canvas px, sorted & de-duped
-  var cutPx = [];
+  let cutPx = [];
   safeCuts.forEach(function (c) {
-    var v = Math.round(c * scaleY);
-    if (v > 0 && v <= canvas.height) cutPx.push(v);
+    const v = Math.round(c * scaleY);
+    if (v > 0 && v <= canvas.height) {cutPx.push(v);}
   });
   cutPx = cutPx.filter(function (v, i, a) { return a.indexOf(v) === i; })
               .sort(function (a, b) { return a - b; });
 
-  var start = 0, firstPage = true;
+  let start = 0, firstPage = true;
   while (start < canvas.height - 1) {
-    var target = start + pagePxH;
-    var end;
+    const target = start + pagePxH;
+    let end;
     if (target >= canvas.height) {
       end = canvas.height;
     } else {
       end = 0;
-      for (var i = 0; i < cutPx.length; i++) {
-        if (cutPx[i] > start && cutPx[i] <= target) end = cutPx[i];
+      for (let i = 0; i < cutPx.length; i++) {
+        if (cutPx[i] > start && cutPx[i] <= target) {end = cutPx[i];}
       }
-      if (end <= start) end = Math.round(target); // a single block taller than a page → hard cut
+      if (end <= start) {end = Math.round(target);} // a single block taller than a page → hard cut
     }
-    var sliceH = end - start;
-    var tmp = document.createElement('canvas');
+    const sliceH = end - start;
+    const tmp = document.createElement('canvas');
     tmp.width = canvas.width;
     tmp.height = sliceH;
-    var ctx = tmp.getContext('2d');
+    const ctx = tmp.getContext('2d');
     ctx.fillStyle = '#0c0d0b';
     ctx.fillRect(0, 0, tmp.width, tmp.height);
     ctx.drawImage(canvas, 0, start, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
 
-    if (!firstPage) pdf.addPage();
+    if (!firstPage) {pdf.addPage();}
     pdf.setFillColor(12, 13, 11); pdf.rect(0, 0, pw, ph, 'F');
     pdf.addImage(tmp.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pw, sliceH / pxPerPt);
     firstPage = false;
@@ -811,16 +811,16 @@ async function exportPdf() {
 }
 
 function download(blob, name) {
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
   a.href = url; a.download = name;
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
 }
 
 function openExport() {
-  var pdfBtn = document.querySelector('[data-exp-pdf]');
-  var csvBtn = document.querySelector('[data-exp-csv]');
+  const pdfBtn = document.querySelector('[data-exp-pdf]');
+  const csvBtn = document.querySelector('[data-exp-csv]');
   if (pdfBtn && !pdfBtn.dataset.wired) {
     pdfBtn.dataset.wired = '1';
     pdfBtn.addEventListener('click', function () { closeExport(); exportPdf(); });
@@ -829,10 +829,10 @@ function openExport() {
     csvBtn.dataset.wired = '1';
     csvBtn.addEventListener('click', function () { closeExport(); exportCsv(); });
   }
-  if (window.psys && window.psys.modal) window.psys.modal.open('exportModal');
+  if (window.psys && window.psys.modal) {window.psys.modal.open('exportModal');}
 }
 function closeExport() {
-  if (window.psys && window.psys.modal) window.psys.modal.close('exportModal');
+  if (window.psys && window.psys.modal) {window.psys.modal.close('exportModal');}
 }
 
 /* ============================================================

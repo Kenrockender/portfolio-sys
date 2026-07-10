@@ -52,10 +52,10 @@ function renderTotal() {
   const arrowEl = document.querySelector('[data-total-arrow]');
   const deltaContainer = document.querySelector('.total__delta__main');
 
-  if (totalEl) totalEl.textContent = fmtIDR(total);
-  if (deltaEl) deltaEl.textContent = fmtDeltaIDR(delta);
-  if (pctEl)   pctEl.textContent   = fmtPct(pct);
-  if (arrowEl) arrowEl.textContent = delta >= 0 ? '▲' : '▼';
+  if (totalEl) {totalEl.textContent = fmtIDR(total);}
+  if (deltaEl) {deltaEl.textContent = fmtDeltaIDR(delta);}
+  if (pctEl)   {pctEl.textContent   = fmtPct(pct);}
+  if (arrowEl) {arrowEl.textContent = delta >= 0 ? '▲' : '▼';}
   if (deltaContainer) {
     deltaContainer.classList.toggle('down', delta < 0);
   }
@@ -67,7 +67,7 @@ function renderSparkline(rangeKey) {
   const lineEl = document.querySelector('[data-sparkline-line]');
   const areaEl = document.querySelector('[data-sparkline-area]');
   const tipEl  = document.querySelector('[data-sparkline-tip]');
-  if (!lineEl || !areaEl || !tipEl) return;
+  if (!lineEl || !areaEl || !tipEl) {return;}
   if (!hist.length) {
     lineEl.setAttribute('d', '');
     areaEl.setAttribute('d', '');
@@ -115,21 +115,21 @@ function wireRangePills() {
 
 function setMarketCard(key, opts) {
   const card = document.querySelector(`[data-market="${key}"]`);
-  if (!card) return;
+  if (!card) {return;}
   const valEl = card.querySelector('.market__val');
   const dEl   = card.querySelector('.market__delta');
   const dot   = card.querySelector('.market__label__dot');
-  if (valEl) valEl.textContent = opts.value;
-  if (dEl)   dEl.textContent   = opts.delta;
+  if (valEl) {valEl.textContent = opts.value;}
+  if (dEl)   {dEl.textContent   = opts.delta;}
   if (dot) {
     dot.classList.remove('is-stale', 'is-down');
-    if (opts.live === false) dot.classList.add('is-stale');
+    if (opts.live === false) {dot.classList.add('is-stale');}
   }
   if (dEl) {
     dEl.classList.remove('up', 'down', 'mute');
-    if (opts.tone === 'up')   dEl.classList.add('up');
-    if (opts.tone === 'down') dEl.classList.add('down');
-    if (opts.tone === 'mute') dEl.classList.add('mute');
+    if (opts.tone === 'up')   {dEl.classList.add('up');}
+    if (opts.tone === 'down') {dEl.classList.add('down');}
+    if (opts.tone === 'mute') {dEl.classList.add('mute');}
   }
 }
 
@@ -147,7 +147,7 @@ function renderMarketRail() {
   const ihsgLive = S.stockPrices && S.stockPrices['^IHSG'];
   const ihsgSeed = (DATA.stocks || []).find(h => h.ticker === '^IHSG');
   const isLive   = !!ihsgLive;
-  let   ihsg     = ihsgLive || (ihsgSeed ? ihsgSeed.seedPrice : null) || IHSG_CLOSING.value;
+  const   ihsg     = ihsgLive || (ihsgSeed ? ihsgSeed.seedPrice : null) || IHSG_CLOSING.value;
   const seed     = ihsgSeed ? ihsgSeed.seedPrice : ihsg;
   const ihsgPct  = seed > 0 ? ((ihsg - seed) / seed) * 100 : 0;
   setMarketCard('ihsg', {
@@ -189,24 +189,24 @@ function renderMarketRail() {
 
 /* ---- HOLDINGS PREVIEW ---- */
 function categoryOf(item) {
-  if (item._kind === 'crypto') return 'crypto';
-  if (item._kind === 'gold')   return 'gold';
-  if (item._kind === 'stocks') return 'stocks';
-  if (item._kind === 'savings')return 'savings';
+  if (item._kind === 'crypto') {return 'crypto';}
+  if (item._kind === 'gold')   {return 'gold';}
+  if (item._kind === 'stocks') {return 'stocks';}
+  if (item._kind === 'savings'){return 'savings';}
   return 'other';
 }
 function valueOf(item) {
-  if (item._kind === 'crypto')  return (item.amount || 0) * cryptoPrice(item);
-  if (item._kind === 'gold')    return (item.grams || 0) * (S.goldGramIdr || 0);
-  if (item._kind === 'stocks')  return (item.shares || 0) * stockMul(item) * stockPrice(item);
-  if (item._kind === 'savings') return savingsIdr(item);
+  if (item._kind === 'crypto')  {return (item.amount || 0) * cryptoPrice(item);}
+  if (item._kind === 'gold')    {return (item.grams || 0) * (S.goldGramIdr || 0);}
+  if (item._kind === 'stocks')  {return (item.shares || 0) * stockMul(item) * stockPrice(item);}
+  if (item._kind === 'savings') {return savingsIdr(item);}
   return 0;
 }
 function nameOf(item) {
-  if (item._kind === 'crypto')  return { ticker: item.coin, desc: item.name || '' };
-  if (item._kind === 'gold')    return { ticker: item.name || 'Emas', desc: (item.grams || 0) + ' gr · Antam' };
-  if (item._kind === 'stocks')  return { ticker: item.ticker, desc: item.name || '' };
-  if (item._kind === 'savings') return { ticker: item.name || 'Savings', desc: (item.bank || '').toUpperCase() };
+  if (item._kind === 'crypto')  {return { ticker: item.coin, desc: item.name || '' };}
+  if (item._kind === 'gold')    {return { ticker: item.name || 'Emas', desc: (item.grams || 0) + ' gr · Antam' };}
+  if (item._kind === 'stocks')  {return { ticker: item.ticker, desc: item.name || '' };}
+  if (item._kind === 'savings') {return { ticker: item.name || 'Savings', desc: (item.bank || '').toUpperCase() };}
   return { ticker: '?', desc: '' };
 }
 // Category icons — small inline SVG, one per asset class.
@@ -292,45 +292,45 @@ const TICKER_LOGO = {
     <path fill="#fff" d="M21.5 22h3.5c.7 0 1-.5.6-1.1L19 9.3c-.3-.5-1-.5-1.3 0l-1.4 2.4c-.2.3-.2.7 0 1l5.6 9.7c.1.4.4.6.6.6zm-7.3-3.4c-.3-.5-1-.5-1.3 0L9.4 25.4c-.3.5 0 1.1.6 1.1h6.9c.7 0 1-.5.6-1.1l-3.3-6.8z"/>
   </svg>`,
   // IDX stocks — text-on-tinted-square logos (no real ticker SVGs available)
-  BBCA: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#003D7A"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">BBCA</text></svg>`,
-  BBRI: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#1E5BAA"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">BBRI</text></svg>`,
-  BMRI: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#003B6F"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">BMRI</text></svg>`,
-  TLKM: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#C8202F"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">TLKM</text></svg>`,
-  ASII: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#0066B3"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">ASII</text></svg>`,
-  GOTO: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#00AA13"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">GOTO</text></svg>`,
-  UNVR: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#1F36C7"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">UNVR</text></svg>`,
-  AAPL: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#1d1d1f"/><path fill="#fff" d="M18.5 11.6c-.7-.8-1.7-1.3-2.7-1.3-1.3 0-2 .8-2.9.8-.9 0-1.6-.7-2.7-.7-1.5 0-3.1 1-3.1 3.3 0 2.7 2.2 5.6 4.4 5.6.8 0 1.3-.5 2.3-.5s1.4.5 2.3.5c1 0 2-.6 2.7-1.5.3-.4.5-.7.7-1.1-1.4-.6-1.9-2.5-.7-3.7-.5-.4-.9-.7-1.3-1.4zm-3.5-1.6c.1-.6.4-1.1.9-1.5.5-.4 1.1-.5 1.5-.4-.1.5-.4 1.1-.9 1.5-.5.4-1.1.6-1.5.4z"/></svg>`,
-  MSFT: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#000"/><rect x="7" y="7" width="8.5" height="8.5" fill="#F25022"/><rect x="16.5" y="7" width="8.5" height="8.5" fill="#7FBA00"/><rect x="7" y="16.5" width="8.5" height="8.5" fill="#00A4EF"/><rect x="16.5" y="16.5" width="8.5" height="8.5" fill="#FFB900"/></svg>`,
-  NVDA: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#76B900"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">NVDA</text></svg>`,
-  TSLA: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#CC0000"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">TSLA</text></svg>`,
-  AMZN: `<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#232F3E"/><text x="16" y="20" text-anchor="middle" fill="#FF9900" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">AMZN</text></svg>`,
+  BBCA: '<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#003D7A"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">BBCA</text></svg>',
+  BBRI: '<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#1E5BAA"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">BBRI</text></svg>',
+  BMRI: '<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#003B6F"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">BMRI</text></svg>',
+  TLKM: '<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#C8202F"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">TLKM</text></svg>',
+  ASII: '<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#0066B3"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">ASII</text></svg>',
+  GOTO: '<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#00AA13"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">GOTO</text></svg>',
+  UNVR: '<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#1F36C7"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">UNVR</text></svg>',
+  AAPL: '<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#1d1d1f"/><path fill="#fff" d="M18.5 11.6c-.7-.8-1.7-1.3-2.7-1.3-1.3 0-2 .8-2.9.8-.9 0-1.6-.7-2.7-.7-1.5 0-3.1 1-3.1 3.3 0 2.7 2.2 5.6 4.4 5.6.8 0 1.3-.5 2.3-.5s1.4.5 2.3.5c1 0 2-.6 2.7-1.5.3-.4.5-.7.7-1.1-1.4-.6-1.9-2.5-.7-3.7-.5-.4-.9-.7-1.3-1.4zm-3.5-1.6c.1-.6.4-1.1.9-1.5.5-.4 1.1-.5 1.5-.4-.1.5-.4 1.1-.9 1.5-.5.4-1.1.6-1.5.4z"/></svg>',
+  MSFT: '<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#000"/><rect x="7" y="7" width="8.5" height="8.5" fill="#F25022"/><rect x="16.5" y="7" width="8.5" height="8.5" fill="#7FBA00"/><rect x="7" y="16.5" width="8.5" height="8.5" fill="#00A4EF"/><rect x="16.5" y="16.5" width="8.5" height="8.5" fill="#FFB900"/></svg>',
+  NVDA: '<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#76B900"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">NVDA</text></svg>',
+  TSLA: '<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#CC0000"/><text x="16" y="20" text-anchor="middle" fill="#fff" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">TSLA</text></svg>',
+  AMZN: '<svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="6" fill="#232F3E"/><text x="16" y="20" text-anchor="middle" fill="#FF9900" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700">AMZN</text></svg>',
 };
 
 function logoSvg(item) {
   // Crypto: try coin symbol
   if (item._kind === 'crypto') {
-    var coin = (item.coin || '').toUpperCase();
-    if (TICKER_LOGO[coin]) return TICKER_LOGO[coin];
+    const coin = (item.coin || '').toUpperCase();
+    if (TICKER_LOGO[coin]) {return TICKER_LOGO[coin];}
   }
   // Stocks: try ticker symbol
   if (item._kind === 'stocks') {
-    var t = (item.ticker || '').toUpperCase();
-    if (TICKER_LOGO[t]) return TICKER_LOGO[t];
+    const t = (item.ticker || '').toUpperCase();
+    if (TICKER_LOGO[t]) {return TICKER_LOGO[t];}
   }
   // Else fall back to category icon
   return categoryIconSvg(item);
 }
 
 function hasTickerLogo(item) {
-  if (item._kind === 'crypto')  return !!TICKER_LOGO[(item.coin   || '').toUpperCase()];
-  if (item._kind === 'stocks')  return !!TICKER_LOGO[(item.ticker || '').toUpperCase()];
+  if (item._kind === 'crypto')  {return !!TICKER_LOGO[(item.coin   || '').toUpperCase()];}
+  if (item._kind === 'stocks')  {return !!TICKER_LOGO[(item.ticker || '').toUpperCase()];}
   return false;
 }
 function detailOf(item) {
-  if (item._kind === 'crypto')  return (item.amount || 0).toLocaleString(getLang() === 'id' ? 'id-ID' : 'en-US', { maximumFractionDigits: 4 }) + ' × ' + Math.round(cryptoPrice(item)).toLocaleString('id-ID');
-  if (item._kind === 'gold')    return (item.grams || 0) + ' g × Rp ' + Math.round(S.goldGramIdr || 0).toLocaleString('id-ID');
-  if (item._kind === 'stocks')  return (item.shares || 0) + ' × Rp ' + Math.round(stockPrice(item)).toLocaleString('id-ID');
-  if (item._kind === 'savings') return (item.bank || '').toUpperCase();
+  if (item._kind === 'crypto')  {return (item.amount || 0).toLocaleString(getLang() === 'id' ? 'id-ID' : 'en-US', { maximumFractionDigits: 4 }) + ' × ' + Math.round(cryptoPrice(item)).toLocaleString('id-ID');}
+  if (item._kind === 'gold')    {return (item.grams || 0) + ' g × Rp ' + Math.round(S.goldGramIdr || 0).toLocaleString('id-ID');}
+  if (item._kind === 'stocks')  {return (item.shares || 0) + ' × Rp ' + Math.round(stockPrice(item)).toLocaleString('id-ID');}
+  if (item._kind === 'savings') {return (item.bank || '').toUpperCase();}
   return '';
 }
 
@@ -345,10 +345,10 @@ function aggregateHoldings() {
   // Group identical assets (same kind + same identifier) so multi-platform/multi-lot
   // holdings show as a single row.
   const keyOf = (it) => {
-    if (it._kind === 'crypto')  return 'crypto:' + (it.coin || '');
-    if (it._kind === 'stocks')  return 'stocks:' + (it.ticker || '');
-    if (it._kind === 'gold')    return 'gold:' + (it.name || '');
-    if (it._kind === 'savings') return 'savings:' + (it.name || '') + ':' + (it.bank || '');
+    if (it._kind === 'crypto')  {return 'crypto:' + (it.coin || '');}
+    if (it._kind === 'stocks')  {return 'stocks:' + (it.ticker || '');}
+    if (it._kind === 'gold')    {return 'gold:' + (it.name || '');}
+    if (it._kind === 'savings') {return 'savings:' + (it.name || '') + ':' + (it.bank || '');}
     return it._kind + ':' + (it.id || '');
   };
   const map = new Map();
@@ -362,9 +362,9 @@ function aggregateHoldings() {
       e._value += v;
       e._qty += (it.amount || it.grams || it.shares || 0);
       // merge amount/grams/shares for representative display
-      if (it._kind === 'crypto')  e.amount = (e.amount || 0) + (it.amount || 0);
-      if (it._kind === 'gold')    e.grams  = (e.grams  || 0) + (it.grams  || 0);
-      if (it._kind === 'stocks')  e.shares = (e.shares || 0) + (it.shares || 0);
+      if (it._kind === 'crypto')  {e.amount = (e.amount || 0) + (it.amount || 0);}
+      if (it._kind === 'gold')    {e.grams  = (e.grams  || 0) + (it.grams  || 0);}
+      if (it._kind === 'stocks')  {e.shares = (e.shares || 0) + (it.shares || 0);}
     }
   }
   return [...map.values()].sort((a, b) => b._value - a._value);
@@ -372,7 +372,7 @@ function aggregateHoldings() {
 
 function renderHoldings() {
   const root = document.querySelector('[data-holdings]');
-  if (!root) return;
+  if (!root) {return;}
   const all = aggregateHoldings();
   const T = totals();
   const grand = T.t || all.reduce((s, x) => s + x._value, 0) || 1;
@@ -437,27 +437,27 @@ function miniSparklineSvg(dir) {
 /* ---- ACTIVITY FEED ---- */
 function actionToType(action, kind) {
   const a = (action || '').toLowerCase();
-  if (a === 'buy')  return 't-buy';
-  if (a === 'sell') return 't-sell';
-  if (a === 'div' || a === 'dividen') return 't-div';
-  if (a === 'fee')  return 't-fee';
-  if (a === 'add')  return 't-add';
-  if (a === 'tax')  return 't-tax';
+  if (a === 'buy')  {return 't-buy';}
+  if (a === 'sell') {return 't-sell';}
+  if (a === 'div' || a === 'dividen') {return 't-div';}
+  if (a === 'fee')  {return 't-fee';}
+  if (a === 'add')  {return 't-add';}
+  if (a === 'tax')  {return 't-tax';}
   return 't-add';
 }
 function actionLabel(action) {
   const a = (action || '').toLowerCase();
-  if (a === 'buy')  return 'BUY';
-  if (a === 'sell') return 'SELL';
-  if (a === 'div')  return 'DIV';
-  if (a === 'fee')  return 'FEE';
-  if (a === 'add')  return 'ADD';
-  if (a === 'tax')  return 'TAX';
+  if (a === 'buy')  {return 'BUY';}
+  if (a === 'sell') {return 'SELL';}
+  if (a === 'div')  {return 'DIV';}
+  if (a === 'fee')  {return 'FEE';}
+  if (a === 'add')  {return 'ADD';}
+  if (a === 'tax')  {return 'TAX';}
   return a.toUpperCase();
 }
 function renderActivity() {
   const root = document.querySelector('[data-activity]');
-  if (!root) return;
+  if (!root) {return;}
   const log = (DATA.txLog || []).slice().sort((a, b) => new Date(b.ts) - new Date(a.ts)).slice(0, 5);
   if (!log.length) {
     root.innerHTML = '<div class="activity__empty">' + t('home.act-empty', 'Belum ada aktivitas.') + '</div>';
@@ -502,12 +502,12 @@ function renderDiversification() {
   const bodyEl    = document.querySelector('[data-div-body]');
   const insightEl = document.querySelector('[data-div-insight]');
   const targets = S.rebalTargets || { stocks: 30, crypto: 40, gold: 15, savings: 15 };
-  if (headEl) headEl.textContent = getLang() === 'id'
-    ? `Target profil kamu`
-    : `Your profile target`;
-  if (bodyEl) bodyEl.textContent = getLang() === 'id'
+  if (headEl) {headEl.textContent = getLang() === 'id'
+    ? 'Target profil kamu'
+    : 'Your profile target';}
+  if (bodyEl) {bodyEl.textContent = getLang() === 'id'
     ? `Saham ${targets.stocks}%, crypto ${targets.crypto}%, emas ${targets.gold}%, tabungan ${targets.savings}%. Sistem ngebandingin posisi sekarang dengan target. Lihat panel di bawah.`
-    : `Stocks ${targets.stocks}%, crypto ${targets.crypto}%, gold ${targets.gold}%, savings ${targets.savings}%. We compare current allocation to this target. See panel below.`;
+    : `Stocks ${targets.stocks}%, crypto ${targets.crypto}%, gold ${targets.gold}%, savings ${targets.savings}%. We compare current allocation to this target. See panel below.`;}
   if (insightEl) {
     // pick most over-weighted vs target
     const actual = grand > 0 ? {
@@ -553,7 +553,7 @@ function rerender() {
 
 function init() {
   // Apply i18n if available (covers any new keys)
-  if (i18n) i18n.applyI18n();
+  if (i18n) {i18n.applyI18n();}
   wireRangePills();
   rerender();
 
@@ -563,7 +563,7 @@ function init() {
   window.addEventListener('psys:theme-change', rerender);
   // when user signs in, #userDisplayName updates — re-render greeting
   const nameEl = document.getElementById('userDisplayName');
-  if (nameEl) new MutationObserver(renderGreeting).observe(nameEl, { childList: true, characterData: true, subtree: true });
+  if (nameEl) {new MutationObserver(renderGreeting).observe(nameEl, { childList: true, characterData: true, subtree: true });}
 }
 
 if (document.readyState === 'loading') {
