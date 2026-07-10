@@ -23,7 +23,9 @@
 // v16 = PDF export polish: fonts match app shell (IBM Plex Mono + Fraunces), category colors match home palette, row-aware page breaks (no cut rows), hero no-wrap.
 // v19 = security pass: public CORS proxies removed (own /api/* only), Gemini
 //       entry dropped, new /api/crypto + /api/fx endpoints.
-const CACHE_NAME = 'portfolio-sys-v19';
+// v20 = app is now the home page (index.html); marketing page moved to
+//       promo.html, no more /app split.
+const CACHE_NAME = 'portfolio-sys-v20';
 const RUNTIME_CACHE = 'portfolio-runtime-v2';
 const API_CACHE = 'portfolio-api-v1';
 const API_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
@@ -31,8 +33,8 @@ const API_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 // All app shell files to pre-cache on install
 const PRECACHE_URLS = [
   '/',
-  '/app.html',
   '/index.html',
+  '/promo.html',
   // New design system + tab modules
   '/css/system.css',
   '/css/app.css',

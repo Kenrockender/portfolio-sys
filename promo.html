@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PORTFOLIO.SYS — Dashboard Investasi Pribadi</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:       #05050e;
+  --bg2:      #09091a;
+  --bg3:      #0e0e24;
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(255,255,255,0.14);
+  --text:     #dde4f0;
+  --muted:    #4a5a72;
+  --dim:      #1e2a3a;
+  --purple:   #8b5cf6;
+  --cyan:     #22d3ee;
+  --gold:     #f5c518;
+  --pink:     #f472b6;
+  --green:    #34d399;
+  --red:      #fb7185;
+  --radius:   12px;
+}
+
+html { scroll-behavior: smooth; overflow-x: hidden; }
+
+body {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ── GRID + AMBIENT BACKGROUND ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(139,92,246,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139,92,246,0.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.ambient {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(139,92,246,.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 110%, rgba(34,211,238,.08) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 50% 50%, rgba(245,197,24,.03) 0%, transparent 70%);
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 48px;
+  background: rgba(5,5,14,0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-brand {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: 15px; letter-spacing: .06em;
+}
+.nav-brand-icon {
+  width: 30px; height: 30px;
+  border: 1.5px solid var(--purple); border-radius: 7px;
+  display: grid; place-items: center;
+  box-shadow: 0 0 14px rgba(139,92,246,.3);
+  animation: nav-pulse 3s ease-in-out infinite;
+}
+@keyframes nav-pulse {
+  0%,100% { box-shadow: 0 0 14px rgba(139,92,246,.3); }
+  50% { box-shadow: 0 0 28px rgba(139,92,246,.6); }
+}
+.nav-links { display: flex; align-items: center; gap: 32px; font-size: 11px; letter-spacing: .12em; }
+.nav-links a { color: var(--muted); text-decoration: none; transition: color .2s; text-transform: uppercase; }
+.nav-links a:hover { color: var(--text); }
+.nav-cta {
+  padding: 8px 20px;
+  background: var(--purple); color: #fff; border: none;
+  border-radius: 8px; font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 700; letter-spacing: .1em;
+  cursor: pointer; text-decoration: none; text-transform: uppercase;
+  transition: opacity .2s, transform .15s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.nav-cta:hover { opacity: .85; transform: translateY(-1px); }
+
+/* ── HERO ── */
+.hero {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 120px 24px 80px;
+  text-align: center;
+}
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(139,92,246,.1); border: 1px solid rgba(139,92,246,.3);
+  border-radius: 100px; padding: 6px 16px;
+  font-size: 10px; font-weight: 700; letter-spacing: .16em;
+  text-transform: uppercase; color: #a78bfa;
+  margin-bottom: 28px;
+  animation: fadeUp .8s ease both;
+}
+.badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #a78bfa; animation: blink 1.4s step-end infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.15} }
+
+.hero-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(42px, 7vw, 88px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -.02em;
+  margin-bottom: 12px;
+  animation: fadeUp .8s .1s ease both;
+}
+.hero-title .line1 { display: block; color: var(--text); }
+.hero-title .accent {
+  display: block;
+  background: linear-gradient(135deg, var(--purple), var(--cyan));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  max-width: 540px; font-size: 15px; line-height: 1.7;
+  color: var(--muted); margin: 0 auto 40px;
+  animation: fadeUp .8s .2s ease both;
+}
+
+.hero-actions {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  flex-wrap: wrap; margin-bottom: 60px;
+  animation: fadeUp .8s .3s ease both;
+}
+.btn-primary {
+  padding: 14px 32px;
+  background: var(--purple); color: #fff;
+  border: none; border-radius: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; font-weight: 700; letter-spacing: .1em;
+  cursor: pointer; text-decoration: none; text-transform: uppercase;
+  transition: opacity .2s, transform .15s, box-shadow .2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary:hover { opacity: .9; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(139,92,246,.4); }
+.btn-secondary {
+  padding: 13px 28px;
+  background: transparent; color: var(--text);
+  border: 1px solid var(--border2); border-radius: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; font-weight: 600; letter-spacing: .1em;
+  cursor: pointer; text-decoration: none; text-transform: uppercase;
+  transition: border-color .2s, background .2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-secondary:hover { border-color: var(--purple); background: rgba(139,92,246,.07); }
+
+/* ── LIVE TICKER ── */
+.ticker-wrap {
+  width: 100%; max-width: 900px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 20px;
+  display: flex; align-items: center; gap: 24px;
+  overflow: hidden; flex-wrap: wrap; justify-content: center;
+  animation: fadeUp .8s .4s ease both;
+}
+.ticker-item { display: flex; align-items: center; gap: 7px; font-size: 11px; white-space: nowrap; }
+.ticker-label { color: var(--muted); }
+.ticker-val { font-weight: 700; }
+.ticker-val.up { color: var(--green); }
+.ticker-val.down { color: var(--red); }
+.ticker-val.gold { color: var(--gold); }
+.ticker-val.crypto { color: var(--purple); }
+.ticker-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.dot-green { background: var(--green); box-shadow: 0 0 5px var(--green); }
+.dot-gold  { background: var(--gold); }
+.dot-cyan  { background: var(--cyan); }
+.ticker-sep { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
+
+/* ── STATS ROW ── */
+.stats-row {
+  position: relative; z-index: 1;
+  display: flex; align-items: stretch; justify-content: center;
+  gap: 0; max-width: 900px; margin: 0 auto 80px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden;
+}
+.stat-cell {
+  flex: 1; padding: 28px 32px;
+  border-right: 1px solid var(--border);
+  text-align: center;
+}
+.stat-cell:last-child { border-right: none; }
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 36px; font-weight: 800;
+  background: linear-gradient(135deg, var(--purple), var(--cyan));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: block; line-height: 1.1; margin-bottom: 6px;
+}
+.stat-label { font-size: 10px; color: var(--muted); letter-spacing: .18em; text-transform: uppercase; }
+
+/* ── SECTION ── */
+section { position: relative; z-index: 1; }
+.section-inner { max-width: 1100px; margin: 0 auto; padding: 80px 24px; }
+.section-tag {
+  font-size: 10px; font-weight: 700; letter-spacing: .22em;
+  text-transform: uppercase; color: var(--purple);
+  margin-bottom: 12px; display: block;
+}
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(28px, 4vw, 48px); font-weight: 800;
+  line-height: 1.1; letter-spacing: -.01em;
+  margin-bottom: 16px;
+}
+.section-sub { font-size: 15px; color: var(--muted); line-height: 1.7; max-width: 540px; }
+
+/* ── FEATURES ── */
+.features-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px; margin-top: 48px;
+}
+.feature-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 24px;
+  position: relative; overflow: hidden;
+  transition: border-color .25s, transform .2s;
+}
+.feature-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  opacity: 0; transition: opacity .25s;
+}
+.feature-card:hover { border-color: var(--border2); transform: translateY(-3px); }
+.feature-card:hover::before { opacity: 1; }
+.feat-purple::before { background: var(--purple); box-shadow: 0 0 14px var(--purple); }
+.feat-cyan::before   { background: var(--cyan);   box-shadow: 0 0 14px var(--cyan); }
+.feat-gold::before   { background: var(--gold);   box-shadow: 0 0 14px var(--gold); }
+.feat-pink::before   { background: var(--pink);   box-shadow: 0 0 14px var(--pink); }
+.feat-green::before  { background: var(--green);  box-shadow: 0 0 14px var(--green); }
+.feat-red::before    { background: var(--red);    box-shadow: 0 0 14px var(--red); }
+
+.feat-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: grid; place-items: center;
+  margin-bottom: 16px; font-size: 18px;
+}
+.feat-purple .feat-icon { background: rgba(139,92,246,.14); color: var(--purple); }
+.feat-cyan   .feat-icon { background: rgba(34,211,238,.10); color: var(--cyan); }
+.feat-gold   .feat-icon { background: rgba(245,197,24,.10); color: var(--gold); }
+.feat-pink   .feat-icon { background: rgba(244,114,182,.10); color: var(--pink); }
+.feat-green  .feat-icon { background: rgba(52,211,153,.10); color: var(--green); }
+.feat-red    .feat-icon { background: rgba(251,113,133,.10); color: var(--red); }
+
+.feat-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+.feat-desc  { font-size: 11px; color: var(--muted); line-height: 1.7; }
+
+/* ── MOCKUP PREVIEW ── */
+.mockup-section { background: linear-gradient(to bottom, transparent, rgba(139,92,246,.03), transparent); }
+.mockup-wrap {
+  margin-top: 48px; border-radius: 16px; overflow: hidden;
+  border: 1px solid var(--border2);
+  box-shadow: 0 40px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(139,92,246,.1);
+}
+.mockup-bar {
+  background: var(--bg3); padding: 10px 16px;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.mockup-dot { width: 10px; height: 10px; border-radius: 50%; }
+.mockup-screen {
+  background: var(--bg2); padding: 24px;
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 12px;
+}
+.mock-kpi {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px;
+}
+.mock-kpi-label { font-size: 9px; color: var(--muted); letter-spacing: .18em; text-transform: uppercase; margin-bottom: 8px; }
+.mock-kpi-val {
+  font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800;
+  background: linear-gradient(135deg, var(--purple), var(--cyan));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.mock-kpi-val.gold-val {
+  background: linear-gradient(135deg, var(--gold), #d97706);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.mock-kpi-val.cyan-val {
+  background: linear-gradient(135deg, var(--cyan), #0891b2);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.mock-kpi-val.pink-val {
+  background: linear-gradient(135deg, var(--pink), #db2777);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.mock-kpi-pnl { font-size: 10px; color: var(--green); margin-top: 4px; }
+.mock-row {
+  grid-column: 1 / -1;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.mock-icon {
+  width: 28px; height: 28px; border-radius: 7px;
+  display: grid; place-items: center; font-size: 10px; font-weight: 700; flex-shrink: 0;
+}
+.mock-name { font-size: 11px; font-weight: 600; flex: 1; }
+.mock-sub  { font-size: 9px; color: var(--muted); }
+.mock-right { text-align: right; }
+.mock-val  { font-size: 12px; font-weight: 600; }
+.mock-pct  { font-size: 9px; color: var(--muted); }
+.mock-badge {
+  font-size: 8px; padding: 2px 6px; border-radius: 4px; font-weight: 700;
+}
+.badge-up   { background: rgba(52,211,153,.15); color: var(--green); border: 1px solid rgba(52,211,153,.3); }
+.badge-down { background: rgba(251,113,133,.12); color: var(--red);   border: 1px solid rgba(251,113,133,.25); }
+
+/* ── PRICING ── */
+.pricing-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px; margin-top: 48px; align-items: start;
+}
+.pricing-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 16px; padding: 28px; position: relative; overflow: hidden;
+  transition: border-color .25s, transform .2s;
+}
+.pricing-card:hover { transform: translateY(-4px); }
+.pricing-card.featured {
+  border-color: var(--purple);
+  box-shadow: 0 0 40px rgba(139,92,246,.15);
+}
+.pricing-card.featured::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--purple), var(--cyan));
+}
+.pricing-badge {
+  display: inline-block; font-size: 9px; font-weight: 800;
+  letter-spacing: .14em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 100px;
+  margin-bottom: 16px;
+}
+.badge-featured { background: rgba(139,92,246,.2); color: #a78bfa; border: 1px solid rgba(139,92,246,.4); }
+.badge-free     { background: rgba(52,211,153,.12); color: var(--green); border: 1px solid rgba(52,211,153,.25); }
+.badge-pro      { background: rgba(34,211,238,.12); color: var(--cyan); border: 1px solid rgba(34,211,238,.25); }
+
+.pricing-name {
+  font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; margin-bottom: 4px;
+}
+.pricing-desc { font-size: 11px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+.pricing-price {
+  display: flex; align-items: baseline; gap: 4px; margin-bottom: 8px;
+}
+.price-curr { font-size: 14px; font-weight: 700; color: var(--muted); }
+.price-num {
+  font-family: 'Syne', sans-serif; font-size: 42px; font-weight: 800;
+  line-height: 1;
+}
+.price-period { font-size: 11px; color: var(--muted); }
+.pricing-original { font-size: 11px; color: var(--muted); margin-bottom: 20px; }
+.pricing-original del { color: var(--red); }
+.pricing-cta {
+  width: 100%; padding: 12px;
+  border: none; border-radius: 9px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  cursor: pointer; transition: all .2s; margin-bottom: 24px;
+}
+.cta-featured { background: var(--purple); color: #fff; }
+.cta-featured:hover { box-shadow: 0 6px 20px rgba(139,92,246,.4); }
+.cta-outline  { background: transparent; color: var(--text); border: 1px solid var(--border2); }
+.cta-outline:hover  { border-color: var(--purple); color: var(--purple); }
+
+.pricing-features { display: flex; flex-direction: column; gap: 10px; }
+.pf-item { display: flex; align-items: flex-start; gap: 10px; font-size: 11px; line-height: 1.5; }
+.pf-check { width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; margin-top: 1px; }
+.check-yes { background: rgba(52,211,153,.15); color: var(--green); }
+.check-no  { background: rgba(90,106,130,.1); color: var(--muted); }
+.pf-text   { color: var(--text); }
+.pf-text.muted { color: var(--muted); text-decoration: line-through; }
+.pf-divider { height: 1px; background: var(--border); margin: 6px 0; }
+.pf-bonus { font-size: 10px; color: var(--purple); padding: 6px 10px; background: rgba(139,92,246,.08); border-radius: 6px; text-align: center; font-weight: 600; }
+
+/* ── TESTIMONIALS ── */
+.testimonials-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px; margin-top: 48px;
+}
+.testimonial-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 24px;
+}
+.testimonial-stars { color: var(--gold); font-size: 13px; margin-bottom: 14px; letter-spacing: 2px; }
+.testimonial-text { font-size: 12px; line-height: 1.8; color: var(--text); margin-bottom: 16px; font-style: italic; }
+.testimonial-author { display: flex; align-items: center; gap: 10px; }
+.author-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 13px; font-weight: 800;
+  flex-shrink: 0;
+}
+.author-name  { font-size: 11px; font-weight: 700; }
+.author-role  { font-size: 10px; color: var(--muted); }
+
+/* ── DISCLAIMER ── */
+.disclaimer-section {
+  background: rgba(251,191,36,.04);
+  border-top: 1px solid rgba(251,191,36,.15);
+  border-bottom: 1px solid rgba(251,191,36,.15);
+}
+.disclaimer-inner {
+  max-width: 900px; margin: 0 auto; padding: 28px 24px;
+  display: flex; gap: 16px; align-items: flex-start;
+}
+.disclaimer-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; color: #fbbf24; }
+.disclaimer-text { font-size: 10px; color: var(--muted); line-height: 1.7; }
+.disclaimer-text strong { color: #fbbf24; }
+
+/* ── FAQ ── */
+.faq-list { display: flex; flex-direction: column; gap: 0; margin-top: 40px; max-width: 720px; }
+.faq-item {
+  border-bottom: 1px solid var(--border);
+  padding: 20px 0;
+}
+.faq-q {
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 16px;
+}
+.faq-toggle { color: var(--muted); transition: transform .25s; font-size: 16px; flex-shrink: 0; }
+.faq-item.open .faq-toggle { transform: rotate(45deg); color: var(--purple); }
+.faq-a {
+  font-size: 11px; color: var(--muted); line-height: 1.8; overflow: hidden;
+  max-height: 0; transition: max-height .3s ease, margin .3s;
+}
+.faq-item.open .faq-a { max-height: 200px; margin-top: 12px; }
+
+/* ── FINAL CTA ── */
+.final-cta {
+  text-align: center; padding: 100px 24px;
+  position: relative; z-index: 1;
+}
+.final-cta::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(139,92,246,.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.final-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(30px, 5vw, 56px); font-weight: 800;
+  margin-bottom: 16px; letter-spacing: -.01em;
+}
+.final-sub { font-size: 14px; color: var(--muted); max-width: 480px; margin: 0 auto 36px; line-height: 1.7; }
+
+/* ── FOOTER ── */
+footer {
+  position: relative; z-index: 1;
+  border-top: 1px solid var(--border);
+  padding: 32px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 16px;
+}
+.footer-brand { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { font-size: 10px; color: var(--muted); text-decoration: none; letter-spacing: .1em; text-transform: uppercase; transition: color .2s; }
+.footer-links a:hover { color: var(--text); }
+.footer-copy { font-size: 10px; color: var(--muted); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity .7s ease, transform .7s ease;
+}
+.reveal.visible { opacity: 1; transform: none; }
+
+/* ── COUNTDOWN ── */
+.countdown-wrap {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(251,113,133,.08); border: 1px solid rgba(251,113,133,.25);
+  border-radius: 8px; padding: 8px 16px; margin-bottom: 32px;
+  font-size: 11px; color: var(--red); font-weight: 600;
+}
+.countdown-num { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; color: var(--red); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  nav { padding: 14px 20px; }
+  .nav-links { display: none; }
+  .stats-row { grid-template-columns: repeat(2,1fr); display: grid; }
+  .stat-cell { border-right: none; border-bottom: 1px solid var(--border); }
+  .stat-cell:nth-child(2) { border-right: 1px solid var(--border); }
+  .stat-cell:nth-child(3) { border-bottom: 1px solid var(--border); }
+  .stat-cell:nth-child(4) { border-bottom: none; }
+  .stats-row { border-radius: 14px; }
+  .mockup-screen { grid-template-columns: 1fr 1fr; }
+  footer { flex-direction: column; align-items: flex-start; padding: 24px 20px; }
+  .section-inner { padding: 60px 20px; }
+}
+</style>
+</head>
+<body>
+<div class="ambient"></div>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-brand-icon">
+      <img src="/favicon.svg" width="18" height="18" alt="portfolio.sys" style="display:block;">
+    </div>
+    PORTFOLIO.SYS
+  </div>
+  <div class="nav-links">
+    <a href="#fitur">Fitur</a>
+    <a href="#harga">Harga</a>
+    <a href="#faq">FAQ</a>
+    <a href="#testimoni">Review</a>
+  </div>
+  <a href="/" class="nav-cta">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="13" height="13"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    Mulai Sekarang
+  </a>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-badge">
+    <div class="badge-dot"></div>
+    Harga Live Otomatis · Sync ke Cloud · Bisa Offline
+  </div>
+
+  <h1 class="hero-title">
+    <span class="line1">Satu Dashboard untuk</span>
+    <span class="accent">Semua Investasimu</span>
+  </h1>
+
+  <p class="hero-sub">
+    Lacak crypto, emas, saham IDX & US, dan tabungan dalam satu tempat. Harga update otomatis. Data tersimpan aman di cloud — hanya kamu yang bisa lihat.
+  </p>
+
+  <div class="hero-actions">
+    <a href="/" class="btn-primary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="14" height="14"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Coba Gratis Sekarang
+    </a>
+    <a href="#fitur" class="btn-secondary">
+      Lihat Fitur Lengkap →
+    </a>
+  </div>
+
+  <!-- Live price ticker -->
+  <div class="ticker-wrap">
+    <div class="ticker-item">
+      <div class="ticker-dot dot-green"></div>
+      <span class="ticker-label">BTC</span>
+      <span class="ticker-val crypto" id="tick-btc">Rp 1,59M</span>
+    </div>
+    <div class="ticker-sep"></div>
+    <div class="ticker-item">
+      <span class="ticker-label">ETH</span>
+      <span class="ticker-val crypto" id="tick-eth">Rp 52Jt</span>
+    </div>
+    <div class="ticker-sep"></div>
+    <div class="ticker-item">
+      <div class="ticker-dot dot-gold"></div>
+      <span class="ticker-label">XAU/g</span>
+      <span class="ticker-val gold">Rp 1,68Jt</span>
+    </div>
+    <div class="ticker-sep"></div>
+    <div class="ticker-item">
+      <div class="ticker-dot dot-cyan"></div>
+      <span class="ticker-label">BBCA</span>
+      <span class="ticker-val up">9.250 ▲</span>
+    </div>
+    <div class="ticker-sep"></div>
+    <div class="ticker-item">
+      <span class="ticker-label">NVDA</span>
+      <span class="ticker-val up">$875 ▲</span>
+    </div>
+    <div class="ticker-sep"></div>
+    <div class="ticker-item">
+      <span class="ticker-label">USD/IDR</span>
+      <span class="ticker-val">16.250</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── STATS ── -->
+<div style="position:relative;z-index:1;max-width:900px;margin:0 auto 80px;padding:0 24px;">
+  <div class="stats-row reveal">
+    <div class="stat-cell">
+      <span class="stat-num" id="stat-users">500+</span>
+      <span class="stat-label">Pengguna Aktif</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-num">4</span>
+      <span class="stat-label">Kelas Aset</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-num">20+</span>
+      <span class="stat-label">Koin Crypto</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-num">0</span>
+      <span class="stat-label">Iklan. Selamanya.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── MOCKUP PREVIEW ── -->
+<section class="mockup-section" id="preview">
+  <div class="section-inner">
+    <span class="section-tag reveal">Dashboard Preview</span>
+    <h2 class="section-title reveal">Semua angka, satu layar.</h2>
+    <p class="section-sub reveal">Data real-time dari CoinGecko, Yahoo Finance, dan ExchangeRate-API. Diperbarui otomatis setiap 5 menit.</p>
+
+    <div class="mockup-wrap reveal">
+      <div class="mockup-bar">
+        <div class="mockup-dot" style="background:#fb7185;"></div>
+        <div class="mockup-dot" style="background:#fbbf24;margin-left:4px"></div>
+        <div class="mockup-dot" style="background:#34d399;margin-left:4px"></div>
+        <span style="flex:1;text-align:center;font-size:10px;color:var(--muted);">PORTFOLIO.SYS — Personal Net Worth Dashboard</span>
+        <span style="font-size:9px;color:var(--green);display:flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green);display:inline-block;"></span>LIVE</span>
+      </div>
+      <div class="mockup-screen">
+        <div class="mock-kpi">
+          <div class="mock-kpi-label">Total Net Worth</div>
+          <div class="mock-kpi-val">Rp 1,73M</div>
+          <div class="mock-kpi-pnl">+18.4% total return</div>
+        </div>
+        <div class="mock-kpi">
+          <div class="mock-kpi-label">Crypto</div>
+          <div class="mock-kpi-val">Rp 740Jt</div>
+          <div class="mock-kpi-pnl" style="color:var(--green)">+22.1%</div>
+        </div>
+        <div class="mock-kpi">
+          <div class="mock-kpi-label">Saham</div>
+          <div class="mock-kpi-val cyan-val">Rp 560Jt</div>
+          <div class="mock-kpi-pnl" style="color:var(--green)">+11.3%</div>
+        </div>
+        <div class="mock-kpi">
+          <div class="mock-kpi-label">Emas + Tabungan</div>
+          <div class="mock-kpi-val gold-val">Rp 430Jt</div>
+          <div class="mock-kpi-pnl" style="color:var(--green)">+8.2%</div>
+        </div>
+        <!-- holdings rows -->
+        <div class="mock-row">
+          <div class="mock-icon" style="background:rgba(247,147,26,.14);color:#f7931a;">BTC</div>
+          <div><div class="mock-name">Bitcoin <span class="mock-badge badge-up">+34.2%</span></div><div class="mock-sub">0.132 BTC · FLOQ · PINTU</div></div>
+          <div class="mock-right"><div class="mock-val">Rp 209Jt</div><div class="mock-pct">28.2% of crypto</div></div>
+        </div>
+        <div class="mock-row">
+          <div class="mock-icon" style="background:rgba(98,126,234,.14);color:#627eea;">ETH</div>
+          <div><div class="mock-name">Ethereum <span class="mock-badge badge-up">+18.7%</span></div><div class="mock-sub">2.1 ETH · FLOQ · TRIV</div></div>
+          <div class="mock-right"><div class="mock-val">Rp 109Jt</div><div class="mock-pct">14.7% of crypto</div></div>
+        </div>
+        <div class="mock-row">
+          <div class="mock-icon" style="background:rgba(34,211,238,.10);color:var(--cyan);" style="font-size:8px;font-weight:800;">BBCA</div>
+          <div><div class="mock-name">Bank Central Asia <span class="mock-badge badge-up">+4.8%</span></div><div class="mock-sub">5 lot · BIBIT · IDX</div></div>
+          <div class="mock-right"><div class="mock-val">Rp 46Jt</div><div class="mock-pct">8.2% of stocks</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES ── -->
+<section id="fitur">
+  <div class="section-inner">
+    <span class="section-tag reveal">Kenapa PORTFOLIO.SYS?</span>
+    <h2 class="section-title reveal">Bukan sekadar spreadsheet.</h2>
+    <p class="section-sub reveal">Dirancang khusus untuk investor Indonesia yang punya aset di banyak tempat sekaligus.</p>
+    <div class="features-grid">
+      <div class="feature-card feat-purple reveal">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" width="20" height="20"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
+        </div>
+        <div class="feat-title">Harga Live Otomatis</div>
+        <div class="feat-desc">Sync dari CoinGecko, Yahoo Finance & ExchangeRate-API setiap 5 menit. Tidak perlu update manual lagi.</div>
+      </div>
+      <div class="feature-card feat-cyan reveal">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" width="20" height="20"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+        </div>
+        <div class="feat-title">Cloud Sync & Privat</div>
+        <div class="feat-desc">Data tersimpan di Firebase Firestore. Hanya kamu yang bisa akses — tidak ada yang bisa melihat portofolimu.</div>
+      </div>
+      <div class="feature-card feat-gold reveal">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" width="20" height="20"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <div class="feat-title">Import PDF</div>
+        <div class="feat-desc">Paste atau upload langsung dari Bibit, Stockbit, Pluang, Indodax, Tokocrypto, IBKR, dan banyak lagi. Tidak perlu ketik manual.</div>
+      </div>
+      <div class="feature-card feat-pink reveal">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" width="20" height="20"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <div class="feat-title">Analytics & Benchmark</div>
+        <div class="feat-desc">Sharpe ratio, max drawdown, volatilitas, dan perbandingan performa vs IHSG & S&P 500. Data science untuk investor ritel.</div>
+      </div>
+      <div class="feature-card feat-green reveal">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" width="20" height="20"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="feat-title">Rebalancing Calculator</div>
+        <div class="feat-desc">Set target alokasi per kelas aset, langsung lihat berapa yang harus dibeli atau dijual untuk mencapai target.</div>
+      </div>
+      <div class="feature-card feat-red reveal">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" width="20" height="20"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        </div>
+        <div class="feat-title">PWA — Bisa Offline</div>
+        <div class="feat-desc">Install di HP seperti app native. Berjalan lancar tanpa koneksi. Data terakhir tetap tersedia walau internet mati.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ── -->
+<section id="harga" style="background:linear-gradient(to bottom,transparent,rgba(139,92,246,.03),transparent)">
+  <div class="section-inner">
+    <span class="section-tag reveal">Pilih Model yang Sesuai</span>
+    <h2 class="section-title reveal">Harga Transparan, Tanpa Kejutan.</h2>
+    <p class="section-sub reveal">Tiga pilihan sesuai kebutuhan dan budget. Tidak ada auto-renew tersembunyi.</p>
+
+    <div class="pricing-grid">
+
+      <!-- FREE TIER -->
+      <div class="pricing-card reveal">
+        <div class="pricing-badge badge-free">Gratis Selamanya</div>
+        <div class="pricing-name">Freemium</div>
+        <div class="pricing-desc">Mulai lacak portofolio tanpa bayar sepeser pun. Cocok untuk investor pemula.</div>
+        <div class="pricing-price">
+          <span class="price-curr">Rp</span>
+          <span class="price-num" style="color:var(--green);">0</span>
+          <span class="price-period">/ bulan</span>
+        </div>
+        <div class="pricing-original" style="height:20px;"></div>
+        <button class="pricing-cta cta-outline" onclick="window.location.href='/'">Mulai Gratis →</button>
+        <div class="pricing-features">
+          <div class="pf-item"><div class="pf-check check-yes">✓</div><div class="pf-text">4 kelas aset (crypto, emas, saham, tabungan)</div></div>
+          <div class="pf-item"><div class="pf-check check-yes">✓</div><div class="pf-text">Cloud sync ke Firebase</div></div>
+          <div class="pf-item"><div class="pf-check check-yes">✓</div><div class="pf-text">Sync harga manual (klik tombol)</div></div>
+          <div class="pf-item"><div class="pf-check check-yes">✓</div><div class="pf-text">10 tema warna</div></div>
+          <div class="pf-item"><div class="pf-check check-yes">✓</div><div class="pf-text">Export PDF & JSON</div></div>
+          <div class="pf-divider"></div>
+          <div class="pf-item"><div class="pf-check check-no">—</div><div class="pf-text muted">Auto-sync setiap 5 menit</div></div>
+          <div class="pf-item"><div class="pf-check check-no">—</div><div class="pf-text muted">Analytics lanjutan (Sharpe, drawdown)</div></div>
+          <div class="pf-item"><div class="pf-check check-no">—</div><div class="pf-text muted">Import PDF dari broker</div></div>
+        </div>
+      </div>
+
+      <!-- LIFETIME DEAL (FEATURED) -->
+      <div class="pricing-card featured reveal">
+        <div class="pricing-badge badge-featured">⚡ Lifetime Deal · 100 Slot Tersisa</div>
+        <div class="pricing-name">Pro Lifetime</div>
+        <div class="pricing-desc">Bayar sekali, pakai selamanya. Semua fitur, semua update selama setahun ke depan.</div>
+        <div class="pricing-price">
+          <span class="price-curr">Rp</span>
+          <span class="price-num" style="color:var(--purple);">199k</span>
+        </div>
+        <div class="pricing-original">
+          <del>Rp 499.000</del> &nbsp;—&nbsp; <span style="color:var(--green);">hemat 60%</span>
+        </div>
+        <button class="pricing-cta cta-featured">Beli Lifetime Deal →</button>
+        <div class="pricing-features">
+          <div class="pf-item"><div class="pf-check check-yes">✓</div><div class="pf-text">Semua fitur Freemium</div></div>
+          <div class="pf-item"><div class="pf-check check-yes">✓</div><div class="pf-text"><strong>Auto-sync harga setiap 5 menit</strong></div></div>
+          <div class="pf-item"><div class="pf-check check-yes">✓</div><div class="pf-text"><strong>Import PDF dari Bibit, Stockbit, Pluang, Indodax, dll</strong></div></div>
+          <div class="pf-item"><div class="pf-check check-yes">✓</div><div class="pf-text"><strong>Analytics lanjutan: Sharpe, Max DD, Volatilitas</strong></div></div>
+          <div class="pf-item"><div class="pf-check check-yes">✓</div><div class="pf-text">Benchmark vs IHSG & S&P 500</div></div>
+          <div class="pf-item"><div class="pf-check check-yes">✓</div><div class="pf-text">Rebalancing calculator</div></div>
+          <div class="pf-item"><div class="pf-check check-yes">✓</div><div class="pf-text">Export PDF laporan</div></div>
+          <div class="pf-item"><div class="pf-check check-yes">✓</div><div class="pf-text">Semua update besar selama 12 bulan</div></div>
+          <div class="pf-divider"></div>
+          <div class="pf-bonus">🔥 Harga naik setelah 100 pembeli pertama</div>
+        </div>
+      </div>
+
+      <!-- BELI PUTUS PER VERSI -->
+      <div class="pricing-card reveal">
+        <div class="pricing-badge badge-pro">Update-Based</div>
+        <div class="pricing-name">Beli Putus v1</div>
+        <div class="pricing-desc">Beli sekali untuk versi saat ini. Upgrade ke versi besar berikutnya dengan harga spesial alumni.</div>
+        <div class="pricing-price">
+          <span class="price-curr">Rp</span>
+          <span class="price-num" style="color:var(--cyan);">99k</span>
+        </div>
+        <div class="pricing-original" style="height:20px;"></div>
+        <button class="pricing-cta cta-outline" onclick="alert('Hubungi via Trakteer atau email!')">Beli Versi Ini →</button>
+        <div class="pricing-features">
+          <div class="pf-item"><div class="pf-check check-yes">✓</div><div class="pf-text">Semua fitur Pro versi saat ini</div></div>
+          <div class="pf-item"><div class="pf-check check-yes">✓</div><div class="pf-text">Bug fix & patch minor gratis</div></div>
+          <div class="pf-item"><div class="pf-check check-yes">✓</div><div class="pf-text">Akses ke grup komunitas pengguna</div></div>
+          <div class="pf-divider"></div>
+          <div class="pf-item"><div class="pf-check check-no">—</div><div class="pf-text muted">Update major (v2.0, v3.0 dst) perlu bayar upgrade</div></div>
+          <div class="pf-item"><div class="pf-check check-no">—</div><div class="pf-text muted">Harga upgrade diskon 50% untuk alumni</div></div>
+          <div class="pf-divider"></div>
+          <div class="pf-bonus">💡 Cocok jika ingin coba dulu sebelum komit</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- payment methods -->
+    <div style="text-align:center;margin-top:32px;font-size:10px;color:var(--muted);letter-spacing:.1em;">
+      PEMBAYARAN VIA &nbsp;·&nbsp;
+      <span style="color:var(--text);font-weight:700;">GoPay · QRIS · Transfer Bank · Trakteer</span>
+      &nbsp;·&nbsp; Garansi uang kembali 3 hari
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIALS ── -->
+<section id="testimoni">
+  <div class="section-inner">
+    <span class="section-tag reveal">Dari Pengguna Nyata</span>
+    <h2 class="section-title reveal">Yang mereka bilang.</h2>
+    <div class="testimonials-grid">
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-text">"Akhirnya nggak perlu buka 5 app berbeda buat ngecek portofolio. BTC di Floq, BBCA di Bibit, deposito di Krom — semuanya keliatan dalam satu layar."</div>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background:rgba(139,92,246,.15);color:#a78bfa;">AR</div>
+          <div><div class="author-name">Andi R.</div><div class="author-role">Retail Investor · Jakarta</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-text">"Fitur import dari PDF Indodax itu killer feature. Saya punya ratusan transaksi — tinggal Ctrl+A, Ctrl+C, paste, langsung terdeteksi otomatis."</div>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background:rgba(34,211,238,.12);color:var(--cyan);">DS</div>
+          <div><div class="author-name">Dina S.</div><div class="author-role">Trader · Surabaya</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-text">"Sharpe ratio dan benchmark vs IHSG bikin saya sadar return portofolio saya sebenarnya under-perform. Sekarang bisa ambil keputusan lebih data-driven."</div>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background:rgba(245,197,24,.10);color:var(--gold);">BP</div>
+          <div><div class="author-name">Budi P.</div><div class="author-role">Value Investor · Bandung</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ── -->
+<section id="faq">
+  <div class="section-inner">
+    <span class="section-tag reveal">FAQ</span>
+    <h2 class="section-title reveal">Pertanyaan yang sering ditanya.</h2>
+    <div class="faq-list">
+      <div class="faq-item reveal" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Apakah data portofolio saya aman? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">Ya. Data tersimpan di akun Google-mu sendiri melalui Firebase Firestore. Kami tidak bisa melihat, mengakses, atau menjual data portofoliomu. Setiap user punya path database sendiri yang terlindungi oleh Firestore Security Rules.</div>
+      </div>
+      <div class="faq-item reveal" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Bisa dipakai di HP? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">Ya. PORTFOLIO.SYS adalah Progressive Web App (PWA). Kamu bisa install di iPhone atau Android — tampilannya seperti app native, bisa dipakai offline, dan ada notifikasi jika didukung.</div>
+      </div>
+      <div class="faq-item reveal" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Apakah harga akan naik? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">Ya. Lifetime Deal Rp 199.000 hanya untuk 100 pembeli pertama sebagai harga early adopter. Setelah slot habis, harga kembali ke Rp 499.000 atau akan beralih ke model subscription bulanan.</div>
+      </div>
+      <div class="faq-item reveal" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Bagaimana kalau saya tidak puas? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">Ada garansi uang kembali 3 hari sejak pembelian, tanpa pertanyaan. Hubungi kami via email atau DM dan kami proses refund dalam 24 jam.</div>
+      </div>
+      <div class="faq-item reveal" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Apakah ini saran investasi? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">Tidak. PORTFOLIO.SYS adalah alat pencatatan dan visualisasi portofolio. Semua data yang ditampilkan adalah berdasarkan input dari pengguna. Tidak ada dari konten di platform ini yang merupakan saran investasi.</div>
+      </div>
+      <div class="faq-item reveal" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Broker & exchange apa saja yang didukung untuk import? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">Saat ini mendukung import dari: Bibit, Stockbit, IndoPremier, Pluang (PDF email), Indodax (Tax Report PDF), Tokocrypto (Laporan Pajak PDF), Floq (Laporan Pajak PDF), Binance, IBKR (Interactive Brokers), dan format teks generik. Daftar terus bertambah.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── DISCLAIMER ── -->
+<div class="disclaimer-section">
+  <div class="disclaimer-inner">
+    <div class="disclaimer-icon">⚠</div>
+    <div class="disclaimer-text">
+      <strong>Disclaimer Penting:</strong> PORTFOLIO.SYS adalah alat pencatatan dan visualisasi portofolio pribadi, bukan platform investasi. Harga yang ditampilkan bersumber dari API publik pihak ketiga dan mungkin tidak 100% akurat atau real-time. Tidak ada konten dalam aplikasi ini yang merupakan saran investasi, rekomendasi beli/jual, atau analisis keuangan profesional. Investasi mengandung risiko. Selalu lakukan riset mandiri (DYOR) dan konsultasikan dengan perencana keuangan berlisensi sebelum mengambil keputusan investasi.
+    </div>
+  </div>
+</div>
+
+<!-- ── FINAL CTA ── -->
+<section class="final-cta">
+  <div class="countdown-wrap" id="ctaCountdown">
+    <span>🔥</span>
+    <span>Lifetime Deal berakhir atau kehabisan slot dalam:</span>
+    <span class="countdown-num" id="cdHours">47</span><span style="color:var(--red)">j</span>
+    <span class="countdown-num" id="cdMins">23</span><span style="color:var(--red)">m</span>
+    <span class="countdown-num" id="cdSecs">59</span><span style="color:var(--red)">d</span>
+  </div>
+  <h2 class="final-title">Mulai lacak investasimu <span style="background:linear-gradient(135deg,var(--purple),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">hari ini.</span></h2>
+  <p class="final-sub">Daftar gratis. Tidak perlu kartu kredit. Upgrade kapan saja.</p>
+  <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+    <a href="/" class="btn-primary" style="font-size:13px;padding:16px 36px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="15" height="15"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Coba Gratis Sekarang
+    </a>
+    <a href="/" class="btn-secondary" style="font-size:13px;padding:15px 32px;border-color:rgba(139,92,246,.4);color:var(--purple);">
+      ⚡ Ambil Lifetime Deal — Rp 199k
+    </a>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-brand">
+    <div class="nav-brand-icon" style="width:24px;height:24px;border-radius:5px;">
+      <img src="/favicon.svg" width="16" height="16" alt="portfolio.sys" style="display:block;">
+    </div>
+    PORTFOLIO.SYS
+  </div>
+  <div class="footer-links">
+    <a href="#fitur">Fitur</a>
+    <a href="#harga">Harga</a>
+    <a href="#faq">FAQ</a>
+    <a href="mailto:hello@portfolio.sys">Kontak</a>
+  </div>
+  <div class="footer-copy">
+    Dibuat dengan ❤️ untuk investor Indonesia · <span id="footerYear"></span>
+    &nbsp;·&nbsp; Tidak ada iklan. Tidak ada pelacak.
+  </div>
+</footer>
+
+<script>
+/* ── Countdown Timer ── */
+(function() {
+  var end = new Date();
+  end.setHours(end.getHours() + 47, end.getMinutes() + 23, end.getSeconds() + 59);
+  if (localStorage.getItem('pf-cd-end')) {
+    end = new Date(parseInt(localStorage.getItem('pf-cd-end')));
+  } else {
+    localStorage.setItem('pf-cd-end', end.getTime());
+  }
+  function update() {
+    var diff = end - Date.now();
+    if (diff < 0) diff = 0;
+    var h = Math.floor(diff / 3600000);
+    var m = Math.floor((diff % 3600000) / 60000);
+    var s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('cdHours').textContent = String(h).padStart(2,'0');
+    document.getElementById('cdMins').textContent  = String(m).padStart(2,'0');
+    document.getElementById('cdSecs').textContent  = String(s).padStart(2,'0');
+  }
+  update();
+  setInterval(update, 1000);
+})();
+
+/* ── Footer year ── */
+document.getElementById('footerYear').textContent = new Date().getFullYear();
+
+/* ── Scroll reveal ── */
+var reveals = document.querySelectorAll('.reveal');
+var io = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e, i) {
+    if (e.isIntersecting) {
+      setTimeout(function() { e.target.classList.add('visible'); }, i * 60);
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+reveals.forEach(function(el) { io.observe(el); });
+
+/* ── Animated ticker ── */
+(function() {
+  var btcBase = 1590000000;
+  var ethBase = 52000000;
+  function fmtBtc(n) {
+    return 'Rp ' + (n/1e9).toFixed(2).replace('.',',') + 'M';
+  }
+  function fmtEth(n) {
+    return 'Rp ' + Math.round(n/1e6) + 'Jt';
+  }
+  setInterval(function() {
+    btcBase += (Math.random() - 0.49) * 2000000;
+    ethBase += (Math.random() - 0.49) * 50000;
+    var bEl = document.getElementById('tick-btc');
+    var eEl = document.getElementById('tick-eth');
+    if (bEl) bEl.textContent = fmtBtc(btcBase);
+    if (eEl) eEl.textContent = fmtEth(ethBase);
+  }, 3000);
+})();
+</script>
+</body>
+</html>

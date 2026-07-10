@@ -180,7 +180,6 @@ export function initCloud() {
     if (user) {
       // ── User sudah login ──────────────────────────────────────
       currentUser = user;
-      try { localStorage.setItem('cf-returning', '1'); } catch (_) { } // landing page smart-skip
 
       // [Fix 1] Raise the flag BEFORE touching the UI or loading data.
       // This prevents openImport() from being called automatically by
