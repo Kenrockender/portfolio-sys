@@ -248,6 +248,7 @@ const ALLOC_COLORS = {
   stocks:  ['var(--signal)', 'Saham', 'Stocks'],
   crypto:  ['#8b5cf6',       'Crypto', 'Crypto'],
   gold:    ['var(--warn)',   'Emas', 'Gold'],
+  bonds:   ['#fb923c',       'Obligasi', 'Bonds'],
   savings: ['var(--info)',   'Tabungan / cash', 'Savings / cash'],
 };
 
@@ -258,6 +259,7 @@ function renderAllocation() {
     { key: 'stocks',  val: T.k  },
     { key: 'crypto',  val: T.c  },
     { key: 'gold',    val: T.g  },
+    { key: 'bonds',   val: T.bo },
     { key: 'savings', val: T.sv },
   ];
   const svg = document.querySelector('[data-an-donut]');
@@ -319,7 +321,7 @@ function renderAllocation() {
     });
   });
 
-  const targets = (S.rebalTargets || { stocks: 30, crypto: 40, gold: 15, savings: 15 });
+  const targets = (S.rebalTargets || { stocks: 30, crypto: 40, gold: 15, bonds: 0, savings: 15 });
   legend.innerHTML = segs.map(function (s) {
     const pct = grand > 0 ? (s.val / grand) * 100 : 0;
     const target = targets[s.key] || 0;
@@ -346,7 +348,7 @@ function renderRisk() {
   // Concentration HHI from category split
   let hhi = 0;
   if (grand > 0) {
-    const pcts = [T.k / grand, T.c / grand, T.g / grand, T.sv / grand];
+    const pcts = [T.k / grand, T.c / grand, T.g / grand, T.bo / grand, T.sv / grand];
     hhi = pcts.reduce(function (a, b) { return a + b * b; }, 0);
   }
 
@@ -418,11 +420,12 @@ function renderRisk() {
 function renderRebalance() {
   const T = totals();
   const grand = T.t || 0;
-  const targets = S.rebalTargets || { stocks: 30, crypto: 40, gold: 15, savings: 15 };
+  const targets = S.rebalTargets || { stocks: 30, crypto: 40, gold: 15, bonds: 0, savings: 15 };
   const actual  = grand > 0 ? {
     stocks:  (T.k  / grand) * 100,
     crypto:  (T.c  / grand) * 100,
     gold:    (T.g  / grand) * 100,
+    bonds:   (T.bo / grand) * 100,
     savings: (T.sv / grand) * 100,
   } : null;
 
@@ -436,9 +439,9 @@ function renderRebalance() {
     return;
   }
 
-  const keys = ['stocks', 'crypto', 'gold', 'savings'];
+  const keys = ['stocks', 'crypto', 'gold', 'bonds', 'savings'];
   const diffs = keys.map(function (k) {
-    return { key: k, diff: actual[k] - (targets[k] || 0), actualPct: actual[k], targetPct: targets[k] || 0, idr: { stocks: T.k, crypto: T.c, gold: T.g, savings: T.sv }[k] };
+    return { key: k, diff: actual[k] - (targets[k] || 0), actualPct: actual[k], targetPct: targets[k] || 0, idr: { stocks: T.k, crypto: T.c, gold: T.g, bonds: T.bo, savings: T.sv }[k] };
   });
 
   // Top 3 by absolute deviation
@@ -454,7 +457,7 @@ function renderRebalance() {
     return;
   }
 
-  const labelById = { stocks: lang() === 'id' ? 'saham' : 'stocks', crypto: 'crypto', gold: lang() === 'id' ? 'emas' : 'gold', savings: lang() === 'id' ? 'tabungan' : 'savings' };
+  const labelById = { stocks: lang() === 'id' ? 'saham' : 'stocks', crypto: 'crypto', gold: lang() === 'id' ? 'emas' : 'gold', bonds: lang() === 'id' ? 'obligasi' : 'bonds', savings: lang() === 'id' ? 'tabungan' : 'savings' };
 
   root.innerHTML = top.map(function (d, i) {
     const verb     = d.diff > 0 ? (lang() === 'id' ? 'Kurangi ' : 'Reduce ') : (lang() === 'id' ? 'Tambah '  : 'Add to ');
@@ -493,7 +496,7 @@ function renderInsight() {
   const grand = T.t || 0;
   let biggest = '…';
   if (grand > 0) {
-    const parts = [{ k: 'saham', v: T.k }, { k: 'crypto', v: T.c }, { k: 'tabungan', v: T.sv }, { k: 'emas', v: T.g }];
+    const parts = [{ k: 'saham', v: T.k }, { k: 'crypto', v: T.c }, { k: 'tabungan', v: T.sv }, { k: 'emas', v: T.g }, { k: 'obligasi', v: T.bo }];
     parts.sort(function (a, b) { return b.v - a.v; });
     biggest = parts[0].k + ' (' + Math.round((parts[0].v / grand) * 100) + '%)';
   }
@@ -537,12 +540,14 @@ function computeSignals() {
     stocks:  (T.k  / grand) * 100,
     crypto:  (T.c  / grand) * 100,
     gold:    (T.g  / grand) * 100,
+    bonds:   (T.bo / grand) * 100,
     savings: (T.sv / grand) * 100,
   };
   const labelById = {
     stocks: lang() === 'id' ? 'saham' : 'stocks',
     crypto: 'crypto',
     gold:   lang() === 'id' ? 'emas' : 'gold',
+    bonds:  lang() === 'id' ? 'obligasi' : 'bonds',
     savings: lang() === 'id' ? 'tabungan' : 'savings',
   };
 

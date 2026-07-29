@@ -8,7 +8,10 @@
    ============================================================ */
 
 import { S, DATA } from './state.js';
-import { cryptoPrice, stockPrice, stockMul, savingsIdr } from './storage.js';
+import { cryptoPrice, stockPrice, stockMul, savingsIdr, bondIdr } from './storage.js';
+import { PLAT_COLORS, BOND_TYPE_OPTS } from './config.js';
+
+const BOND_TYPE_LABEL = BOND_TYPE_OPTS.reduce(function (m, o) { m[o.v] = o.l; return m; }, {});
 
 const i18n = (typeof window !== 'undefined' && window.psys && window.psys.i18n) || null;
 function t(k, fb)        { return i18n ? i18n.t(k, fb) : (fb || k); }
@@ -18,7 +21,7 @@ function fmtDeltaIDR(n, opts) { return i18n ? i18n.fmtDeltaIDR(n, opts) : ((n >=
 function fmtPct(n, d)    { return i18n ? i18n.fmtPct(n, d) : ((n >= 0 ? '+' : '−') + Math.abs(n).toFixed(d || 2) + '%'); }
 
 const state = {
-  cat: 'all',          // all | crypto | stocks | gold | savings
+  cat: 'all',          // all | crypto | stocks | gold | bonds | savings
   sort: 'value-desc',
 };
 
@@ -84,6 +87,19 @@ function flatten() {
       raw: h,
     });
   });
+  (DATA.bonds || []).forEach(function (h) {
+    const val = bondIdr(h);
+    rows.push({
+      kind: 'bonds',
+      ticker: h.name || 'BOND',
+      name: (BOND_TYPE_LABEL[h.bondType] || (h.bondType || '').toUpperCase()) + ' · ' + (h.couponRate || 0) + '% p.a.',
+      platform: (h.platform || '').toUpperCase(),
+      qty: h.nominal || 0, qtyLabel: 'Rp ' + (h.nominal || 0).toLocaleString('id-ID'),
+      price: 0,
+      val: val, cost: 0, pnl: 0, ret: h.couponRate || 0,
+      raw: h,
+    });
+  });
   (DATA.savings || []).forEach(function (h) {
     const val = savingsIdr(h);
     rows.push({
@@ -120,11 +136,26 @@ function filtered() {
 }
 
 /* ---- CATEGORY ICON / LOGO ---- */
+// Savings icons are per account-type (Tabungan / Deposito / Giro / Cash) so
+// the row visually distinguishes what kind of account it is, not just "savings".
+const SAVINGS_TYPE_ICON = {
+  tabungan: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M3 9 L12 4 L21 9"/><line x1="5" y1="11" x2="5" y2="18"/><line x1="12" y1="11" x2="12" y2="18"/><line x1="19" y1="11" x2="19" y2="18"/><line x1="3" y1="20" x2="21" y2="20"/></svg>',
+  deposito: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="12" cy="13" r="7"/><path d="M12 9.5 V13 L14.5 14.8"/><path d="M9.5 2.5 h5"/><path d="M8 4.2 L6.5 2.7 M16 4.2 L17.5 2.7"/></svg>',
+  giro: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9 h18"/><line x1="6.5" y1="14.5" x2="11" y2="14.5"/><path d="M15 14 h4 M15 16.5 h3"/></svg>',
+  cash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="2.5" y="6.5" width="19" height="11" rx="1.5"/><circle cx="12" cy="12" r="2.6"/><line x1="5.5" y1="9.5" x2="5.5" y2="9.5"/><line x1="18.5" y1="14.5" x2="18.5" y2="14.5"/></svg>',
+};
+function savingsIconSvg(item) {
+  const t = (item && item.acctType) || (item && item.bank === 'cash' ? 'cash' : 'tabungan');
+  return SAVINGS_TYPE_ICON[t] || SAVINGS_TYPE_ICON.tabungan;
+}
 // Reuses the logo map exposed by home.js via window.psys.logos when available.
 function rowLogoSvg(row) {
   // Try ticker-specific logo from window.psys (set by home.js)
   if (window.psys && window.psys.logos && window.psys.logos[row.ticker]) {
     return { svg: window.psys.logos[row.ticker], variant: 'logo' };
+  }
+  if (row.kind === 'savings') {
+    return { svg: savingsIconSvg(row.raw), variant: 'savings', bankColor: PLAT_COLORS[row.raw && row.raw.bank] };
   }
   // Fallback: category icon
   return { svg: categorySvg(row.kind), variant: row.kind };
@@ -134,7 +165,8 @@ function categorySvg(kind) {
     crypto: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 2 L20 7 L20 17 L12 22 L4 17 L4 7 Z"/><circle cx="12" cy="12" r="3.5"/></svg>',
     stocks: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="5" y1="20" x2="5" y2="14"/><line x1="12" y1="20" x2="12" y2="9"/><line x1="19" y1="20" x2="19" y2="4"/></svg>',
     gold:   '<svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><rect x="3" y="9" width="18" height="9" rx="1.5"/><rect x="6" y="6" width="12" height="3" rx="1" opacity="0.55"/></svg>',
-    savings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M3 9 L12 4 L21 9"/><line x1="5" y1="11" x2="5" y2="18"/><line x1="12" y1="11" x2="12" y2="18"/><line x1="19" y1="11" x2="19" y2="18"/><line x1="3" y1="20" x2="21" y2="20"/></svg>',
+    bonds:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>',
+    savings: SAVINGS_TYPE_ICON.tabungan,
   };
   return ICON[kind] || ICON.stocks;
 }
@@ -143,7 +175,7 @@ function categorySvg(kind) {
 function renderHead(rows) {
   const sub = document.querySelector('[data-hd-sub]');
   if (sub) {
-    const classes = ['crypto','stocks','gold','savings'].filter(function (k) { return rows.some(function (r) { return r.kind === k; }); }).length;
+    const classes = ['crypto','stocks','gold','bonds','savings'].filter(function (k) { return rows.some(function (r) { return r.kind === k; }); }).length;
     sub.textContent = rows.length + (lang() === 'id' ? ' aset · ' : ' assets · ') + classes + (lang() === 'id' ? ' kelas' : ' classes');
   }
 }
@@ -166,12 +198,12 @@ function renderSummary() {
     pnlEl.classList.remove('is-pos','is-neg','is-mute');
     pnlEl.classList.add(pnl > 0 ? 'is-pos' : pnl < 0 ? 'is-neg' : 'is-mute');
   }
-  set('[data-hd-count]', String(all.length), ['crypto','stocks','gold','savings'].filter(function (k) { return all.some(function (r) { return r.kind === k; }); }).length + (lang() === 'id' ? ' kelas aset' : ' asset classes'));
+  set('[data-hd-count]', String(all.length), ['crypto','stocks','gold','bonds','savings'].filter(function (k) { return all.some(function (r) { return r.kind === k; }); }).length + (lang() === 'id' ? ' kelas aset' : ' asset classes'));
 
   // Per-category counts in the filter pills
-  const counts = { all: all.length, crypto: 0, stocks: 0, gold: 0, savings: 0 };
+  const counts = { all: all.length, crypto: 0, stocks: 0, gold: 0, bonds: 0, savings: 0 };
   all.forEach(function (r) { counts[r.kind]++; });
-  ['all','crypto','stocks','gold','savings'].forEach(function (k) {
+  ['all','crypto','stocks','gold','bonds','savings'].forEach(function (k) {
     const el = document.querySelector('[data-hd-count-' + k + ']');
     if (el) {el.textContent = counts[k];}
   });
@@ -181,6 +213,7 @@ const CATEGORY_LABEL = {
   crypto:  { id: 'Crypto', en: 'Crypto' },
   stocks:  { id: 'Saham',  en: 'Stocks' },
   gold:    { id: 'Emas',   en: 'Gold'   },
+  bonds:   { id: 'Obligasi', en: 'Bonds' },
   savings: { id: 'Tabungan & cash', en: 'Savings & cash' },
 };
 
@@ -189,15 +222,17 @@ function rowHtml(r) {
   const pnlDir = r.pnl > 0 ? 'up' : r.pnl < 0 ? 'down' : 'mute';
   const hasPnl = r.cost > 0;
   const id = (r.raw && r.raw.id) || '';
+  const iconStyle = logo.bankColor ? ' style="color:' + esc(logo.bankColor) + ';border-color:' + esc(logo.bankColor) + '40;background:' + esc(logo.bankColor) + '14;"' : '';
+  const platDot = (r.platform && logo.bankColor) ? '<span class="plat-dot" style="background:' + esc(logo.bankColor) + ';"></span>' : '';
   return ''
     + '<div class="hd-row" data-hd-edit="' + esc(r.kind) + ':' + esc(id) + '" title="' + esc(lang() === 'id' ? 'Klik untuk edit' : 'Click to edit') + '">'
-    + '  <div class="hd-row__icon hd-row__icon--' + esc(logo.variant) + '">' + logo.svg + '</div>'
+    + '  <div class="hd-row__icon hd-row__icon--' + esc(logo.variant) + '"' + iconStyle + '>' + logo.svg + '</div>'
     + '  <div class="hd-row__name">'
     + '    <div class="hd-row__name__main">'
     + '      <span class="ticker">' + esc(r.ticker) + '</span>'
     + '      <span class="label-name">' + esc(r.name) + '</span>'
     + '    </div>'
-    + (r.platform ? '    <span class="hd-row__plat">' + esc(r.platform) + '</span>' : '')
+    + (r.platform ? '    <span class="hd-row__plat">' + platDot + esc(r.platform) + '</span>' : '')
     + '  </div>'
     + '  <div class="hd-row__qty"><b>' + esc(r.qtyLabel) + '</b>'
     + (r.price ? '<span class="sub">@ ' + esc(fmtIDR(Math.round(r.price))) + '</span>' : '')
@@ -208,7 +243,7 @@ function rowHtml(r) {
     + '  <div class="hd-row__pnl ' + pnlDir + '">'
     + (hasPnl
         ? '<span class="abs">' + esc(fmtDeltaIDR(r.pnl, { compact: Math.abs(r.pnl) >= 1e7 })) + '</span><span class="pct">' + esc(fmtPct(r.ret, 1)) + '</span>'
-        : (r.kind === 'savings'
+        : ((r.kind === 'savings' || r.kind === 'bonds')
             ? '<span class="abs">' + esc(fmtPct(r.ret, 1)) + ' p.a.</span><span class="pct">' + esc(lang() === 'id' ? 'yield tahunan' : 'annual yield') + '</span>'
             : '<span class="abs" style="color:var(--ink-faint);">' + esc(lang() === 'id' ? 'cost basis kosong' : 'no cost basis') + '</span>'))
     + '  </div>'
@@ -229,7 +264,7 @@ function renderGroups() {
 
   // When a specific category is selected, render a single group;
   // when "all", group by category in a fixed order.
-  const order = ['crypto', 'stocks', 'gold', 'savings'];
+  const order = ['crypto', 'stocks', 'gold', 'bonds', 'savings'];
   const groups = {};
   rows.forEach(function (r) { (groups[r.kind] = groups[r.kind] || []).push(r); });
 
@@ -291,7 +326,7 @@ function wireSort() {
 }
 
 function findItem(kind, id) {
-  const arr = ({ crypto: DATA.crypto, stocks: DATA.stocks, gold: DATA.gold, savings: DATA.savings })[kind];
+  const arr = ({ crypto: DATA.crypto, stocks: DATA.stocks, gold: DATA.gold, bonds: DATA.bonds, savings: DATA.savings })[kind];
   if (!arr) {return null;}
   return arr.find(function (x) { return x.id === id; }) || null;
 }

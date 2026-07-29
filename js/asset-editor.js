@@ -8,7 +8,8 @@
    ============================================================ */
 
 import { S, DATA, uid } from './state.js';
-import { POPULAR_STOCKS_IDX, US_STOCKS, INDEX_FUNDS, PLAT_COLORS, AC_BANKS, AC_BROKERS, AC_PLATFORMS } from './config.js';
+import { POPULAR_STOCKS_IDX, US_STOCKS, INDEX_FUNDS, PLAT_COLORS, AC_BANKS, AC_BROKERS, AC_PLATFORMS, AC_BOND_PLATFORMS, BOND_TYPE_OPTS } from './config.js';
+import { bondIdr } from './storage.js';
 import { saveDataToCloud } from '../firebase/firebase-config.js';
 
 /* Ticker → company-name maps, tagged with market for auto-fill.
@@ -40,14 +41,14 @@ function fieldsFor(kind) {
       { name: 'name',          label: { id: 'Nama koin',            en: 'Coin name' },           type: 'text',   required: true,  ph: 'Bitcoin' },
       { name: 'amount',        label: { id: 'Jumlah',               en: 'Amount' },              type: 'number', required: true,  step: 'any', ph: '0.5' },
       { name: 'platform',      label: { id: 'Platform / exchange',  en: 'Platform / exchange' }, type: 'text',   required: true,  ph: 'indodax, pluang, floq…', autocomplete: true, acList: AC_PLATFORMS },
-      { name: 'costBasisIdr',  label: { id: 'Cost basis (IDR)',     en: 'Cost basis (IDR)' },    type: 'number', required: false, step: 'any', ph: '0' },
+      { name: 'costBasisIdr',  label: { id: 'Cost basis (IDR)',     en: 'Cost basis (IDR)' },    type: 'number', required: false, step: 'any', ph: '0', money: true },
       { name: 'date',          label: { id: 'Tanggal beli',         en: 'Buy date' },            type: 'date',   required: false },
     ],
     stocks: [
       { name: 'ticker',        label: { id: 'Ticker',                en: 'Ticker' },             type: 'text',   required: true,  ph: 'BBCA, AAPL…', autocomplete: true },
       { name: 'name',          label: { id: 'Nama perusahaan',       en: 'Company name' },       type: 'text',   required: true,  ph: 'Bank Central Asia' },
       { name: 'shares',        label: { id: 'Jumlah lot (IDX) / shares (US)', en: 'Lots (IDX) / shares (US)' }, type: 'number', required: true, step: '1', ph: '5' },
-      { name: 'seedPrice',     label: { id: 'Harga rata-rata',       en: 'Avg cost / share' },   type: 'number', required: true,  step: 'any', ph: '9000' },
+      { name: 'seedPrice',     label: { id: 'Harga rata-rata',       en: 'Avg cost / share' },   type: 'number', required: true,  step: 'any', ph: '9000', money: true },
       { name: 'broker',        label: { id: 'Broker',                en: 'Broker' },             type: 'text',   required: true,  ph: 'stockbit, bibit…', autocomplete: true, acList: AC_BROKERS },
       { name: 'market',        label: { id: 'Market',                en: 'Market' },             type: 'select', required: true,  options: [{ v: 'IDX', l: 'IDX' }, { v: 'US', l: 'US' }] },
       { name: 'annualYield',   label: { id: 'Dividend yield (% p.a.)', en: 'Dividend yield (% p.a.)' }, type: 'number', required: false, step: '0.01', ph: '2.5' },
@@ -56,14 +57,26 @@ function fieldsFor(kind) {
     gold: [
       { name: 'name',             label: { id: 'Nama / unit',          en: 'Name / unit' },        type: 'text',   required: true,  ph: 'Antam 10g Bar' },
       { name: 'grams',            label: { id: 'Berat (gram)',         en: 'Weight (gram)' },      type: 'number', required: true,  step: '0.01', ph: '10' },
-      { name: 'costBasisPerGram', label: { id: 'Cost per gram (IDR)',  en: 'Cost per gram (IDR)' }, type: 'number', required: false, step: 'any', ph: '1300000' },
+      { name: 'costBasisPerGram', label: { id: 'Cost per gram (IDR)',  en: 'Cost per gram (IDR)' }, type: 'number', required: false, step: 'any', ph: '1300000', money: true },
       { name: 'date',             label: { id: 'Tanggal beli',         en: 'Buy date' },           type: 'date',   required: false },
+    ],
+    bonds: [
+      { name: 'name',              label: { id: 'Nama / seri obligasi', en: 'Bond name / series' }, type: 'text', required: true, ph: 'SR012, ORI025…' },
+      { name: 'bondType',           label: { id: 'Jenis obligasi',       en: 'Bond type' },          type: 'select', required: true, options: BOND_TYPE_OPTS.map(function (o) { return { v: o.v, l: o.l }; }) },
+      { name: 'platform',           label: { id: 'Platform',             en: 'Platform' },           type: 'text', required: true, ph: 'bibit, makmur…', autocomplete: true, acList: AC_BOND_PLATFORMS },
+      { name: 'nominal',            label: { id: 'Nominal (IDR)',        en: 'Nominal (IDR)' },      type: 'number', required: true, step: 'any', ph: '10000000', money: true },
+      { name: 'purchasePricePct',   label: { id: 'Harga beli (% nominal)', en: 'Purchase price (% of nominal)' }, type: 'number', required: false, step: '0.01', ph: '100' },
+      { name: 'couponRate',         label: { id: 'Kupon (% p.a.)',       en: 'Coupon (% p.a.)' },    type: 'number', required: false, step: '0.01', ph: '6.5' },
+      { name: 'maturityDate',       label: { id: 'Tanggal jatuh tempo',  en: 'Maturity date' },      type: 'date', required: false },
+      { name: 'note',               label: { id: 'Catatan',              en: 'Note' },               type: 'text', required: false, ph: 'opsional' },
+      { name: 'date',               label: { id: 'Tanggal beli',         en: 'Buy date' },           type: 'date', required: false },
     ],
     savings: [
       { name: 'name',          label: { id: 'Nama akun',           en: 'Account name' },     type: 'text', required: true,  ph: 'BCA Tabungan' },
+      { name: 'acctType',      label: { id: 'Jenis akun',          en: 'Account type' },     type: 'select', required: true, options: [{ v: 'tabungan', l: 'Tabungan' }, { v: 'deposito', l: 'Deposito' }, { v: 'giro', l: 'Giro' }, { v: 'cash', l: 'Cash' }] },
       { name: 'bank',          label: { id: 'Bank',                en: 'Bank' },             type: 'text', required: true,  ph: 'bca, mandiri, krom…', autocomplete: true, acList: AC_BANKS },
       { name: 'currency',      label: { id: 'Mata uang',           en: 'Currency' },         type: 'select', required: true, options: [{ v: 'IDR', l: 'IDR' }, { v: 'USD', l: 'USD' }, { v: 'SGD', l: 'SGD' }, { v: 'AUD', l: 'AUD' }, { v: 'EUR', l: 'EUR' }, { v: 'GBP', l: 'GBP' }, { v: 'JPY', l: 'JPY' }, { v: 'HKD', l: 'HKD' }, { v: 'CHF', l: 'CHF' }, { v: 'CAD', l: 'CAD' }, { v: 'CNH', l: 'CNH' }, { v: 'NZD', l: 'NZD' }] },
-      { name: 'foreignAmt',    label: { id: 'Jumlah saldo',         en: 'Balance amount' },   type: 'number', required: true, step: 'any', ph: '5000000' },
+      { name: 'foreignAmt',    label: { id: 'Jumlah saldo',         en: 'Balance amount' },   type: 'number', required: true, step: 'any', ph: '5000000', money: true },
       { name: 'annualYield',   label: { id: 'Bunga (% p.a.)',       en: 'Interest (% p.a.)' }, type: 'number', required: false, step: '0.01', ph: '5.0' },
       { name: 'note',          label: { id: 'Catatan',              en: 'Note' },             type: 'text', required: false, ph: 'Dana darurat' },
       { name: 'date',          label: { id: 'Tanggal buka',         en: 'Open date' },        type: 'date', required: false },
@@ -75,15 +88,33 @@ const CATEGORY_TITLE = {
   crypto:  { id: 'Crypto',   en: 'Crypto' },
   stocks:  { id: 'Saham',    en: 'Stock' },
   gold:    { id: 'Emas',     en: 'Gold' },
+  bonds:   { id: 'Obligasi', en: 'Bond' },
   savings: { id: 'Tabungan', en: 'Savings account' },
 };
 
 function arrayForKind(kind) {
-  return ({ crypto: DATA.crypto, stocks: DATA.stocks, gold: DATA.gold, savings: DATA.savings })[kind];
+  return ({ crypto: DATA.crypto, stocks: DATA.stocks, gold: DATA.gold, bonds: DATA.bonds, savings: DATA.savings })[kind];
 }
 
 /* ---- BUILD FORM ---- */
 function esc(s) { return (s == null ? '' : String(s)).replace(/[&<>"']/g, function (c) { return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]); }); }
+
+/* ---- MONEY FORMATTING (thousand-separated IDR nominal inputs) ----
+   Rendered as text inputs (not type=number) so commas can display
+   while typing; parsed back to a plain number on save(). */
+function formatMoneyStr(raw) {
+  let s = String(raw == null ? '' : raw).replace(/[^\d.]/g, '');
+  if (!s) {return '';}
+  const dot = s.indexOf('.');
+  if (dot >= 0) {s = s.slice(0, dot + 1) + s.slice(dot + 1).replace(/\./g, '');}
+  const parts = s.split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return parts.join('.');
+}
+function parseMoneyStr(raw) {
+  const n = parseFloat(String(raw == null ? '' : raw).replace(/,/g, ''));
+  return Number.isNaN(n) ? 0 : n;
+}
 
 function fieldHtml(f, item) {
   const lab = f.label[lang()] || f.label.id;
@@ -109,10 +140,26 @@ function fieldHtml(f, item) {
       +    '<div class="ticker-ac-dropdown" hidden></div>'
       +  '</div>';
   }
+  // Money field: thousand-separated text input, parsed back to a number on save.
+  if (f.money) {
+    return '<div class="modal__field">'
+      +    '<label>' + esc(lab) + marker + '</label>'
+      +    '<input type="text" inputmode="decimal" name="' + esc(f.name) + '" value="' + esc(formatMoneyStr(val)) + '"' + ph + ' data-money-field="1" autocomplete="off" ' + req + '>'
+      +  '</div>';
+  }
   return '<div class="modal__field">'
     +    '<label>' + esc(lab) + marker + '</label>'
     +    '<input type="' + esc(f.type) + '" name="' + esc(f.name) + '" value="' + esc(val) + '"' + ph + step + ' ' + req + '>'
     +  '</div>';
+}
+
+/* ---- WIRE MONEY-FIELD LIVE FORMATTING ---- */
+function wireMoneyFormatting(form) {
+  form.querySelectorAll('[data-money-field]').forEach(function (inp) {
+    inp.addEventListener('input', function () {
+      inp.value = formatMoneyStr(inp.value);
+    });
+  });
 }
 
 /* ---- STOCK AUTOCOMPLETE LIST (built once, cached) ---- */
@@ -390,6 +437,9 @@ function open(kind, item) {
     if (f.autocomplete && f.acList) {wireSimpleAutocomplete(form, f.name, f.acList);}
   });
 
+  // Wire thousand-separator live formatting for money fields
+  wireMoneyFormatting(form);
+
   // Title + sub
   const title = document.querySelector('#assetModal .modal__title');
   const sub   = document.querySelector('#assetModal .modal__sub');
@@ -423,6 +473,7 @@ function assetIdr(kind, r) {
     return (Number(r.shares) || 0) * mul * (Number(r.seedPrice) || 0);
   }
   if (kind === 'gold') {return (Number(r.grams) || 0) * (Number(r.costBasisPerGram) || 0);}
+  if (kind === 'bonds') {return bondIdr(r);}
   return 0;
 }
 function assetLabel(kind, r) {
@@ -471,7 +522,9 @@ function save() {
   inputs.forEach(function (inp) {
     let v = inp.value;
     if (inp.required && (v == null || v === '')) {missing.push(inp.name);}
-    if (inp.type === 'number') {v = parseFloat(v);} if (Number.isNaN(v)) {v = 0;}
+    if (inp.dataset && inp.dataset.moneyField) {v = parseMoneyStr(v);}
+    else if (inp.type === 'number') {v = parseFloat(v);}
+    if (Number.isNaN(v)) {v = 0;}
     record[inp.name] = v;
   });
   if (missing.length) {
@@ -510,6 +563,11 @@ function save() {
   if (editing.kind === 'stocks') {
     const st = editing.id ? arr.find(function (x) { return x.id === editing.id; }) : arr[arr.length - 1];
     if (st && st.ticker) {st.ticker = String(st.ticker).toUpperCase();}
+  }
+  // Bonds: purchasePricePct left blank parses to 0 — default to par (100%)
+  if (editing.kind === 'bonds') {
+    const bd = editing.id ? arr.find(function (x) { return x.id === editing.id; }) : arr[arr.length - 1];
+    if (bd && !bd.purchasePricePct) {bd.purchasePricePct = 100;}
   }
 
   // Log to the transaction ledger (final record reflects derived idr / casing).

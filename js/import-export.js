@@ -18,7 +18,7 @@
 import { S, DATA, uid } from './state.js';
 import { POPULAR_STOCKS } from './config.js';
 import { saveDataToCloud } from '../firebase/firebase-config.js';
-import { cryptoPrice, stockPrice, stockMul, savingsIdr, totals, computeMetrics, assetMetrics } from './storage.js';
+import { cryptoPrice, stockPrice, stockMul, savingsIdr, bondIdr, totals, computeMetrics, assetMetrics } from './storage.js';
 import { IMPORT_RULES, autoDetectSource } from './import-parsers.js';
 
 /* ---- i18n helpers ---- */
@@ -496,6 +496,11 @@ function holdingRows() {
     rows.push(['Stocks', h.name || h.ticker, h.ticker, h.shares, 'share', h.broker || '',
       Math.round((h.shares || 0) * mul * (h.seedPrice || 0)), Math.round((h.shares || 0) * mul * stockPrice(h)), h.date || '']);
   });
+  (DATA.bonds || []).forEach(function (h) {
+    const val = bondIdr(h);
+    rows.push(['Bonds', h.name || '', h.bondType || '', h.nominal || 0, 'IDR', h.platform || '',
+      Math.round(val), Math.round(val), h.date || '']);
+  });
   DATA.savings.forEach(function (a) {
     rows.push(['Savings', a.name || a.bank, a.currency, a.foreignAmt, a.currency || 'IDR', a.bank || '',
       Math.round(savingsIdr(a)), Math.round(savingsIdr(a)), a.date || '']);
@@ -538,6 +543,7 @@ const PDFR_CATS = [
   { key: 'crypto',  label: tt('Crypto', 'Kripto'),    color: '#a78bfa' },
   { key: 'stocks',  label: tt('Stocks', 'Saham'),     color: '#34d399' },
   { key: 'gold',    label: tt('Gold', 'Emas'),        color: '#fbbf24' },
+  { key: 'bonds',   label: tt('Bonds', 'Obligasi'),   color: '#fb923c' },
   { key: 'savings', label: tt('Savings', 'Tabungan'), color: '#38bdf8' },
 ];
 function catColor(key) {
@@ -563,6 +569,10 @@ function holdingsDetailed() {
     const m = assetMetrics('gold', g);
     out.push({ cat: 'gold', color: catColor('gold'), name: g.name || 'Gold',
       qty: fmtNumLite(g.grams) + ' g', cost: m.cost, val: m.val, ret: m.ret });
+  });
+  (DATA.bonds || []).forEach(function (b) {
+    out.push({ cat: 'bonds', color: catColor('bonds'), name: b.name || 'Bond',
+      qty: (b.platform || '').toUpperCase(), cost: 0, val: bondIdr(b), ret: null });
   });
   DATA.savings.forEach(function (a) {
     out.push({ cat: 'savings', color: catColor('savings'), name: a.name || a.bank,
@@ -643,8 +653,8 @@ function buildReportNode() {
   const dateStr = (i18n ? i18n.fmtDate(now) : now.toLocaleDateString()) +
     ' · ' + (i18n ? i18n.fmtTime(now) : now.toLocaleTimeString());
 
-  const catVals = { crypto: T.c, stocks: T.k, gold: T.g, savings: T.sv };
-  const catM = { crypto: M.crypto, stocks: M.stocks, gold: M.gold, savings: M.savings };
+  const catVals = { crypto: T.c, stocks: T.k, gold: T.g, bonds: T.bo, savings: T.sv };
+  const catM = { crypto: M.crypto, stocks: M.stocks, gold: M.gold, bonds: M.bonds, savings: M.savings };
 
   // cards
   const cardsHtml = PDFR_CATS.map(function (c) {

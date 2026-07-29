@@ -6,7 +6,7 @@
    ============================================================ */
 
 import { S, DATA } from './state.js';
-import { totals, cryptoPrice, stockPrice, savingsIdr, stockMul } from './storage.js';
+import { totals, cryptoPrice, stockPrice, savingsIdr, stockMul, bondIdr } from './storage.js';
 
 const i18n = (window.psys && window.psys.i18n) || null;
 function t(k, fb) { return i18n ? i18n.t(k, fb) : (fb || k); }
@@ -192,6 +192,7 @@ function categoryOf(item) {
   if (item._kind === 'crypto') {return 'crypto';}
   if (item._kind === 'gold')   {return 'gold';}
   if (item._kind === 'stocks') {return 'stocks';}
+  if (item._kind === 'bonds')  {return 'bonds';}
   if (item._kind === 'savings'){return 'savings';}
   return 'other';
 }
@@ -199,6 +200,7 @@ function valueOf(item) {
   if (item._kind === 'crypto')  {return (item.amount || 0) * cryptoPrice(item);}
   if (item._kind === 'gold')    {return (item.grams || 0) * (S.goldGramIdr || 0);}
   if (item._kind === 'stocks')  {return (item.shares || 0) * stockMul(item) * stockPrice(item);}
+  if (item._kind === 'bonds')   {return bondIdr(item);}
   if (item._kind === 'savings') {return savingsIdr(item);}
   return 0;
 }
@@ -206,6 +208,7 @@ function nameOf(item) {
   if (item._kind === 'crypto')  {return { ticker: item.coin, desc: item.name || '' };}
   if (item._kind === 'gold')    {return { ticker: item.name || 'Emas', desc: (item.grams || 0) + ' gr · Antam' };}
   if (item._kind === 'stocks')  {return { ticker: item.ticker, desc: item.name || '' };}
+  if (item._kind === 'bonds')   {return { ticker: item.name || 'Obligasi', desc: (item.platform || '').toUpperCase() };}
   if (item._kind === 'savings') {return { ticker: item.name || 'Savings', desc: (item.bank || '').toUpperCase() };}
   return { ticker: '?', desc: '' };
 }
@@ -224,6 +227,12 @@ const CATEGORY_ICON = {
   gold: `<svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
     <rect x="3" y="9" width="18" height="9" rx="1.5"/>
     <rect x="6" y="6" width="12" height="3" rx="1" opacity="0.55"/>
+  </svg>`,
+  bonds: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+    <rect x="4" y="3" width="16" height="18" rx="2"/>
+    <line x1="8" y1="8" x2="16" y2="8"/>
+    <line x1="8" y1="12" x2="16" y2="12"/>
+    <line x1="8" y1="16" x2="12" y2="16"/>
   </svg>`,
   savings: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
     <path d="M3 9 L12 4 L21 9"/>
@@ -330,16 +339,18 @@ function detailOf(item) {
   if (item._kind === 'crypto')  {return (item.amount || 0).toLocaleString(getLang() === 'id' ? 'id-ID' : 'en-US', { maximumFractionDigits: 4 }) + ' × ' + Math.round(cryptoPrice(item)).toLocaleString('id-ID');}
   if (item._kind === 'gold')    {return (item.grams || 0) + ' g × Rp ' + Math.round(S.goldGramIdr || 0).toLocaleString('id-ID');}
   if (item._kind === 'stocks')  {return (item.shares || 0) + ' × Rp ' + Math.round(stockPrice(item)).toLocaleString('id-ID');}
+  if (item._kind === 'bonds')   {return (item.couponRate || 0) + '% p.a. · jth. tempo ' + (item.maturityDate || '—');}
   if (item._kind === 'savings') {return (item.bank || '').toUpperCase();}
   return '';
 }
 
 function aggregateHoldings() {
-  // Flatten all four arrays with a _kind tag
+  // Flatten all five arrays with a _kind tag
   const items = [
     ...(DATA.crypto  || []).map(x => ({ ...x, _kind: 'crypto'  })),
     ...(DATA.gold    || []).map(x => ({ ...x, _kind: 'gold'    })),
     ...(DATA.stocks  || []).map(x => ({ ...x, _kind: 'stocks'  })),
+    ...(DATA.bonds   || []).map(x => ({ ...x, _kind: 'bonds'   })),
     ...(DATA.savings || []).map(x => ({ ...x, _kind: 'savings' })),
   ];
   // Group identical assets (same kind + same identifier) so multi-platform/multi-lot
@@ -348,6 +359,7 @@ function aggregateHoldings() {
     if (it._kind === 'crypto')  {return 'crypto:' + (it.coin || '');}
     if (it._kind === 'stocks')  {return 'stocks:' + (it.ticker || '');}
     if (it._kind === 'gold')    {return 'gold:' + (it.name || '');}
+    if (it._kind === 'bonds')   {return 'bonds:' + (it.name || '') + ':' + (it.platform || '');}
     if (it._kind === 'savings') {return 'savings:' + (it.name || '') + ':' + (it.bank || '');}
     return it._kind + ':' + (it.id || '');
   };
@@ -356,15 +368,16 @@ function aggregateHoldings() {
     const k = keyOf(it);
     const v = valueOf(it);
     if (!map.has(k)) {
-      map.set(k, { ...it, _value: v, _qty: it.amount || it.grams || it.shares || 0 });
+      map.set(k, { ...it, _value: v, _qty: it.amount || it.grams || it.shares || it.nominal || 0 });
     } else {
       const e = map.get(k);
       e._value += v;
-      e._qty += (it.amount || it.grams || it.shares || 0);
+      e._qty += (it.amount || it.grams || it.shares || it.nominal || 0);
       // merge amount/grams/shares for representative display
       if (it._kind === 'crypto')  {e.amount = (e.amount || 0) + (it.amount || 0);}
       if (it._kind === 'gold')    {e.grams  = (e.grams  || 0) + (it.grams  || 0);}
       if (it._kind === 'stocks')  {e.shares = (e.shares || 0) + (it.shares || 0);}
+      if (it._kind === 'bonds')   {e.nominal = (e.nominal || 0) + (it.nominal || 0);}
     }
   }
   return [...map.values()].sort((a, b) => b._value - a._value);
@@ -481,6 +494,7 @@ function renderDiversification() {
   const rows = [
     { key: 'stocks',  cls: '',          label: getLang() === 'id' ? 'Saham' : 'Stocks',  val: T.k },
     { key: 'crypto',  cls: 'c-crypto',  label: 'Crypto',                                  val: T.c },
+    { key: 'bonds',   cls: 'c-bonds',   label: getLang() === 'id' ? 'Obligasi' : 'Bonds', val: T.bo },
     { key: 'savings', cls: 'c-savings', label: getLang() === 'id' ? 'Tabungan / cash' : 'Savings / cash', val: T.sv },
     { key: 'gold',    cls: 'c-gold',    label: 'Emas',                                    val: T.g },
   ];
@@ -501,26 +515,27 @@ function renderDiversification() {
   const headEl    = document.querySelector('[data-div-head]');
   const bodyEl    = document.querySelector('[data-div-body]');
   const insightEl = document.querySelector('[data-div-insight]');
-  const targets = S.rebalTargets || { stocks: 30, crypto: 40, gold: 15, savings: 15 };
+  const targets = S.rebalTargets || { stocks: 30, crypto: 40, gold: 15, bonds: 0, savings: 15 };
   if (headEl) {headEl.textContent = getLang() === 'id'
     ? 'Target profil kamu'
     : 'Your profile target';}
   if (bodyEl) {bodyEl.textContent = getLang() === 'id'
-    ? `Saham ${targets.stocks}%, crypto ${targets.crypto}%, emas ${targets.gold}%, tabungan ${targets.savings}%. Sistem ngebandingin posisi sekarang dengan target. Lihat panel di bawah.`
-    : `Stocks ${targets.stocks}%, crypto ${targets.crypto}%, gold ${targets.gold}%, savings ${targets.savings}%. We compare current allocation to this target. See panel below.`;}
+    ? `Saham ${targets.stocks}%, crypto ${targets.crypto}%, emas ${targets.gold}%, obligasi ${targets.bonds || 0}%, tabungan ${targets.savings}%. Sistem ngebandingin posisi sekarang dengan target. Lihat panel di bawah.`
+    : `Stocks ${targets.stocks}%, crypto ${targets.crypto}%, gold ${targets.gold}%, bonds ${targets.bonds || 0}%, savings ${targets.savings}%. We compare current allocation to this target. See panel below.`;}
   if (insightEl) {
     // pick most over-weighted vs target
     const actual = grand > 0 ? {
       stocks:  (T.k  / grand) * 100,
       crypto:  (T.c  / grand) * 100,
       gold:    (T.g  / grand) * 100,
+      bonds:   (T.bo / grand) * 100,
       savings: (T.sv / grand) * 100,
     } : null;
     if (actual) {
       const diffs = Object.entries(actual).map(([k, v]) => ({ k, diff: v - (targets[k] || 0), v, target: targets[k] || 0 })).sort((a, b) => b.diff - a.diff);
       const worst = diffs[0];
       if (worst && Math.abs(worst.diff) > 3) {
-        const label = { stocks: getLang() === 'id' ? 'saham' : 'stocks', crypto: 'crypto', gold: getLang() === 'id' ? 'emas' : 'gold', savings: getLang() === 'id' ? 'tabungan' : 'savings' }[worst.k];
+        const label = { stocks: getLang() === 'id' ? 'saham' : 'stocks', crypto: 'crypto', gold: getLang() === 'id' ? 'emas' : 'gold', bonds: getLang() === 'id' ? 'obligasi' : 'bonds', savings: getLang() === 'id' ? 'tabungan' : 'savings' }[worst.k];
         insightEl.hidden = false;
         insightEl.textContent = getLang() === 'id'
           ? `${cap(label)} kamu ${worst.v.toFixed(1)}%, ${worst.diff > 0 ? 'di atas' : 'di bawah'} target ${worst.target}%. Pertimbangkan rebalance.`

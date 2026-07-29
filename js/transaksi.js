@@ -9,7 +9,7 @@
    ============================================================ */
 
 import { S, DATA } from './state.js';
-import { cryptoPrice, stockPrice, stockMul, savingsIdr } from './storage.js';
+import { cryptoPrice, stockPrice, stockMul, savingsIdr, bondIdr } from './storage.js';
 
 const i18n = (typeof window !== 'undefined' && window.psys && window.psys.i18n) || null;
 
@@ -332,6 +332,11 @@ function holdingRows() {
     const g = h.grams || 0;
     rows.push(['Gold', h.name || 'Antam', 'EMAS', g, 'gram', 'physical',
       Math.round(g * (h.costBasisPerGram || 0)), Math.round(g * (S.goldGramIdr || 0)), h.date || '']);
+  });
+  (DATA.bonds || []).forEach(function (h) {
+    const val = bondIdr(h);
+    rows.push(['Bonds', h.name || '', h.bondType || '', h.nominal || 0, 'IDR', h.platform || '',
+      Math.round(val), Math.round(val), h.date || '']);
   });
   (DATA.savings || []).forEach(function (h) {
     rows.push(['Savings', h.name || '', h.currency || '', h.foreignAmt || h.idr || 0, h.currency || '',

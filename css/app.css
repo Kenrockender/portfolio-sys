@@ -546,6 +546,7 @@
 .holding__icon--crypto  { background: rgba(139,  92, 246, 0.08); color: #a78bfa; border-color: rgba(139,  92, 246, 0.25); }
 .holding__icon--stocks  { background: rgba( 52, 211, 153, 0.08); color: var(--signal); border-color: rgba( 52, 211, 153, 0.25); }
 .holding__icon--gold    { background: rgba(251, 191,  36, 0.10); color: var(--warn); border-color: rgba(251, 191,  36, 0.25); }
+.holding__icon--bonds   { background: rgba(251, 146,  60, 0.10); color: #fb923c;     border-color: rgba(251, 146,  60, 0.25); }
 .holding__icon--savings { background: rgba( 56, 189, 248, 0.08); color: var(--info); border-color: rgba( 56, 189, 248, 0.25); }
 /* Real ticker logos render edge-to-edge: no tint, no border. */
 .holding__icon--logo {
@@ -642,6 +643,7 @@
 .div-bar__fill  { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--signal-deep), var(--signal)); }
 .div-bar__fill.c-crypto  { background: linear-gradient(90deg, #6d28d9, #a78bfa); }
 .div-bar__fill.c-gold    { background: linear-gradient(90deg, #b45309, var(--warn)); }
+.div-bar__fill.c-bonds   { background: linear-gradient(90deg, #c2410c, #fb923c); }
 .div-bar__fill.c-savings { background: linear-gradient(90deg, #0e7490, var(--info)); }
 .div-bar__fill.c-other   { background: linear-gradient(90deg, #6b7280, #d1d5db); }
 .div-bar__num   { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: var(--size-small); color: var(--ink-dim); text-align: right; }
@@ -1474,7 +1476,14 @@
 .hd-row__icon--crypto  { background: rgba(139,  92, 246, 0.08); color: #a78bfa; border-color: rgba(139,  92, 246, 0.25); }
 .hd-row__icon--stocks  { background: rgba( 52, 211, 153, 0.08); color: var(--signal); border-color: rgba( 52, 211, 153, 0.25); }
 .hd-row__icon--gold    { background: rgba(251, 191,  36, 0.10); color: var(--warn); border-color: rgba(251, 191,  36, 0.25); }
+.hd-row__icon--bonds   { background: rgba(251, 146,  60, 0.10); color: #fb923c;     border-color: rgba(251, 146,  60, 0.25); }
 .hd-row__icon--savings { background: rgba( 56, 189, 248, 0.08); color: var(--info); border-color: rgba( 56, 189, 248, 0.25); }
+
+/* Small per-bank color badge shown before the platform label on savings rows */
+.plat-dot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  margin-right: 5px; vertical-align: middle;
+}
 
 .hd-row__name {
   display: flex; flex-direction: column; gap: 4px;

@@ -65,6 +65,13 @@ export function refreshSavingsIdr() {
   DATA.savings.forEach(a => { a.idr = savingsIdr(a); });
 }
 
+// ── Bond Value (IDR) — no live bond price feed, so we value at the
+// purchase price (nominal × purchase-price %), i.e. cost basis. Same
+// "no unrealized P&L" treatment as savings.
+export function bondIdr(b) {
+  return (b.nominal ?? 0) * ((b.purchasePricePct ?? 100) / 100);
+}
+
 // ── Stock Price Helper ───────────────────────────────────────────
 export function stockPrice(h) {
   return S.stockPrices[h.ticker] ?? h.seedPrice;
@@ -104,8 +111,9 @@ export function totals() {
   const c  = DATA.crypto.reduce((s, a) => s + a.amount * cryptoPrice(a), 0);
   const g  = DATA.gold.reduce((s, h) => s + h.grams * S.goldGramIdr, 0);
   const k  = DATA.stocks.reduce((s, h) => s + h.shares * stockMul(h) * stockPrice(h), 0);
+  const bo = (DATA.bonds || []).reduce((s, b) => s + bondIdr(b), 0);
   const sv = DATA.savings.reduce((s, a) => s + savingsIdr(a), 0);
-  return { c, g, k, sv, t: c + g + k + sv };
+  return { c, g, k, bo, sv, t: c + g + k + bo + sv };
 }
 
 // ── Metrics Computation ──────────────────────────────────────────
@@ -127,6 +135,7 @@ export function computeMetrics(T) {
     crypto: { cost: cryptoCost, val: T.c, pnl: cp, ret: cr },
     gold: { cost: goldCost, val: T.g, pnl: gp, ret: gr },
     stocks: { cost: stocksCost, val: T.k, pnl: kp, ret: kr },
+    bonds: { cost: null, val: T.bo, pnl: null, ret: null },
     total: { cost: totalCost, val: T.t, pnl: tp, ret: tr }
   };
 }
@@ -148,6 +157,10 @@ export function assetMetrics(type, item) {
     const val = item.shares * mul * stockPrice(item), cost = item.shares * mul * item.seedPrice;
     const pnl = cost > 0 ? val - cost : null, ret = cost > 0 ? pnl / cost * 100 : null;
     return { cost, val, pnl, ret };
+  }
+  if (type === 'bonds') {
+    const idr = bondIdr(item);
+    return { cost: idr, val: idr, pnl: null, ret: null };
   }
   // savings — [Fix 15] pakai savingsIdr()
   const idr = savingsIdr(item);
@@ -210,7 +223,7 @@ export function assetMetricsWithTax(type, item) {
 
 // ── Annual Income Computation ─────────────────────────────────────
 export function computeAnnualIncome() {
-  let stocksIncome = 0, savingsIncome = 0;
+  let stocksIncome = 0, savingsIncome = 0, bondsIncome = 0;
   DATA.stocks.forEach(h => {
     const val = h.shares * stockMul(h) * stockPrice(h);
     stocksIncome += val * ((h.annualYield || 0) / 100);
@@ -218,7 +231,10 @@ export function computeAnnualIncome() {
   DATA.savings.forEach(a => {
     savingsIncome += savingsIdr(a) * ((a.annualYield || 0) / 100);  // [Fix 15]
   });
-  return { stocks: stocksIncome, savings: savingsIncome, total: stocksIncome + savingsIncome };
+  (DATA.bonds || []).forEach(b => {
+    bondsIncome += bondIdr(b) * ((b.couponRate || 0) / 100);
+  });
+  return { stocks: stocksIncome, savings: savingsIncome, bonds: bondsIncome, total: stocksIncome + savingsIncome + bondsIncome };
 }
 
 // ── Portfolio Analytics Computation ───────────────────────────────
@@ -277,6 +293,7 @@ export function filterAssets(assets, type) {
       if (type === 'crypto') {platMatch = a.platform === S.filterPlatform;}
       if (type === 'gold') {platMatch = 'physical' === S.filterPlatform;}
       if (type === 'stocks') {platMatch = a.broker === S.filterPlatform;}
+      if (type === 'bonds') {platMatch = a.platform === S.filterPlatform;}
       if (type === 'savings') {platMatch = a.bank === S.filterPlatform;}
     }
     return nameMatch && platMatch;

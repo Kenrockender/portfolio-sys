@@ -32,6 +32,7 @@ beforeEach(() => {
   DATA.crypto = [];
   DATA.gold = [];
   DATA.stocks = [];
+  DATA.bonds = [];
   DATA.savings = [];
 });
 

@@ -20,6 +20,8 @@ export const PLAT_COLORS = {
   mirae: '#f59e0b', cgs: '#a78bfa', 'mnc-sek': '#f97316', philip: '#fb923c',
   rhb: '#818cf8', 'sinarmas-sek': '#f472b6', trimegah: '#22d3ee', gotrade: '#a3e635',
   manual: '#94a3b8', other: '#64748b',
+  // bond platforms
+  makmur: '#fb923c', 'bri-danareksa': '#0ea5e9',
   // banks
   bca: '#60a5fa', bri: '#fca5a5', bni: '#fdba74', mandiri: '#fde047',
   bsi: '#22c55e', btn: '#f97316', cimb: '#ef4444', danamon: '#fbbf24',
@@ -58,6 +60,7 @@ export const AC_ACCENT = {
   crypto:  { hex: '#8b5cf6', rgb: '139,92,246' },
   gold:    { hex: '#f5c518', rgb: '245,197,24' },
   stocks:  { hex: '#22d3ee', rgb: '34,211,238' },
+  bonds:   { hex: '#fb923c', rgb: '251,146,60' },
   savings: { hex: '#f472b6', rgb: '244,114,182' },
 };
 
@@ -526,6 +529,29 @@ export const AC_PLATFORMS = [
   { value: 'mexc',        label: 'MEXC' },
   { value: 'upbit',       label: 'Upbit' },
   { value: 'gate',        label: 'Gate.io' },
+];
+
+// ── Bond Platform Options (Bibit & Makmur prioritized — the two
+//    most-used retail SBN/bond marketplaces in Indonesia) ─────────
+export const AC_BOND_PLATFORMS = [
+  { value: 'bibit',         label: 'Bibit' },
+  { value: 'makmur',        label: 'Makmur' },
+  { value: 'bareksa',       label: 'Bareksa' },
+  { value: 'bri-danareksa', label: 'BRI Danareksa Sekuritas' },
+  { value: 'mandiri-sek',   label: 'Mandiri Sekuritas' },
+  { value: 'trimegah',      label: 'Trimegah Sekuritas' },
+  { value: 'ipot',          label: 'IPOT (Indopremier)' },
+  { value: 'other',         label: 'Lainnya' },
+];
+
+// ── Bond Type Options ─────────────────────────────────────────────
+export const BOND_TYPE_OPTS = [
+  { v: 'ori',   l: 'ORI (Obligasi Ritel Indonesia)' },
+  { v: 'sr',    l: 'Sukuk Ritel (SR)' },
+  { v: 'st',    l: 'Sukuk Tabungan (ST)' },
+  { v: 'sbr',   l: 'Savings Bond Ritel (SBR)' },
+  { v: 'corp',  l: 'Obligasi Korporasi' },
+  { v: 'other', l: 'Lainnya' },
 ];
 
 // ═════════════════════════════════════════════════════════════════

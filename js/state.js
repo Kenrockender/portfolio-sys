@@ -46,7 +46,7 @@ export const S = {
   goalTarget: 2_000_000_000,
   // Rebalancing targets — saved per user
   rebalTargets: {
-    crypto: 40, gold: 15, stocks: 30, savings: 15,  // % target per asset class
+    crypto: 35, gold: 12, stocks: 25, bonds: 15, savings: 13,  // % target per asset class
     tickers: {}   // { 'BBCA': 10, 'BTC': 25, ... } % of total portfolio
   },
 };
@@ -105,19 +105,27 @@ const _store = { data: {
     // ── Index / ETF
     { id: uid(), ticker: '^IHSG', name: 'IHSG Index (RDPU)', shares: 1, seedPrice: 7200, broker: 'bibit', market: 'IDX', date: '2023-09-01', annualYield: 3.5 },
   ],
+  bonds: [
+    // ── SBN Ritel via Bibit & Makmur (prioritized platforms)
+    { id: uid(), name: 'SR012',  bondType: 'sr',   platform: 'bibit',  nominal: 20_000_000, purchasePricePct: 100,   couponRate: 6.4, maturityDate: '2028-03-10', date: '2025-03-10', note: '' },
+    { id: uid(), name: 'ORI025', bondType: 'ori',  platform: 'bibit',  nominal: 15_000_000, purchasePricePct: 100,   couponRate: 6.2, maturityDate: '2027-10-15', date: '2024-10-15', note: '' },
+    { id: uid(), name: 'ST011',  bondType: 'st',   platform: 'makmur', nominal: 10_000_000, purchasePricePct: 100,   couponRate: 6.6, maturityDate: '2026-11-20', date: '2024-11-20', note: '' },
+    { id: uid(), name: 'SBR013', bondType: 'sbr',  platform: 'makmur', nominal: 25_000_000, purchasePricePct: 100,   couponRate: 6.5, maturityDate: '2027-05-05', date: '2024-05-05', note: '' },
+    { id: uid(), name: 'FIF05B', bondType: 'corp', platform: 'bareksa', nominal: 10_000_000, purchasePricePct: 101.2, couponRate: 7.8, maturityDate: '2026-08-01', date: '2024-08-01', note: 'Obligasi korporasi' },
+  ],
   savings: [
     // ── IDR accounts
-    { id: uid(), name: 'BCA Tabungan',         bank: 'bca',     currency: 'IDR', foreignAmt: 75_000_000, idr: 75_000_000, note: 'Dana darurat', date: '2022-06-01', annualYield: 1.5 },
-    { id: uid(), name: 'BRI Tabungan',          bank: 'bri',     currency: 'IDR', foreignAmt: 18_500_000, idr: 18_500_000, note: '',             date: '2023-03-15', annualYield: 2.0 },
-    { id: uid(), name: 'Mandiri Giro',          bank: 'mandiri', currency: 'IDR', foreignAmt: 22_000_000, idr: 22_000_000, note: 'Operasional',  date: '2023-07-20', annualYield: 0.5 },
-    { id: uid(), name: 'BNI Deposito 6 bln',   bank: 'bni',     currency: 'IDR', foreignAmt: 30_000_000, idr: 30_000_000, note: '5% p.a.',      date: '2024-01-01', annualYield: 5.0 },
-    { id: uid(), name: 'Krom Deposito',         bank: 'krom',    currency: 'IDR', foreignAmt: 15_000_000, idr: 15_000_000, note: '6.5% p.a.',    date: '2024-04-05', annualYield: 6.5 },
+    { id: uid(), name: 'BCA Tabungan',         bank: 'bca',     currency: 'IDR', foreignAmt: 75_000_000, idr: 75_000_000, note: 'Dana darurat', date: '2022-06-01', annualYield: 1.5, acctType: 'tabungan' },
+    { id: uid(), name: 'BRI Tabungan',          bank: 'bri',     currency: 'IDR', foreignAmt: 18_500_000, idr: 18_500_000, note: '',             date: '2023-03-15', annualYield: 2.0, acctType: 'tabungan' },
+    { id: uid(), name: 'Mandiri Giro',          bank: 'mandiri', currency: 'IDR', foreignAmt: 22_000_000, idr: 22_000_000, note: 'Operasional',  date: '2023-07-20', annualYield: 0.5, acctType: 'giro' },
+    { id: uid(), name: 'BNI Deposito 6 bln',   bank: 'bni',     currency: 'IDR', foreignAmt: 30_000_000, idr: 30_000_000, note: '5% p.a.',      date: '2024-01-01', annualYield: 5.0, acctType: 'deposito' },
+    { id: uid(), name: 'Krom Deposito',         bank: 'krom',    currency: 'IDR', foreignAmt: 15_000_000, idr: 15_000_000, note: '6.5% p.a.',    date: '2024-04-05', annualYield: 6.5, acctType: 'deposito' },
     // ── Foreign currency accounts
-    { id: uid(), name: 'BCA USD Savings',       bank: 'bca',     currency: 'USD', foreignAmt: 2500,  idr: 40_500_000, note: '', date: '2023-11-10', annualYield: 4.5 },
-    { id: uid(), name: 'OCBC SGD Savings',      bank: 'ocbc',    currency: 'SGD', foreignAmt: 1200,  idr: 14_400_000, note: '', date: '2024-02-14', annualYield: 3.2 },
-    { id: uid(), name: 'BCA AUD Savings',       bank: 'bca',     currency: 'AUD', foreignAmt: 1800,  idr: 18_540_000, note: '', date: '2024-03-22', annualYield: 3.8 },
+    { id: uid(), name: 'BCA USD Savings',       bank: 'bca',     currency: 'USD', foreignAmt: 2500,  idr: 40_500_000, note: '', date: '2023-11-10', annualYield: 4.5, acctType: 'tabungan' },
+    { id: uid(), name: 'OCBC SGD Savings',      bank: 'ocbc',    currency: 'SGD', foreignAmt: 1200,  idr: 14_400_000, note: '', date: '2024-02-14', annualYield: 3.2, acctType: 'tabungan' },
+    { id: uid(), name: 'BCA AUD Savings',       bank: 'bca',     currency: 'AUD', foreignAmt: 1800,  idr: 18_540_000, note: '', date: '2024-03-22', annualYield: 3.8, acctType: 'tabungan' },
     // ── Cash
-    { id: uid(), name: 'Dana Tunai',            bank: 'cash',    currency: 'IDR', foreignAmt: 5_000_000, idr: 5_000_000, note: 'Di brankas', date: '2024-01-01', annualYield: 0 },
+    { id: uid(), name: 'Dana Tunai',            bank: 'cash',    currency: 'IDR', foreignAmt: 5_000_000, idr: 5_000_000, note: 'Di brankas', date: '2024-01-01', annualYield: 0, acctType: 'cash' },
   ],
   history: [
     // 14 months of weekly-ish snapshots (Jan 2025 → Mar 2026)
@@ -228,6 +236,7 @@ export function setDATA(newData) {
   if (!Array.isArray(_store.data.crypto))  {_store.data.crypto  = [];}
   if (!Array.isArray(_store.data.gold))    {_store.data.gold    = [];}
   if (!Array.isArray(_store.data.stocks))  {_store.data.stocks  = [];}
+  if (!Array.isArray(_store.data.bonds))   {_store.data.bonds   = [];}
   if (!Array.isArray(_store.data.savings)) {_store.data.savings = [];}
   if (!Array.isArray(_store.data.history)) {_store.data.history = [];}
   if (!Array.isArray(_store.data.txLog))   {_store.data.txLog   = [];}
@@ -263,6 +272,7 @@ export function deleteDemoData() {
   DATA.crypto = [];
   DATA.gold = [];
   DATA.stocks = [];
+  DATA.bonds = [];
   DATA.savings = [];
   DATA.history = [];
   DATA.txLog = [];
