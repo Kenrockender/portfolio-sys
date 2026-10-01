@@ -161,6 +161,52 @@ describe('calcCryptoFees', () => {
     expect(f.platformFee).toBe(0);
     expect(f.total).toBe(21_000);
   });
+
+  // ── PMK 50/2025 domestic vs foreign PPh 22 (effective 2025-08-01) ──
+  it('domestic sale after 2025-08-01 uses 0.21% PPh 22', () => {
+    const f = calcCryptoFees(100_000_000, 'indodax', 'sell', false, '2025-08-01');
+    expect(f.pph22Rate).toBe(0.0021);
+    expect(f.pph22).toBe(210_000);       // 100M * 0.21%
+    expect(f.platformFee).toBe(300_000); // 100M * 0.30% taker
+    expect(f.total).toBe(510_000);
+  });
+  it('foreign sale (binance) after 2025-08-01 uses 1% PPh 22', () => {
+    const f = calcCryptoFees(100_000_000, 'binance', 'sell', false, '2025-08-01');
+    expect(f.pph22Rate).toBe(0.01);
+    expect(f.pph22).toBe(1_000_000);     // 100M * 1%
+    expect(f.platformFee).toBe(100_000); // 100M * 0.10%
+    expect(f.total).toBe(1_100_000);
+  });
+  it('another foreign exchange (okx) is also taxed at 1%', () => {
+    const f = calcCryptoFees(50_000_000, 'okx', 'sell', false, '2025-09-01');
+    expect(f.pph22Rate).toBe(0.01);
+    expect(f.pph22).toBe(500_000);
+  });
+
+  // ── Date guard: before 2025-08-01, PMK 68/2022 rates apply ──
+  it('foreign sale BEFORE 2025-08-01 uses the PMK 68/2022 0.2% rate', () => {
+    const f = calcCryptoFees(100_000_000, 'binance', 'sell', false, '2025-07-31');
+    expect(f.pph22Rate).toBe(0.002);
+    expect(f.pph22).toBe(200_000);       // 100M * 0.2%, not the 1% PMK 50 rate
+  });
+  it('domestic sale BEFORE 2025-08-01 uses the PMK 68/2022 0.1% rate', () => {
+    const f = calcCryptoFees(100_000_000, 'indodax', 'sell', false, '2025-07-31');
+    expect(f.pph22Rate).toBe(0.001);
+    expect(f.pph22).toBe(100_000);       // 100M * 0.1%
+  });
+  it('domestic sale ON the effective date already uses the new split', () => {
+    const f = calcCryptoFees(100_000_000, 'indodax', 'sell', false, '2025-08-01');
+    expect(f.pph22Rate).toBe(0.0021);
+  });
+
+  it('unknown/custom platform defaults to domestic; foreignExchange flag forces foreign', () => {
+    const dom = calcCryptoFees(10_000_000, 'some-custom-wallet', 'sell', false, '2025-08-01');
+    expect(dom.pph22Rate).toBe(0.0021);
+    const foreign = calcCryptoFees(
+      10_000_000, 'some-custom-wallet', 'sell', false, '2025-08-01', { foreignExchange: true }
+    );
+    expect(foreign.pph22Rate).toBe(0.01);
+  });
 });
 
 describe('applyTax', () => {

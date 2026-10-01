@@ -579,25 +579,92 @@ export const STOCK_FEES = {
 };
 
 /**
+ * Crypto PPh 22 tax rates by regulation era.
+ *
+ * PMK 50/2025 (in force 1 Aug 2025, replacing PMK 68/2022): the final PPh
+ * Pasal 22 on crypto SALES depends on where the exchange is registered:
+ *   - 0.21% through a DOMESTIC exchange (a PPMSE registered in Indonesia)
+ *   - 1%    through a FOREIGN exchange
+ * Source: KPMG TaxNewsFlash 2025-11-13 (PMK 50/2025, effective 2025-08-01) —
+ * "increasing the final income tax on cryptoasset transactions to 0.21% and
+ * 1% for domestic and foreign electronic system trading providers,
+ * respectively." VAT (PPN) on the transfer itself is 0%.
+ * https://kpmg.com/us/en/taxnewsflash/news/2025/11/tnf-indonesia-updated-tax-rates-for-cryptoasset-transactions.html
+ *
+ * NOTE on the pre-2025-08-01 (PMK 68/2022) era: the older regime used a
+ * different, lower model (final PPh 22 ~0.1% via a Bappebti-registered
+ * exchange, ~0.2% otherwise, plus PPN 0.11%/0.22% on purchases). This app's
+ * fee model folds VAT into a single per-trade "pph22" line and has never
+ * modelled PPN separately, so only the seller's PPh 22 is modelled for that
+ * era: 0.1% through an Indonesian (Bappebti-licensed) exchange, 0.2% through
+ * any other exchange. PPN on pre-2025-08-01 purchases is NOT modelled.
+ * Source: Alvarez & Marsal, "PMK 50, PMK 53, and PMK 54 Redefine Indonesian
+ * Crypto Asset Taxation in 2025" (18 Sep 2025), income tax comparison table.
+ * https://alvarezandmarsaltax.com/thought-leadership/pmk-50-pmk-53-and-pmk-54-redefine-indonesian-crypto-asset-taxation-in-2025/
+ */
+export const CRYPTO_TAX = {
+  // Effective date of PMK 50/2025 (ISO). Trades ON OR AFTER this date use
+  // the PMK 50/2025 rates; earlier trades use the PMK 68/2022 rates.
+  pmk50EffectiveDate: '2025-08-01',
+  pph22Domestic: 0.0021, // 0.21% — PPMSE registered in Indonesia
+  pph22Foreign: 0.01,    // 1%    — foreign exchange
+  // PMK 68/2022 (before pmk50EffectiveDate), seller's final PPh 22 only.
+  pph22LegacyDomestic: 0.001, // 0.1% — Bappebti-licensed Indonesian exchange
+  pph22LegacyForeign: 0.002   // 0.2% — any other exchange
+};
+
+/**
+ * Crypto platforms that are FOREIGN exchanges (not registered as a PPMSE in
+ * Indonesia). Single source of truth: any platform key here is taxed at the
+ * PMK 50/2025 foreign rate; everything else — Tokocrypto, Floq, Pluang,
+ * Indodax, Pintu, Triv, Reku, Luno (all Indonesian licensed) — is domestic.
+ * Compared case-insensitively. An unknown / custom manual platform defaults
+ * to DOMESTIC (the lower rate) unless the user explicitly marks it foreign.
+ * Covers every foreign option offered in AC_PLATFORMS plus the extras the
+ * task named (bybit, okx, mexc, gate were already required).
+ */
+export const FOREIGN_CRYPTO_PLATFORMS = new Set([
+  'binance', 'bitget', 'bybit', 'okx', 'kucoin', 'mexc', 'gate',
+  'coinbase', 'kraken', 'upbit'
+]);
+
+/**
+ * Is a crypto trade taxed at the foreign PPh 22 rate?
+ * @param {string} platform  platform key (case-insensitive)
+ * @param {object} [asset]   optional trade/asset; asset.foreignExchange === true
+ *                           forces foreign for an unknown/custom platform.
+ */
+export function isForeignCryptoPlatform(platform, asset = null) {
+  const key = String(platform || '').toLowerCase().trim();
+  if (FOREIGN_CRYPTO_PLATFORMS.has(key)) {return true;}
+  // Manual/custom platforms: honour an explicit user flag if present.
+  if (asset && asset.foreignExchange === true) {return true;}
+  return false;
+}
+
+/**
  * Crypto Trading Fees (Regulasi 2026 - PMK 50/2025)
  *
- * Pajak: PPN 0%, PPh 22 Final 0.21% (Dikenakan pada setiap transaksi Beli dan Jual)
+ * Pajak: PPN 0%, PPh 22 Final — 0.21% domestik / 1% bursa luar negeri.
+ *        Rate ditentukan oleh CRYPTO_TAX + FOREIGN_CRYPTO_PLATFORMS.
  *
  * Platform Fees:
  * - Indodax: Taker 0.30%, Maker 0%
  * - Pintu: Spread model (0.5% - 2%)
  * - Triv: Spot 0%, Market 0.1%
  * - Pluang: 0.10% + biaya bursa CFX
- * - Floq: 0% (Hanya kenakan PPh 0.21%)
- * - Binance: 0.10% standard
+ * - Floq: 0% (Hanya kenakan PPh)
+ * - Binance: 0.10% standard (bursa luar negeri → PPh 22 1%)
  *
  * Biaya Meterai Crypto: Sama dengan saham, potong Rp10.000 jika total
  *                       transaksi harian di satu platform > Rp10.000.000
  */
 export const CRYPTO_FEES = {
-  // Pajak 2026 (PMK 50/2025)
+  // Pajak — kept for backward-compat only. calcCryptoFees() no longer reads
+  // it: the active PPh 22 rate comes from cryptoPph22Rate() (CRYPTO_TAX +
+  // isForeignCryptoPlatform()).
   ppn: 0,              // PPN 0%
-  pph22: 0.0021,       // PPh 22 Final 0.21% per transaksi (beli & jual)
+  pph22: 0.0021,       // PPh 22 Final domestik 0.21% (unused)
 
   // Platform fees (maker/taker or spread)
   indodax: { taker: 0.003, maker: 0 },
