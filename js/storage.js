@@ -6,7 +6,7 @@
  */
 
 import { S, DATA } from './state.js';
-import { PLAT_COLORS, STOCK_FEES, CRYPTO_FEES } from './config.js';
+import { PLAT_COLORS, STOCK_FEES, CRYPTO_FEES, CRYPTO_TAX, isForeignCryptoPlatform } from './config.js';
 
 // ── Currency Display Helpers ─────────────────────────────────────
 export function toDisp(idr) {
@@ -180,7 +180,24 @@ export function calcStockFees(value, broker, type = 'buy', applyStampDuty = fals
   return { fee, stampDuty, usFees, total: fee + stampDuty + usFees };
 }
 
-export function calcCryptoFees(value, platform, type = 'buy', applyStampDuty = false) {
+// Resolve the PPh 22 Pasal 22 final rate for a crypto trade.
+// PMK 50/2025 (>= 2025-08-01): 1% for foreign exchanges, 0.21% for domestic.
+// PMK 68/2022 (before that date): 0.2% for foreign exchanges, 0.1% for
+// domestic (seller's PPh 22 only; see the CRYPTO_TAX comment in config.js).
+// `date` is an ISO trade date (YYYY-MM-DD); when omitted, today is used so
+// that "value this holding at current rules" callers get the current rate.
+// `asset` lets an unknown/custom manual platform be flagged foreign via
+// asset.foreignExchange === true; otherwise unknown platforms are domestic.
+export function cryptoPph22Rate(platform, date = null, asset = null) {
+  const tradeDate = date || new Date().toISOString().slice(0, 10);
+  const foreign = isForeignCryptoPlatform(platform, asset);
+  if (tradeDate < CRYPTO_TAX.pmk50EffectiveDate) {
+    return foreign ? CRYPTO_TAX.pph22LegacyForeign : CRYPTO_TAX.pph22LegacyDomestic;
+  }
+  return foreign ? CRYPTO_TAX.pph22Foreign : CRYPTO_TAX.pph22Domestic;
+}
+
+export function calcCryptoFees(value, platform, type = 'buy', applyStampDuty = false, date = null, asset = null) {
   const platformFees = CRYPTO_FEES[platform] || CRYPTO_FEES.other;
   let platformFee = 0;
   if (platformFees.fee !== undefined) {
@@ -191,9 +208,10 @@ export function calcCryptoFees(value, platform, type = 'buy', applyStampDuty = f
     const avgSpread = (platformFees.spreadMin + platformFees.spreadMax) / 2;
     platformFee = Math.round(value * avgSpread);
   }
-  const pph22 = Math.round(value * CRYPTO_FEES.pph22);
+  const pph22Rate = cryptoPph22Rate(platform, date, asset);
+  const pph22 = Math.round(value * pph22Rate);
   const stampDuty = applyStampDuty && value > CRYPTO_FEES.stampDutyThreshold ? CRYPTO_FEES.stampDutyFee : 0;
-  return { platformFee, pph22, stampDuty, total: platformFee + pph22 + stampDuty };
+  return { platformFee, pph22, pph22Rate, stampDuty, total: platformFee + pph22 + stampDuty };
 }
 
 export function applyTax(pnl, type, asset = null) {
@@ -206,7 +224,10 @@ export function applyTax(pnl, type, asset = null) {
   }
   if (type === 'crypto' && asset) {
     const currentValue = asset.amount * cryptoPrice(asset);
-    const fees = calcCryptoFees(currentValue, asset.platform || 'other', 'sell', true);
+    // No specific trade date here (valuing the live holding at a hypothetical
+    // sell today), so pass date=null → current rules. `asset` lets the
+    // domestic/foreign rate be resolved from the platform (or an explicit flag).
+    const fees = calcCryptoFees(currentValue, asset.platform || 'other', 'sell', true, null, asset);
     return pnl - fees.total;
   }
   if (type === 'savings') {return pnl * 0.80;}
