@@ -1,6 +1,6 @@
 # PORTFOLIO.SYS
 
-Personal net worth dashboard for Indonesian investors. Tracks crypto, gold, stocks (IDX & US), and savings in one place with live prices, charts, and Firebase cloud sync.
+Personal net worth dashboard for Indonesian investors. Tracks crypto, gold, stocks (IDX & US), and savings with prices, charts, and Firebase sync. <br><br>**[Live demo](https://portfolio-sys-five.vercel.app)** · **[Tests and development](#development)** · **[Setup](#setup)**<br><br>Built by Kenneth Flynn Gunawan with AI coding assistance. My work includes multi-platform statement parsers, cost-basis reconciliation, and tax calculations. Financial calculations have a Vitest unit test suite; see the testing section below. Prices and estimates depend on available data and configuration.
 
 ---
 
@@ -64,7 +64,7 @@ OCR support for image imports via Tesseract.js.
 - **PWA Install** — proactive install prompts for native-like experience
 - **Offline Mode** — works offline with cached data and stale-while-revalidate API strategy
 - **Loading States** — skeleton screens for better perceived performance
-- **Code Splitting** — lazy-loaded modules for faster initial load (~0.8s TTI)
+- **Code Splitting** — lazy-loaded modules for faster initial load
 
 ---
 
@@ -265,9 +265,9 @@ const CACHE_NAME = 'portfolio-sys-v7'; // Increment version
 
 ## Performance
 
-- **Initial Load**: ~30KB (core app)
-- **Time to Interactive**: ~0.8s
-- **Offline Support**: Full functionality with cached data
+- Load size depends on the page, browser, and network conditions.
+- Measure time to interactive on the target device and network before making performance comparisons.
+- **Offline support**: Some cached data remains available; live services require connectivity.
 - **API Caching**: 5-minute stale-while-revalidate for price data
 - **Lazy Loading**: Charts, parsers, AI load on demand
 
@@ -275,7 +275,7 @@ const CACHE_NAME = 'portfolio-sys-v7'; // Increment version
 
 ## Notes
 
-- All portfolio data is stored in **your own** Firestore under your Google account. Nobody else can read it.
+- Portfolio data is stored in Firestore. Access depends on correctly configured authentication, deployed security rules, and project permissions; review the rules and deployment before using real data.
 - Yahoo Finance, Antam gold, CoinGecko-fallback, and FX-fallback requests go through the app's own Vercel serverless functions (`/api/yahoo`, `/api/gold`, `/api/crypto`, `/api/fx`) — no public CORS proxies that could observe or tamper with price data. If an upstream source is down, prices simply stay at the last saved rates.
 - Firestore access is locked down by `firestore.rules` (repo root): each user can only read/write their own documents, and `subscription/plan` is read-only from the client. Deploy the rules via Firebase Console → Firestore → Rules.
 - The CoinGecko free tier allows ~10–30 requests/minute. If you have many altcoins the sync may occasionally be rate-limited; it will retry on the next auto-sync.
